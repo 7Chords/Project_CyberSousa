@@ -114,15 +114,15 @@ namespace SCFrame
         {
             AddEventListener(_com, ESCEventType.ON_END_DRAG, _action, _args);
         }
-        public static void RemoveClick(this Component _com, Action<PointerEventData, object[]> _action, bool _checkArgs = false, params object[] _args)
+        public static void RemoveMouseLeftClick(this Component _com, Action<PointerEventData, object[]> _action, bool _checkArgs = false, params object[] _args)
         {
             RemoveEventListener(_com, ESCEventType.ON_MOUSE_LEFT_CLICK, _action, _checkArgs, _args);
         }
-        public static void RemoveClickDown(this Component _com, Action<PointerEventData, object[]> _action, bool _checkArgs = false, params object[] _args)
+        public static void RemoveMouseLeftClickDown(this Component _com, Action<PointerEventData, object[]> _action, bool _checkArgs = false, params object[] _args)
         {
             RemoveEventListener(_com, ESCEventType.ON_MOUSE_LEFT_CLICK_DOWN, _action, _checkArgs, _args);
         }
-        public static void RemoveClickUp(this Component _com, Action<PointerEventData, object[]> _action, bool _checkArgs = false, params object[] _args)
+        public static void RemoveMouseLeftClickUp(this Component _com, Action<PointerEventData, object[]> _action, bool _checkArgs = false, params object[] _args)
         {
             RemoveEventListener(_com, ESCEventType.ON_MOUSE_LEFT_CLICK_UP, _action, _checkArgs, _args);
         }

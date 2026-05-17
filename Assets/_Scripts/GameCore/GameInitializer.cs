@@ -1,3 +1,4 @@
+using GameCore.UI;
 using SCFrame;
 
 namespace GameCore
@@ -26,6 +27,8 @@ namespace GameCore
             SCInputListener.instance.Initialize();
             SCRefDataMgr.instance.Initialize();
             UINodeMgr.instance.Initialize();
+
+            startGame();
         }
 
         public override void OnDiscard()
@@ -36,6 +39,11 @@ namespace GameCore
             SCPoolMgr.instance.Discard();
             SCTaskHelper.instance.Discard();
             SCMsgCenter.instance.Discard();
+        }
+
+        private void startGame()
+        {
+            UINodeMgr.instance.AddNode(new UINodeStart(SCFrame.UI.SCUIShowType.FULL));
         }
     }
 }
