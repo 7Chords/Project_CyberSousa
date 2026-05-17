@@ -14,7 +14,7 @@ namespace SCFrame
     /// </summary>
     public static class SCExcelExporter
     {
-        public const string GAME_EXCEL_PATH = "Assets/Resources/RefData/Excels";
+        public const string GAME_EXCEL_PATH = "Assets/Resources/RefData/Excel";
         public const string GAME_TXT_PATH = "Assets/Resources/RefData/ExportTxt";
         public const int TITLE_START_INDEX = 0;//标题列索引
 
