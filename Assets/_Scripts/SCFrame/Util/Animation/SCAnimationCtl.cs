@@ -23,7 +23,7 @@ namespace SCFrame
         private int _m_inputPort0 = 0;
         private int _m_inputPort1 = 1;
 
-        private string _m_transitionCoroutineId;
+        private CoroutineContainer _m_coroutineContainer;
 
         private float _m_speed;
         public float speed
@@ -63,12 +63,13 @@ namespace SCFrame
             AnimationPlayableOutput playableOutput = AnimationPlayableOutput.Create(_m_graph, "Animation", _m_animator);
             // 让混合器链接上Output
             playableOutput.SetSourcePlayable(_m_mixer);
+            _m_coroutineContainer = new CoroutineContainer();
         }
 
         public override void OnDiscard()
         {
-            // 清理这个对象的所有协程
-            SCTaskHelper.instance.KillAllCoroutines(this);
+            _m_coroutineContainer?.KillAll();
+            _m_coroutineContainer = null;
             _m_graph.Destroy();
         }
 
@@ -96,11 +97,7 @@ namespace SCFrame
 
         private void StartTransitionAniamtion(float fixedTime)
         {
-            if (!string.IsNullOrEmpty(_m_transitionCoroutineId))
-            {
-                SCTaskHelper.instance.KillCoroutine(_m_transitionCoroutineId);
-            }
-            _m_transitionCoroutineId = SCTaskHelper.instance.CreateCoroutine(this,TransitionAniamtion(fixedTime));
+            _m_coroutineContainer?.RunExclusive(TransitionAniamtion(fixedTime), "transition");
         }
 
         // 动画过渡
@@ -130,7 +127,6 @@ namespace SCFrame
                 _m_mixer.SetInputWeight(_m_inputPort0, 1 - currentWeight); // 增加
                 yield return null;
             }
-            _m_transitionCoroutineId = "";
         }
 
         /// <summary>

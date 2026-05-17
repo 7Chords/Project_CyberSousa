@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -8,39 +9,36 @@ namespace SCFrame
     /// </summary>
     public class CoroutineItem
     {
-        public object owner { get; private set; }
         public IEnumerator enumerator { get; private set; }
-        public string coroutineId { get; private set; }
         public bool isRunning { get; private set; }
 
         private Coroutine _m_unityCoroutine;
+        private Action<string> _m_onComplete;
+        private string _m_name;
 
-        public CoroutineItem(object _owner, IEnumerator _enumerator, string _coroutineId)
+        public CoroutineItem(IEnumerator _enumerator)
         {
-            this.owner = _owner;
-            this.enumerator = _enumerator;
-            this.coroutineId = _coroutineId;
+            enumerator = _enumerator;
             isRunning = false;
         }
 
-        /// <summary>由 <see cref="SCTaskHelper"/> 启动包装协程。</summary>
-        public void Start()
+        /// <summary>由 <see cref="CoroutineContainer"/> 启动包装协程。</summary>
+        public void Start(Action<string> _onComplete, string _name)
         {
             if (isRunning || SCTaskHelper.instance == null)
                 return;
 
+            _m_onComplete = _onComplete;
+            _m_name = _name;
             isRunning = true;
             _m_unityCoroutine = SCTaskHelper.instance.StartCoroutine(RunWrapper());
         }
 
-        /// <summary>
-        /// 跑完用户迭代器后 KillCoroutine。
-        /// </summary>
         private IEnumerator RunWrapper()
         {
             yield return enumerator;
             isRunning = false;
-            SCTaskHelper.instance?.KillCoroutine(coroutineId);
+            _m_onComplete?.Invoke(_m_name);
         }
 
         /// <summary>停止底层 Unity 协程。</summary>
@@ -48,10 +46,12 @@ namespace SCFrame
         {
             isRunning = false;
             if (_m_unityCoroutine != null && SCTaskHelper.instance != null)
-            {
                 SCTaskHelper.instance.StopCoroutine(_m_unityCoroutine);
-            }
+
+            _m_unityCoroutine = null;
             enumerator = null;
+            _m_onComplete = null;
+            _m_name = null;
         }
     }
 }

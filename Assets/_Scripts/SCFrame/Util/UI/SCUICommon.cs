@@ -18,7 +18,7 @@ namespace SCFrame
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _rt.parent as RectTransform,
                 _screenPoint,
-                SCGame.instance.gameCamera,
+                SCGameMono.instance.gameCamera,
                 out localPoint
             );
             return localPoint;
@@ -26,7 +26,7 @@ namespace SCFrame
 
         public static Vector2 WorldPointToUIPoint(RectTransform _rt, Vector3 _worldPoint)
         {
-            Vector2 screenPoint = SCGame.instance.gameCamera.WorldToScreenPoint(_worldPoint);
+            Vector2 screenPoint = SCGameMono.instance.gameCamera.WorldToScreenPoint(_worldPoint);
             return ScreenPointToUIPoint(_rt, screenPoint);
         }
 

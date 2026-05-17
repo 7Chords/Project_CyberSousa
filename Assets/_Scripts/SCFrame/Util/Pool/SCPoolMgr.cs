@@ -53,17 +53,17 @@ namespace SCFrame
             if (_m_poolRoot != null)
                 return;
 
-            if (SCGame.instance != null && SCGame.instance.poolRoot != null)
+            if (SCGameMono.instance != null && SCGameMono.instance.poolRoot != null)
             {
-                _m_poolRoot = SCGame.instance.poolRoot;
+                _m_poolRoot = SCGameMono.instance.poolRoot;
                 return;
             }
 
-            if (SCGame.instance == null)
+            if (SCGameMono.instance == null)
                 return;
 
             _m_poolRoot = new GameObject("PoolRoot");
-            _m_poolRoot.transform.SetParent(SCGame.instance.transform);
+            _m_poolRoot.transform.SetParent(SCGameMono.instance.transform);
             _m_poolRootAutoCreated = true;
         }
 

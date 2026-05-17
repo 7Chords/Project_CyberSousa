@@ -34,7 +34,7 @@ namespace SCFrame.UI
         //该节点在UI列表里是否忽略
         public abstract bool ignoreOnUIList { get; }
 
-        //该节点是否需要移动到最底层
+        //该节点隐藏是否需要移动到队列底部
         public abstract bool needMoveToBottomWhenHide { get; }
 
         public _ASCUINodeBase(SCUIShowType _showType)
@@ -110,23 +110,24 @@ namespace SCFrame.UI
             switch(_m_showType)
             {
                 case SCUIShowType.FULL:
-                    return SCGame.instance.fullLayerRoot.transform;
+                    return SCGameMono.instance.fullLayerRoot.transform;
                 case SCUIShowType.ADDITION:
-                    return SCGame.instance.additionLayerRoot.transform;
+                    return SCGameMono.instance.additionLayerRoot.transform;
                 case SCUIShowType.TOP:
-                    return SCGame.instance.topLayerRoot.transform;
+                    return SCGameMono.instance.topLayerRoot.transform;
                 default:
                     Debug.LogError(GetNodeName() + "找不到可以挂载的Canvas节点！");
-                    return SCGame.instance.mainCanvas.transform;
+                    return SCGameMono.instance.mainCanvas.transform;
             }
         }
 
         //获取节点的名字 全局唯一
         public abstract string GetNodeName();
-
+        //addressable里面的资源名
         public abstract string GetResName();
-
-        public virtual void CopyData(_ASCUINodeBase _anotherNode) { }
+        //拷贝数据 如果为了方便使用同一个node 但是构造函数传递的数据来源不一样要重新赋值
+        //比如我为了方便就写了一个牌堆node 第一次打开传递的是手牌列表 第二次打开的是背包牌列表 要重新覆盖一下数据 因为第二次打开不会重新初始化 只是show 要更新数据来源
+        public abstract void CopyData(_ASCUINodeBase _anotherNode);
 
     }
 }

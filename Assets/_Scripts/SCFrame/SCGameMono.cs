@@ -5,7 +5,7 @@ namespace SCFrame
     /// <summary>
     /// 功能相当于全局Mono
     /// </summary>
-    public class SCGame : SingletonPersistent<SCGame>
+    public class SCGameMono : SingletonPersistent<SCGameMono>
     {
 
         [Header("UI")]
