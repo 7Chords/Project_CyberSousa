@@ -1,4 +1,5 @@
 using SCFrame;
+using GameCore.RefData;
 
 namespace GameCore
 {
@@ -7,10 +8,12 @@ namespace GameCore
     /// </summary>
     public class SCRefDataMgr : Singleton<SCRefDataMgr>
     {
-        
+
+        public SCRefDataList<ItemRefData> itemRefList;
         public override void OnInitialize()
         {
-            
+            itemRefList = new SCRefDataList<ItemRefData>(ItemRefData.assetPath, ItemRefData.sheetName);
+            itemRefList.readFromTxt();
         }
     }
 }
