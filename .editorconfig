@@ -1,0 +1,31 @@
+# https://editorconfig.org
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+charset = utf-8
+indent_style = space
+indent_size = 4
+
+[*.{csx,shader,hlsl,compute,asmdef,asmref,uxml,uss}]
+charset = utf-8
+
+[*.{json,md,txt,xml,yml,yaml}]
+charset = utf-8
+
+# Unity YAML：避免无意义 diff
+[*.{unity,prefab,asset,meta,anim,mat,controller,overrideController,mask,playable,signal,brush,terrainlayer,flare,giparams,rendertexture,cubemap,lighting,lightingsettings,scenetemplate,shadervariants}]
+charset = utf-8
+trim_trailing_whitespace = false
+insert_final_newline = false
+
+[*.{sln,csproj}]
+charset = utf-8
+
+[*.{png,jpg,jpeg,gif,psd,fbx,dll,exe,unitypackage,bin,bytes,aif,ogg,wav,mp3,ttf,otf,eot,woff,woff2}]
+charset = unset

@@ -1,2 +1,44 @@
-# Auto detect text files and perform LF normalization
-* text=auto
+# 文本文件统一 LF，避免跨平台 diff 噪声
+* text=auto eol=lf
+
+# 源码与配置：按 UTF-8 文本管理
+*.cs      text eol=lf working-tree-encoding=UTF-8
+*.csx     text eol=lf working-tree-encoding=UTF-8
+*.shader  text eol=lf working-tree-encoding=UTF-8
+*.hlsl    text eol=lf working-tree-encoding=UTF-8
+*.compute text eol=lf working-tree-encoding=UTF-8
+*.json    text eol=lf working-tree-encoding=UTF-8
+*.md      text eol=lf working-tree-encoding=UTF-8
+*.txt     text eol=lf working-tree-encoding=UTF-8
+*.xml     text eol=lf working-tree-encoding=UTF-8
+*.yml     text eol=lf working-tree-encoding=UTF-8
+*.yaml    text eol=lf working-tree-encoding=UTF-8
+*.asmdef  text eol=lf working-tree-encoding=UTF-8
+*.asmref  text eol=lf working-tree-encoding=UTF-8
+*.uxml    text eol=lf working-tree-encoding=UTF-8
+*.uss     text eol=lf working-tree-encoding=UTF-8
+
+# Unity 资源
+*.unity   text eol=lf working-tree-encoding=UTF-8 merge=unityyamlmerge
+*.prefab  text eol=lf working-tree-encoding=UTF-8 merge=unityyamlmerge
+*.asset   text eol=lf working-tree-encoding=UTF-8 merge=unityyamlmerge
+*.mat     text eol=lf working-tree-encoding=UTF-8
+*.meta    text eol=lf working-tree-encoding=UTF-8
+*.anim    text eol=lf working-tree-encoding=UTF-8
+
+# 工程文件
+*.sln     text eol=lf working-tree-encoding=UTF-8
+*.csproj  text eol=lf working-tree-encoding=UTF-8
+.editorconfig text eol=lf working-tree-encoding=UTF-8
+.gitattributes text eol=lf working-tree-encoding=UTF-8
+
+# 明确二进制，避免 Git 当文本处理
+*.png     binary
+*.jpg     binary
+*.jpeg    binary
+*.gif     binary
+*.psd     binary
+*.fbx     binary
+*.dll     binary
+*.exe     binary
+*.unitypackage binary
