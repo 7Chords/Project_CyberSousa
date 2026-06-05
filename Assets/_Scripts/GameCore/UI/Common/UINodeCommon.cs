@@ -1,4 +1,4 @@
-﻿using SCFrame;
+using SCFrame;
 using SCFrame.UI;
 using System;
 using UnityEngine;
@@ -9,9 +9,9 @@ namespace GameCore.UI
     /// 通用 UI 节点模板
     /// 各业务面板指定自己的 Mono 与 Panel 类型即可，无需重复写 Node 生命周期。
     /// </summary>
-    public class UINodeCommon<TMono, TPanel> : _ASCUINodeBase
-        where TMono : _ASCUIMonoBase
-        where TPanel : _ASCUIPanelBase<TMono>
+    public class UINodeCommon<TMONO, TPANEL> : _ASCUINodeBase
+        where TMONO : _ASCUIMonoBase
+        where TPANEL : _ASCUIPanelBase<TMONO>
     {
         private bool _m_needHideWhenEnterNewSameTypeNode;
         private bool _m_needShowWhenQuitNewSameTypeNode;
@@ -24,8 +24,8 @@ namespace GameCore.UI
         private string _m_uiNodeName;
 
         private GameObject _m_panelGO;
-        private TMono _m_mono;
-        private TPanel _m_panel;
+        private TMONO _m_mono;
+        private TPANEL _m_panel;
 
         public UINodeCommon(SCUIShowType _showType,
             string _uiResName,
@@ -70,10 +70,10 @@ namespace GameCore.UI
                 return;
             }
 
-            _m_mono = _m_panelGO.GetComponent<TMono>();
+            _m_mono = _m_panelGO.GetComponent<TMONO>();
             if (_m_mono == null)
             {
-                Debug.LogError($"[{GetNodeName()}] {typeof(TMono).Name} is missing on resource: {GetResName()}");
+                Debug.LogError($"[{GetNodeName()}] {typeof(TMONO).Name} is missing on resource: {GetResName()}");
                 SCCommon.DestoryGameObject(_m_panelGO);
                 _m_panelGO = null;
                 return;
@@ -112,9 +112,9 @@ namespace GameCore.UI
             _m_panelGO = null;
         }
 
-        protected virtual TPanel createPanel(TMono _mono, SCUIShowType _showType)
+        protected virtual TPANEL createPanel(TMONO _mono, SCUIShowType _showType)
         {
-            return (TPanel)Activator.CreateInstance(typeof(TPanel), _mono, _showType);
+            return (TPANEL)Activator.CreateInstance(typeof(TPANEL), _mono, _showType);
         }
     }
 }

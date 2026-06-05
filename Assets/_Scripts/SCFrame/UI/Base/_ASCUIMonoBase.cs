@@ -8,9 +8,7 @@ namespace SCFrame.UI
     [RequireComponent(typeof(CanvasGroup))]
     public abstract class _ASCUIMonoBase : MonoBehaviour
     {
-        [Header("遮罩")]
-        public GameObject uiMask;
-        [Header("画布Group")]
+        [Header("CanvasGroup")]
         public CanvasGroup canvasGroup;
         [Header("淡入时间")]
         public float fadeInDuration;
