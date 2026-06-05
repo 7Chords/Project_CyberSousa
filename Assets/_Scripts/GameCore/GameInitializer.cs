@@ -1,10 +1,10 @@
-using GameCore.UI;
+﻿using GameCore.UI;
 using SCFrame;
 
 namespace GameCore
 {
     /// <summary>
-    /// ��Ϸ��ʼ����
+    /// 游戏初始化器
     /// </summary>
     public class GameInitializer : SingletonPersistent<GameInitializer>
     {
@@ -43,7 +43,17 @@ namespace GameCore
 
         private void startGame()
         {
-            UINodeMgr.instance.AddNode(new UINodeStart(SCFrame.UI.SCUIShowType.FULL));
+            //可以用通用的Node 也可以自己写对应的Node（如果有额外需求的话）
+
+            //UINodeMgr.instance.AddNode(new UINodeStart(SCFrame.UI.SCUIShowType.FULL));
+            UINodeMgr.instance.AddNode(new UINodeCommon<UIMonoStart, UIPanelStart>
+                (SCFrame.UI.SCUIShowType.FULL, 
+                "panel_start", 
+                "UINodeStart", 
+                true, 
+                true,
+                false,
+                false));
         }
     }
 }
