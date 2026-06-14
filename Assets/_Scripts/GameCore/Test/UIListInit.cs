@@ -1,15 +1,13 @@
-﻿using GameCore.UI;
+using System.Collections;
+using System.Collections.Generic;
+using GameCore;
+using GameCore.UI;
 using SCFrame;
+using UnityEngine;
 
-namespace GameCore
+public class UIListInit : SingletonPersistent<UIListInit>
 {
-    /// <summary>
-    /// 游戏初始化器
-    /// </summary>
-    public class GameInitializer : SingletonPersistent<GameInitializer>
-    {
-
-        private void Start()
+    private void Start()
         {
             Initialize();
         }
@@ -43,20 +41,7 @@ namespace GameCore
 
         private void startGame()
         {
-            //可以用通用的Node 也可以自己写对应的Node（如果有额外需求的话）
-
-            //UINodeMgr.instance.AddNode(new UINodeStart(SCFrame.UI.SCUIShowType.FULL));
-            UINodeMgr.instance.AddNode(new UINodeCommon<UIMonoStart, UIPanelStart>
-                (SCFrame.UI.SCUIShowType.FULL, 
-                "panel_start", 
-                "UINodeStart", 
-                true, 
-                true,
-                false,
-                false));
             // Loop list demo startup entry.
-            // Re-enable this line when you want the project to auto-open the demo again.
-            // UINodeMgr.instance.AddNode(new UINodeLoopListDemo(SCFrame.UI.SCUIShowType.FULL));
+             UINodeMgr.instance.AddNode(new UINodeLoopListDemo(SCFrame.UI.SCUIShowType.FULL));
         }
-    }
 }
