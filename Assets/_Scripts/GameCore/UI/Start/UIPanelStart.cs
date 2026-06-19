@@ -1,3 +1,4 @@
+using GameCore.Flow;
 using SCFrame;
 using SCFrame.UI;
 using UnityEngine.EventSystems;
@@ -6,7 +7,9 @@ namespace GameCore.UI
 {
     public class UIPanelStart : _ASCUIPanelBase<UIMonoStart>
     {
-        public UIPanelStart(UIMonoStart _mono, SCUIShowType _showType) : base(_mono, _showType) { }
+        public UIPanelStart(UIMonoStart _mono, SCUIShowType _showType) : base(_mono, _showType)
+        {
+        }
 
         public override void AfterInitialize()
         {
@@ -38,15 +41,17 @@ namespace GameCore.UI
 
         private void onBtnStartClicked(PointerEventData _data, object[] _objs)
         {
-            SCDebugHelper.Log("ø™ º”Œœ∑");
+            GameFlowController.instance.EnterGameplay();
         }
+
         private void onBtnExitClicked(PointerEventData arg1, object[] arg2)
         {
-            SCDebugHelper.Log("ÕÀ≥ˆ”Œœ∑");
+            SCDebugHelper.Log("ÈÄÄÂá∫Ê∏∏Êàè");
         }
+
         private void onBtnSettingClicked(PointerEventData arg1, object[] arg2)
         {
-            SCDebugHelper.Log("…Ë÷√");
+            SCDebugHelper.Log("ËÆæÁΩÆ");
         }
     }
 }
