@@ -28,6 +28,8 @@ namespace GameCore
             SCPoolMgr.instance.Initialize();
             SCInputListener.instance.Initialize();
             SCRefDataMgr.instance.Initialize();
+            RuleMgr.instance.Initialize();
+            CustomerNeedMgr.instance.Initialize();
             UINodeMgr.instance.Initialize();
             GameFlowController.instance.InitializeFlow();
 
@@ -38,6 +40,8 @@ namespace GameCore
         {
             GameFlowController.instance.DiscardFlow();
             UINodeMgr.instance.Discard();
+            CustomerNeedMgr.instance.Discard();
+            RuleMgr.instance.Discard();
             SCRefDataMgr.instance.Discard();
             SCInputListener.instance.Discard();
             SCPoolMgr.instance.Discard();

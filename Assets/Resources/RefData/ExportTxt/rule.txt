@@ -1,3 +1,4 @@
-﻿id	ruleName	ruleDesc
-~id	~规则名	~规则描述
-1001	坏掉的九楼	九楼就是坏了
+﻿id	ruleName	ruleDesc	effectList
+~id	~规则名	~规则描述	~效果列表（操作符:规则效果枚举:param1:param2）
+			~GOTO:FORBID_TARGET_FLOOR:9:0=禁止前往9楼；GOTO:REDIRECT_TARGET_FLOOR:2:4=将2楼请求改到4楼；REFUSE:FORBID_REFUSE:0:0=本规则下禁止拒绝。
+1001	坏掉的九楼	九楼就是坏了	GOTO:FORBID_TARGET_FLOOR:9:0

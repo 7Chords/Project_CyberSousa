@@ -24,4 +24,11 @@ namespace GameCore
         REFUSE,
         DEFAULT,
     }
+
+    public enum ERuleEffectType
+    {
+        FORBID_TARGET_FLOOR,
+        REDIRECT_TARGET_FLOOR,
+        FORBID_REFUSE,
+    }
 }
