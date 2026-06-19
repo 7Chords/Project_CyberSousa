@@ -51,7 +51,7 @@ namespace GameCore.UI
 
         private void onBtnSettingClicked(PointerEventData arg1, object[] arg2)
         {
-            SCDebugHelper.Log("设置");
+            UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, false));
         }
     }
 }
