@@ -31,6 +31,12 @@ namespace SCFrame
 
         private const string EXCEL_EMPTY_FLAG = "*";
 
+        /// <summary>表头以该前缀开头：整列注释，Excel 导出时跳过。</summary>
+        public const string MEMO_COLUMN_PREFIX = "#";
+
+        /// <summary>表头以该前缀开头：注释格，导出保留，解析时跳过。</summary>
+        public const string MEMO_CELL_PREFIX = "~";
+
         public void readFromTxt()
         {
             if (string.IsNullOrEmpty(_m_assetPath) || string.IsNullOrEmpty(_m_sheetName))
@@ -119,10 +125,10 @@ namespace SCFrame
             for (int i =0;i<keySplitArr.Length;i++)
             {
                 string key = keySplitArr[i]?.Trim();
-                string value = valSplitArr[i]?.Trim();
-                if (string.IsNullOrEmpty(key))
+                if (string.IsNullOrEmpty(key) || isMemoCell(key))
                     continue;
-                _m_keyValueMap[key] = value;
+
+                _m_keyValueMap[key] = valSplitArr[i]?.Trim();
             }
             //_parseFromString();
             try
@@ -136,6 +142,16 @@ namespace SCFrame
             }
         }
         protected abstract void _parseFromString();
+
+        protected static bool isMemoCell(string _key)
+        {
+            return !string.IsNullOrEmpty(_key) && _key.StartsWith(MEMO_CELL_PREFIX);
+        }
+
+        protected static bool isMemoColumn(string _key)
+        {
+            return !string.IsNullOrEmpty(_key) && _key.StartsWith(MEMO_COLUMN_PREFIX);
+        }
 
         #region getXXX
 
