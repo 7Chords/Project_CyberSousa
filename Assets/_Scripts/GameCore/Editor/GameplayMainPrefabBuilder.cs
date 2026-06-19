@@ -50,6 +50,7 @@ namespace GameCore.Editor
 
             CanvasGroup canvasGroup = root.GetComponent<CanvasGroup>();
             UIMonoGameplayMain mono = root.GetComponent<UIMonoGameplayMain>();
+            _currentMono = mono;
             mono.canvasGroup = canvasGroup;
             mono.fadeInDuration = 0.2f;
             mono.fadeOutDuration = 0.2f;
@@ -62,9 +63,11 @@ namespace GameCore.Editor
             CreateStageFrame(rootRect, out leftBand, out centerBand, out rightBand);
             CreateLeftColumn(leftBand);
             CreateCenterColumn(centerBand);
+            CreateTopCenterCurrentFloor(rootRect, mono);
             CreateRightColumn(rightBand, mono);
             CreateDialogueSection(rootRect, mono);
             CreateBottomHint(rootRect, mono);
+            _currentMono = null;
         }
 
         private static void CreateBackground(RectTransform rootRect)
@@ -82,14 +85,18 @@ namespace GameCore.Editor
 
         private static void CreateLeftColumn(RectTransform leftBand)
         {
-            CreateCardWithTitle("NoticeBoard01", leftBand, new Vector2(0.11f, 0.64f), new Vector2(0.67f, 0.88f), "告示1", 28, FontStyle.Bold);
-            CreateCardWithTitle("NoticeBoard02", leftBand, new Vector2(0.23f, 0.32f), new Vector2(0.79f, 0.55f), "告示2", 28, FontStyle.Bold);
+            Text noticeBoard01Text;
+            Text noticeBoard02Text;
+            CreateCardWithTitle("NoticeBoard01", leftBand, new Vector2(0.11f, 0.64f), new Vector2(0.67f, 0.88f), "告示1", 22, FontStyle.Bold, out noticeBoard01Text);
+            CreateCardWithTitle("NoticeBoard02", leftBand, new Vector2(0.23f, 0.32f), new Vector2(0.79f, 0.55f), "告示2", 22, FontStyle.Bold, out noticeBoard02Text);
+            _currentMono.txtNoticeBoard01 = noticeBoard01Text;
+            _currentMono.txtNoticeBoard02 = noticeBoard02Text;
         }
 
         private static void CreateCenterColumn(RectTransform centerBand)
         {
             Image animalPanel = CreatePanel("AnimalView", centerBand, new Vector2(0.30f, 0.14f), new Vector2(0.70f, 0.84f), new Color(0.80f, 0.80f, 0.80f, 0.92f));
-            CreateText("AnimalLabel", animalPanel.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), "动物", 40, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.25f, 0.25f, 0.25f, 1f));
+            _currentMono.txtCustomerName = CreateText("AnimalLabel", animalPanel.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), "动物", 40, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.25f, 0.25f, 0.25f, 1f));
 
             Image standShadow = CreatePanel("AnimalStandShadow", centerBand, new Vector2(0.27f, 0.10f), new Vector2(0.73f, 0.12f), new Color(0.70f, 0.70f, 0.70f, 0.55f));
             standShadow.raycastTarget = false;
@@ -97,16 +104,21 @@ namespace GameCore.Editor
 
         private static void CreateRightColumn(RectTransform rightBand, UIMonoGameplayMain mono)
         {
-            mono.txtTime = CreateTextPanel("TimePanel", rightBand, new Vector2(0.15f, 0.87f), new Vector2(0.92f, 0.95f), "10 : 29（时间）", 28, TextAnchor.MiddleCenter, FontStyle.Bold);
-            mono.txtAnimalInfo = CreateTextPanel("AnimalInfoPanel", rightBand, new Vector2(0.15f, 0.68f), new Vector2(0.92f, 0.80f), "动物扫脸信息", 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+            mono.txtTime = CreateTextPanel("TimePanel", rightBand, new Vector2(0.15f, 0.84f), new Vector2(0.92f, 0.91f), "10 : 29（时间）", 24, TextAnchor.MiddleCenter, FontStyle.Bold);
+            mono.txtAnimalInfo = CreateTextPanel("AnimalInfoPanel", rightBand, new Vector2(0.15f, 0.62f), new Vector2(0.92f, 0.80f), "动物扫脸信息", 22, TextAnchor.UpperCenter, FontStyle.Bold);
 
-            RectTransform animalChoiceSection = CreateContainer("AnimalChoiceSection", rightBand, new Vector2(0.18f, 0.26f), new Vector2(0.92f, 0.64f));
+            RectTransform animalChoiceSection = CreateContainer("AnimalChoiceSection", rightBand, new Vector2(0.18f, 0.22f), new Vector2(0.92f, 0.58f));
             CreateNumberButtonGrid(animalChoiceSection, mono);
 
-            RectTransform actionSection = CreateContainer("ActionSection", rightBand, new Vector2(0.10f, 0.17f), new Vector2(0.97f, 0.25f));
+            RectTransform actionSection = CreateContainer("ActionSection", rightBand, new Vector2(0.10f, 0.13f), new Vector2(0.97f, 0.21f));
             mono.btnReject = CreateTextButton("ActionReject", actionSection, new Vector2(0.36f, 0f), new Vector2(0.56f, 1f), "拒绝", 18, new Color(0.86f, 0.86f, 0.86f, 1f));
             mono.btnConfirm = CreateTextButton("ActionConfirm", actionSection, new Vector2(0.59f, 0f), new Vector2(0.79f, 1f), "确认", 18, new Color(0.86f, 0.86f, 0.86f, 1f));
             mono.btnCloseDoor = CreateTextButton("ActionCloseDoor", actionSection, new Vector2(0.82f, 0f), new Vector2(1.00f, 1f), "关门", 18, new Color(0.86f, 0.86f, 0.86f, 1f));
+        }
+
+        private static void CreateTopCenterCurrentFloor(RectTransform rootRect, UIMonoGameplayMain mono)
+        {
+            mono.txtCurrentFloor = CreateTextPanel("CurrentFloorPanel", rootRect, new Vector2(0.42f, 0.90f), new Vector2(0.58f, 0.97f), "当前楼层：1", 24, TextAnchor.MiddleCenter, FontStyle.Bold);
         }
 
         private static void CreateDialogueSection(RectTransform rootRect, UIMonoGameplayMain mono)
@@ -114,8 +126,8 @@ namespace GameCore.Editor
             RectTransform dialogueSection = CreateContainer("DialogueSection", rootRect, new Vector2(0f, 0f), new Vector2(1f, 1f));
             mono.dialogueSection = dialogueSection.gameObject;
 
-            mono.txtDialogueLeft = CreateDialogueStrip("Dialogue01", dialogueSection, new Vector2(0.15f, 0.74f), new Vector2(0.33f, 0.82f), "对话1");
-            mono.txtDialogueRight = CreateDialogueStrip("Dialogue02", dialogueSection, new Vector2(0.62f, 0.63f), new Vector2(0.83f, 0.71f), "对话2");
+            mono.txtDialogueLeft = CreateDialogueStrip("Dialogue01", dialogueSection, new Vector2(0.15f, 0.74f), new Vector2(0.38f, 0.84f), "对话1", out mono.dialogueLeftArea);
+            mono.txtDialogueRight = CreateDialogueStrip("Dialogue02", dialogueSection, new Vector2(0.57f, 0.63f), new Vector2(0.83f, 0.73f), "对话2", out mono.dialogueRightArea);
 
             RectTransform optionSection = CreateContainer("OptionSection", dialogueSection, new Vector2(0.63f, 0.18f), new Vector2(0.79f, 0.31f));
             mono.btnOption1 = CreateTextButton("Option01", optionSection, new Vector2(0f, 0.56f), new Vector2(1f, 1f), "选项1", 18, new Color(0.88f, 0.88f, 0.88f, 0.98f));
@@ -158,17 +170,24 @@ namespace GameCore.Editor
             }
         }
 
-        private static Image CreateCardWithTitle(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text, int fontSize, FontStyle fontStyle)
+        private static UIMonoGameplayMain _currentMono;
+
+        private static Image CreateCardWithTitle(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text, int fontSize, FontStyle fontStyle, out Text titleText)
         {
             Image card = CreatePanel(name, parent, anchorMin, anchorMax, new Color(0.84f, 0.84f, 0.84f, 0.95f));
-            CreateText($"{name}_Text", card.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), text, fontSize, TextAnchor.MiddleCenter, fontStyle, new Color(0.18f, 0.18f, 0.18f, 1f));
+            titleText = CreateText($"{name}_Text", card.rectTransform, new Vector2(0.08f, 0.08f), new Vector2(0.92f, 0.92f), text, fontSize, TextAnchor.MiddleCenter, fontStyle, new Color(0.18f, 0.18f, 0.18f, 1f));
+            titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            titleText.verticalOverflow = VerticalWrapMode.Overflow;
             return card;
         }
 
-        private static Text CreateDialogueStrip(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text)
+        private static Text CreateDialogueStrip(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text, out Image stripImage)
         {
-            Image strip = CreatePanel(name, parent, anchorMin, anchorMax, new Color(0.86f, 0.86f, 0.86f, 0.95f));
-            return CreateText($"{name}_Text", strip.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), text, 18, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.18f, 0.18f, 0.18f, 1f));
+            stripImage = CreatePanel(name, parent, anchorMin, anchorMax, new Color(0.86f, 0.86f, 0.86f, 0.95f));
+            Text textComponent = CreateText($"{name}_Text", stripImage.rectTransform, new Vector2(0.05f, 0.12f), new Vector2(0.95f, 0.88f), text, 18, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.18f, 0.18f, 0.18f, 1f));
+            textComponent.horizontalOverflow = HorizontalWrapMode.Wrap;
+            textComponent.verticalOverflow = VerticalWrapMode.Overflow;
+            return textComponent;
         }
 
         private static Text CreateTextPanel(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text, int fontSize, TextAnchor anchor, FontStyle fontStyle)
