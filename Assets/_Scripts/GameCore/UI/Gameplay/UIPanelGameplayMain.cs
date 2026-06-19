@@ -13,7 +13,6 @@ namespace GameCore.UI
 
         public override void AfterInitialize()
         {
-            mono.EnsureBuilt();
             ApplyPlaceholderData();
         }
 

@@ -1,0 +1,346 @@
+using System.IO;
+using System.Collections.Generic;
+using GameCore.UI;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace GameCore.Editor
+{
+    public static class GameplayMainPrefabBuilder
+    {
+        private const string PrefabAssetPath = "Assets/GameRes/UI/panel_gameplay_main.prefab";
+        private const string WhiteSpriteAssetPath = "Assets/GameRes/UI/Generated/gameplay_main_white.png";
+
+        private static Sprite _whiteSprite;
+        private static Font _defaultFont;
+
+        [MenuItem("GameCore/UI/生成游戏内主界面Prefab")]
+        public static void GenerateGameplayMainPrefab()
+        {
+            _defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            _whiteSprite = EnsureWhiteSpriteAsset();
+            if (_whiteSprite == null)
+            {
+                Debug.LogError("生成游戏内主界面 Prefab 失败：纯白 Sprite 资源未准备成功。");
+                return;
+            }
+
+            GameObject root = new GameObject("panel_gameplay_main", typeof(RectTransform), typeof(CanvasGroup), typeof(UIMonoGameplayMain));
+            try
+            {
+                BuildPrefab(root);
+                SavePrefab(root);
+                Debug.Log("游戏内主界面 Prefab 生成完成。");
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        private static void BuildPrefab(GameObject root)
+        {
+            RectTransform rootRect = root.GetComponent<RectTransform>();
+            rootRect.anchorMin = Vector2.zero;
+            rootRect.anchorMax = Vector2.one;
+            rootRect.offsetMin = Vector2.zero;
+            rootRect.offsetMax = Vector2.zero;
+            rootRect.pivot = new Vector2(0.5f, 0.5f);
+
+            CanvasGroup canvasGroup = root.GetComponent<CanvasGroup>();
+            UIMonoGameplayMain mono = root.GetComponent<UIMonoGameplayMain>();
+            mono.canvasGroup = canvasGroup;
+            mono.fadeInDuration = 0.2f;
+            mono.fadeOutDuration = 0.2f;
+            mono.numberButtons = new List<Button>();
+
+            CreateBackground(rootRect);
+            CreateStageFrame(rootRect);
+            CreateLeftColumn(rootRect);
+            CreateCenterColumn(rootRect);
+            CreateRightColumn(rootRect, mono);
+            CreateBottomHint(rootRect, mono);
+        }
+
+        private static void CreateBackground(RectTransform rootRect)
+        {
+            Image background = CreatePanel("Background", rootRect, new Vector2(0f, 0f), new Vector2(1f, 1f), new Color(0.94f, 0.94f, 0.92f, 0.98f));
+            background.raycastTarget = false;
+        }
+
+        private static void CreateStageFrame(RectTransform rootRect)
+        {
+            CreatePanel("LeftBand", rootRect, new Vector2(0.00f, 0.00f), new Vector2(0.18f, 1.00f), new Color(0.91f, 0.91f, 0.92f, 0.75f));
+            CreatePanel("CenterBand", rootRect, new Vector2(0.18f, 0.00f), new Vector2(0.78f, 1.00f), new Color(1f, 1f, 1f, 0.30f));
+            CreatePanel("RightBand", rootRect, new Vector2(0.78f, 0.00f), new Vector2(1.00f, 1.00f), new Color(0.95f, 0.95f, 0.96f, 0.78f));
+        }
+
+        private static void CreateLeftColumn(RectTransform rootRect)
+        {
+            CreateCardWithTitle("NoticeBoard01", rootRect, new Vector2(0.02f, 0.64f), new Vector2(0.11f, 0.88f), "告示1", 28, FontStyle.Bold);
+            CreateCardWithTitle("NoticeBoard02", rootRect, new Vector2(0.06f, 0.32f), new Vector2(0.15f, 0.55f), "告示2", 28, FontStyle.Bold);
+            CreateDialogueStrip("Dialogue01", rootRect, new Vector2(0.15f, 0.74f), new Vector2(0.33f, 0.82f), "对话1");
+        }
+
+        private static void CreateCenterColumn(RectTransform rootRect)
+        {
+            Image animalPanel = CreatePanel("AnimalView", rootRect, new Vector2(0.36f, 0.14f), new Vector2(0.60f, 0.84f), new Color(0.80f, 0.80f, 0.80f, 0.92f));
+            CreateText("AnimalLabel", animalPanel.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), "动物", 40, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.25f, 0.25f, 0.25f, 1f));
+
+            Image standShadow = CreatePanel("AnimalStandShadow", rootRect, new Vector2(0.34f, 0.10f), new Vector2(0.62f, 0.12f), new Color(0.70f, 0.70f, 0.70f, 0.55f));
+            standShadow.raycastTarget = false;
+
+            CreateDialogueStrip("Dialogue02", rootRect, new Vector2(0.62f, 0.63f), new Vector2(0.83f, 0.71f), "对话2");
+        }
+
+        private static void CreateRightColumn(RectTransform rootRect, UIMonoGameplayMain mono)
+        {
+            mono.txtTime = CreateTextPanel("TimePanel", rootRect, new Vector2(0.81f, 0.87f), new Vector2(0.97f, 0.95f), "10 : 29（时间）", 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+            mono.txtAnimalInfo = CreateTextPanel("AnimalInfoPanel", rootRect, new Vector2(0.81f, 0.68f), new Vector2(0.97f, 0.80f), "动物扫脸信息", 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+
+            CreateNumberButtonGrid(rootRect, mono);
+
+            mono.btnOption1 = CreateTextButton("Option01", rootRect, new Vector2(0.63f, 0.25f), new Vector2(0.79f, 0.31f), "选项1", 18, new Color(0.88f, 0.88f, 0.88f, 0.98f));
+            mono.btnOption2 = CreateTextButton("Option02", rootRect, new Vector2(0.63f, 0.18f), new Vector2(0.79f, 0.24f), "选项2", 18, new Color(0.88f, 0.88f, 0.88f, 0.98f));
+            mono.btnReject = CreateTextButton("ActionReject", rootRect, new Vector2(0.80f, 0.17f), new Vector2(0.86f, 0.25f), "拒绝", 18, new Color(0.86f, 0.86f, 0.86f, 1f));
+            mono.btnConfirm = CreateTextButton("ActionConfirm", rootRect, new Vector2(0.87f, 0.17f), new Vector2(0.93f, 0.25f), "确认", 18, new Color(0.86f, 0.86f, 0.86f, 1f));
+            mono.btnCloseDoor = CreateTextButton("ActionCloseDoor", rootRect, new Vector2(0.94f, 0.17f), new Vector2(0.99f, 0.25f), "关门", 18, new Color(0.86f, 0.86f, 0.86f, 1f));
+        }
+
+        private static void CreateBottomHint(RectTransform rootRect, UIMonoGameplayMain mono)
+        {
+            Image hintPanel = CreatePanel("BottomHintPanel", rootRect, new Vector2(0.27f, 0.02f), new Vector2(0.70f, 0.10f), new Color(0.82f, 0.82f, 0.82f, 0.95f));
+            mono.txtBottomHint = CreateText(
+                "BottomHintText",
+                hintPanel.rectTransform,
+                new Vector2(0.04f, 0.08f),
+                new Vector2(0.96f, 0.92f),
+                "动物信息档案，点击弹出（用于确认动物的档案，\n如果与所住房屋不符合，需要拒绝或询问原因）",
+                16,
+                TextAnchor.MiddleCenter,
+                FontStyle.Normal,
+                new Color(0.20f, 0.20f, 0.20f, 1f));
+        }
+
+        private static void CreateNumberButtonGrid(RectTransform rootRect, UIMonoGameplayMain mono)
+        {
+            int[] numbers = { 10, 11, 12, 7, 8, 9, 4, 5, 6, 1, 2, 3 };
+            float startX = 0.83f;
+            float startY = 0.55f;
+            float cellWidth = 0.055f;
+            float cellHeight = 0.09f;
+
+            for (int index = 0; index < numbers.Length; index++)
+            {
+                int row = index / 3;
+                int column = index % 3;
+                Vector2 anchorMin = new Vector2(startX + column * cellWidth, startY - row * cellHeight);
+                Vector2 anchorMax = anchorMin + new Vector2(0.042f, 0.07f);
+                Button button = CreateCircleButton($"AnimalChoice{numbers[index]}", rootRect, anchorMin, anchorMax, numbers[index].ToString());
+                mono.numberButtons.Add(button);
+            }
+        }
+
+        private static Image CreateCardWithTitle(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text, int fontSize, FontStyle fontStyle)
+        {
+            Image card = CreatePanel(name, parent, anchorMin, anchorMax, new Color(0.84f, 0.84f, 0.84f, 0.95f));
+            CreateText($"{name}_Text", card.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), text, fontSize, TextAnchor.MiddleCenter, fontStyle, new Color(0.18f, 0.18f, 0.18f, 1f));
+            return card;
+        }
+
+        private static Image CreateDialogueStrip(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text)
+        {
+            Image strip = CreatePanel(name, parent, anchorMin, anchorMax, new Color(0.86f, 0.86f, 0.86f, 0.95f));
+            CreateText($"{name}_Text", strip.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), text, 18, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.18f, 0.18f, 0.18f, 1f));
+            return strip;
+        }
+
+        private static Text CreateTextPanel(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string text, int fontSize, TextAnchor anchor, FontStyle fontStyle)
+        {
+            Image panel = CreatePanel(name, parent, anchorMin, anchorMax, new Color(0.86f, 0.86f, 0.86f, 0.98f));
+            return CreateText($"{name}_Text", panel.rectTransform, new Vector2(0f, 0f), new Vector2(1f, 1f), text, fontSize, anchor, fontStyle, new Color(0.18f, 0.18f, 0.18f, 1f));
+        }
+
+        private static Button CreateCircleButton(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string label)
+        {
+            GameObject buttonObject = CreateUiObject(name, parent);
+            RectTransform rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            Image image = buttonObject.AddComponent<Image>();
+            image.sprite = GetWhiteSprite();
+            image.color = new Color(0.89f, 0.89f, 0.89f, 1f);
+
+            Button button = buttonObject.AddComponent<Button>();
+            button.targetGraphic = image;
+
+            Outline outline = buttonObject.AddComponent<Outline>();
+            outline.effectColor = new Color(0.73f, 0.73f, 0.73f, 1f);
+            outline.effectDistance = new Vector2(1f, -1f);
+
+            CreateText($"{name}_Text", rect, new Vector2(0f, 0f), new Vector2(1f, 1f), label, 18, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.20f, 0.20f, 0.20f, 1f));
+            return button;
+        }
+
+        private static Button CreateTextButton(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string label, int fontSize, Color backgroundColor)
+        {
+            GameObject buttonObject = CreateUiObject(name, parent);
+            RectTransform rect = buttonObject.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            Image image = buttonObject.AddComponent<Image>();
+            image.sprite = GetWhiteSprite();
+            image.color = backgroundColor;
+
+            Button button = buttonObject.AddComponent<Button>();
+            button.targetGraphic = image;
+
+            CreateText($"{name}_Text", rect, new Vector2(0f, 0f), new Vector2(1f, 1f), label, fontSize, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.16f, 0.16f, 0.16f, 1f));
+            return button;
+        }
+
+        private static Image CreatePanel(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, Color color)
+        {
+            GameObject panelObject = CreateUiObject(name, parent);
+            RectTransform rect = panelObject.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            Image image = panelObject.AddComponent<Image>();
+            image.sprite = GetWhiteSprite();
+            image.color = color;
+            return image;
+        }
+
+        private static Text CreateText(string name, RectTransform parent, Vector2 anchorMin, Vector2 anchorMax, string content, int fontSize, TextAnchor anchor, FontStyle fontStyle, Color color)
+        {
+            GameObject textObject = CreateUiObject(name, parent);
+            RectTransform rect = textObject.GetComponent<RectTransform>();
+            rect.anchorMin = anchorMin;
+            rect.anchorMax = anchorMax;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+
+            Text text = textObject.AddComponent<Text>();
+            text.font = _defaultFont;
+            text.fontSize = fontSize;
+            text.fontStyle = fontStyle;
+            text.alignment = anchor;
+            text.horizontalOverflow = HorizontalWrapMode.Wrap;
+            text.verticalOverflow = VerticalWrapMode.Overflow;
+            text.raycastTarget = false;
+            text.color = color;
+            text.text = content;
+            return text;
+        }
+
+        private static GameObject CreateUiObject(string name, RectTransform parent)
+        {
+            GameObject go = new GameObject(name, typeof(RectTransform));
+            RectTransform rect = go.transform as RectTransform;
+            rect.SetParent(parent, false);
+            rect.localScale = Vector3.one;
+            rect.localRotation = Quaternion.identity;
+            rect.anchoredPosition3D = Vector3.zero;
+            return go;
+        }
+
+        private static Sprite GetWhiteSprite()
+        {
+            return _whiteSprite != null ? _whiteSprite : EnsureWhiteSpriteAsset();
+        }
+
+        private static void SavePrefab(GameObject root)
+        {
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, PrefabAssetPath);
+            EditorUtility.SetDirty(prefab);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            Selection.activeObject = prefab;
+        }
+
+        private static Sprite EnsureWhiteSpriteAsset()
+        {
+            EnsureFolder("Assets/GameRes/UI/Generated");
+
+            if (!File.Exists(WhiteSpriteAssetPath))
+            {
+                Texture2D texture = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+                texture.SetPixel(0, 0, Color.white);
+                texture.Apply();
+
+                byte[] pngBytes = texture.EncodeToPNG();
+                File.WriteAllBytes(WhiteSpriteAssetPath, pngBytes);
+                Object.DestroyImmediate(texture);
+
+                AssetDatabase.ImportAsset(WhiteSpriteAssetPath, ImportAssetOptions.ForceUpdate);
+            }
+
+            TextureImporter importer = AssetImporter.GetAtPath(WhiteSpriteAssetPath) as TextureImporter;
+            if (importer != null)
+            {
+                bool needReimport = false;
+
+                if (importer.textureType != TextureImporterType.Sprite)
+                {
+                    importer.textureType = TextureImporterType.Sprite;
+                    needReimport = true;
+                }
+
+                if (importer.spriteImportMode != SpriteImportMode.Single)
+                {
+                    importer.spriteImportMode = SpriteImportMode.Single;
+                    needReimport = true;
+                }
+
+                if (importer.filterMode != FilterMode.Point)
+                {
+                    importer.filterMode = FilterMode.Point;
+                    needReimport = true;
+                }
+
+                if (importer.mipmapEnabled)
+                {
+                    importer.mipmapEnabled = false;
+                    needReimport = true;
+                }
+
+                if (importer.wrapMode != TextureWrapMode.Clamp)
+                {
+                    importer.wrapMode = TextureWrapMode.Clamp;
+                    needReimport = true;
+                }
+
+                if (needReimport)
+                    importer.SaveAndReimport();
+            }
+
+            return AssetDatabase.LoadAssetAtPath<Sprite>(WhiteSpriteAssetPath);
+        }
+
+        private static void EnsureFolder(string folderPath)
+        {
+            if (AssetDatabase.IsValidFolder(folderPath))
+                return;
+
+            string[] parts = folderPath.Split('/');
+            string current = parts[0];
+            for (int index = 1; index < parts.Length; index++)
+            {
+                string next = $"{current}/{parts[index]}";
+                if (!AssetDatabase.IsValidFolder(next))
+                    AssetDatabase.CreateFolder(current, parts[index]);
+                current = next;
+            }
+        }
+    }
+}
