@@ -41,13 +41,15 @@ Path(path).write_text(text, encoding="utf-8")
 - 普通页面优先使用 `UINodeCommon<TMONO, TPANEL>`。
 - 只有页面生命周期或栈行为明显特殊时，再单独写专用 `UINodeXxx`。
 - 新 UI prefab 默认放在 `Assets/GameRes/UI/`，并配置到 Addressables。
+- 如果通过编辑器代码生成 UI prefab，生成逻辑里要同步自动注册到 Addressables 的 `UI` 组，并写好对应 address，避免 prefab 已生成但运行时 key 找不到。
 
 推荐做法：
 
 1. 建 prefab。
 2. 写 `UIMonoXxx` 挂引用。
 3. 写 `UIPanelXxx` 处理交互。
-4. 用 `UINodeCommon<TMONO, TPANEL>` 打开。
+4. 确保 prefab 已加入 Addressables `UI` 组，且 address 与运行时加载 key 一致。
+5. 用 `UINodeCommon<TMONO, TPANEL>` 打开。
 
 ### 3.2 资源加载
 

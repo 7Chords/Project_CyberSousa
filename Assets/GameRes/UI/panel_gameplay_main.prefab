@@ -193,6 +193,7 @@ GameObject:
   - component: {fileID: 5458436152064864014}
   - component: {fileID: 8976427456715312588}
   - component: {fileID: 4362800492601265902}
+  - component: {fileID: 5842439112157931609}
   m_Layer: 0
   m_Name: AnimalChoice12
   m_TagString: Untagged
@@ -317,6 +318,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &5842439112157931609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193374963196786446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 12
 --- !u!1 &232616813902501866
 GameObject:
   m_ObjectHideFlags: 0
@@ -1122,6 +1136,7 @@ GameObject:
   - component: {fileID: 1662298054896642708}
   - component: {fileID: 6444164388938067170}
   - component: {fileID: 7399963544309272235}
+  - component: {fileID: 926831476253282562}
   m_Layer: 0
   m_Name: AnimalChoice9
   m_TagString: Untagged
@@ -1246,6 +1261,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &926831476253282562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1118085445582321433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 9
 --- !u!1 &1190308860166966715
 GameObject:
   m_ObjectHideFlags: 0
@@ -1847,6 +1875,7 @@ GameObject:
   - component: {fileID: 7032577144337505865}
   - component: {fileID: 4933953248496304713}
   - component: {fileID: 4566675369246974078}
+  - component: {fileID: 2759742974606114590}
   m_Layer: 0
   m_Name: AnimalChoice10
   m_TagString: Untagged
@@ -1971,6 +2000,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &2759742974606114590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1796829008087687970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 10
 --- !u!1 &2024431768700814480
 GameObject:
   m_ObjectHideFlags: 0
@@ -2373,6 +2415,7 @@ GameObject:
   - component: {fileID: 6501933050402168451}
   - component: {fileID: 2878593395749853522}
   - component: {fileID: 2325092144257680305}
+  - component: {fileID: 1306337909029343882}
   m_Layer: 0
   m_Name: AnimalChoice7
   m_TagString: Untagged
@@ -2497,6 +2540,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &1306337909029343882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218747282137126419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 7
 --- !u!1 &3522895223116383795
 GameObject:
   m_ObjectHideFlags: 0
@@ -2668,6 +2724,7 @@ GameObject:
   - component: {fileID: 5810905951340504723}
   - component: {fileID: 2600401632281252878}
   - component: {fileID: 4525577289482224613}
+  - component: {fileID: 3445321525461284412}
   m_Layer: 0
   m_Name: AnimalChoice4
   m_TagString: Untagged
@@ -2792,6 +2849,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &3445321525461284412
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737346530895244952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 4
 --- !u!1 &4118252272576215513
 GameObject:
   m_ObjectHideFlags: 0
@@ -3084,6 +3154,7 @@ GameObject:
   - component: {fileID: 2710943286998965248}
   - component: {fileID: 7386727755229990469}
   - component: {fileID: 7198975895481965455}
+  - component: {fileID: 3134192665501394426}
   m_Layer: 0
   m_Name: AnimalChoice1
   m_TagString: Untagged
@@ -3208,6 +3279,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &3134192665501394426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5123649609676846726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 1
 --- !u!1 &5248591239560199531
 GameObject:
   m_ObjectHideFlags: 0
@@ -3221,6 +3305,7 @@ GameObject:
   - component: {fileID: 8024682641563195676}
   - component: {fileID: 3852088481055777005}
   - component: {fileID: 8097445215825319531}
+  - component: {fileID: 4993980222658212971}
   m_Layer: 0
   m_Name: AnimalChoice3
   m_TagString: Untagged
@@ -3345,6 +3430,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &4993980222658212971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248591239560199531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 3
 --- !u!1 &5321426384867545340
 GameObject:
   m_ObjectHideFlags: 0
@@ -3358,6 +3456,7 @@ GameObject:
   - component: {fileID: 1204324578379406625}
   - component: {fileID: 3538222012509009507}
   - component: {fileID: 3780044826126553991}
+  - component: {fileID: 1021292942125837036}
   m_Layer: 0
   m_Name: AnimalChoice11
   m_TagString: Untagged
@@ -3482,6 +3581,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &1021292942125837036
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5321426384867545340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 11
 --- !u!1 &5388909667392708702
 GameObject:
   m_ObjectHideFlags: 0
@@ -3887,6 +3999,7 @@ GameObject:
   - component: {fileID: 2237717753961565549}
   - component: {fileID: 4239859117935431343}
   - component: {fileID: 2197956043434299000}
+  - component: {fileID: 2167697467476296743}
   m_Layer: 0
   m_Name: AnimalChoice2
   m_TagString: Untagged
@@ -4011,6 +4124,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &2167697467476296743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6179648966220272636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 2
 --- !u!1 &6240149121920659169
 GameObject:
   m_ObjectHideFlags: 0
@@ -4535,6 +4661,7 @@ GameObject:
   - component: {fileID: 1559436800461475210}
   - component: {fileID: 9157938950816257070}
   - component: {fileID: 4814789315236271442}
+  - component: {fileID: 4983453137353107365}
   m_Layer: 0
   m_Name: AnimalChoice8
   m_TagString: Untagged
@@ -4659,6 +4786,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &4983453137353107365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7206934329474968310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 8
 --- !u!1 &7237711630085322390
 GameObject:
   m_ObjectHideFlags: 0
@@ -4827,6 +4967,7 @@ GameObject:
   - component: {fileID: 5373342037300828571}
   - component: {fileID: 5518884136006323535}
   - component: {fileID: 7383091036009049850}
+  - component: {fileID: 7272121038931478713}
   m_Layer: 0
   m_Name: AnimalChoice6
   m_TagString: Untagged
@@ -4951,6 +5092,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &7272121038931478713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7540843098008338045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 6
 --- !u!1 &7552357495181149657
 GameObject:
   m_ObjectHideFlags: 0
@@ -5236,6 +5390,7 @@ GameObject:
   - component: {fileID: 170873361134857654}
   - component: {fileID: 3365326525288688174}
   - component: {fileID: 553566330453183611}
+  - component: {fileID: 3797888971631540784}
   m_Layer: 0
   m_Name: AnimalChoice5
   m_TagString: Untagged
@@ -5360,6 +5515,19 @@ MonoBehaviour:
   m_EffectColor: {r: 0.73, g: 0.73, b: 0.73, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
+--- !u!114 &3797888971631540784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8249014884970223365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2d950e3188ed714eb29bdbc6f6c813a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  floor: 5
 --- !u!1 &8400957821852864987
 GameObject:
   m_ObjectHideFlags: 0

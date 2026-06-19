@@ -13,10 +13,12 @@ namespace GameCore.UI
     {
         private const string PlayerSpeakerName = "玩家";
         private const long DefaultLevelId = 1001;
+        private const string SettlementNodeName = "UINodeSettlement";
 
         private readonly Dictionary<long, DialogueRefData> _dialogueMap = new Dictionary<long, DialogueRefData>();
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
         private readonly Dictionary<long, RuleRefData> _ruleMap = new Dictionary<long, RuleRefData>();
+        private readonly List<LevelRefData> _levelSequence = new List<LevelRefData>();
         private readonly Queue<long> _pendingCustomerIds = new Queue<long>();
 
         private LevelRefData _currentLevelRefData;
@@ -32,8 +34,10 @@ namespace GameCore.UI
         private int _currentFloor = 1;
         private int _selectedFloor;
         private int _currentAffectValue;
+        private int _currentDayIndex;
         private bool _isDialogueRunning;
         private bool _canCloseDoor;
+        private bool _isSettlementShowing;
         private bool _hasInitializedRuntime;
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)
@@ -167,11 +171,34 @@ namespace GameCore.UI
                     _ruleMap.Add(ruleRefData.id, ruleRefData);
                 }
             }
+
+            _levelSequence.Clear();
+            List<LevelRefData> levelRefDataList = SCRefDataMgr.instance.levelRefList?.refDataList;
+            if (levelRefDataList != null)
+            {
+                for (int index = 0; index < levelRefDataList.Count; index++)
+                {
+                    LevelRefData levelRefData = levelRefDataList[index];
+                    if (levelRefData == null)
+                    {
+                        Debug.LogError($"Gameplay 关卡序列初始化失败：第 {index} 条关卡配置为空。");
+                        continue;
+                    }
+
+                    _levelSequence.Add(levelRefData);
+                }
+            }
         }
 
         private void InitializeLevelRuntime()
         {
             _currentLevelRefData = FindInitialLevelRefData();
+            _currentDayIndex = FindLevelIndex(_currentLevelRefData);
+            StartCurrentDay();
+        }
+
+        private void StartCurrentDay()
+        {
             _currentRuleIdList = _currentLevelRefData != null && _currentLevelRefData.ruleIdList != null
                 ? new List<long>(_currentLevelRefData.ruleIdList)
                 : new List<long>();
@@ -188,6 +215,7 @@ namespace GameCore.UI
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
+            _isSettlementShowing = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
 
@@ -294,6 +322,7 @@ namespace GameCore.UI
             mono.txtAnimalInfo.text = "当前没有新的住户。";
             mono.txtBottomHint.text = "本关住户处理完成。";
             mono.dialogueSection?.SetActive(false);
+            ShowSettlementPanel();
         }
 
         private CustomerRefData GetCustomerRefData(long customerId)
@@ -654,7 +683,7 @@ namespace GameCore.UI
                 return;
             }
 
-            Button clickedButton = eventData.pointerPress != null ? eventData.pointerPress.GetComponent<Button>() : null;
+            Button clickedButton = ResolveClickedButton(eventData);
             if (clickedButton == null)
             {
                 Debug.LogError("Gameplay 选楼失败：未获取到点击的楼层按钮。");
@@ -671,6 +700,10 @@ namespace GameCore.UI
             if (button == null)
                 return 0;
 
+            GameplayFloorButton floorButton = button.GetComponent<GameplayFloorButton>();
+            if (floorButton != null)
+                return floorButton.floor;
+
             string digits = string.Empty;
             for (int index = 0; index < button.name.Length; index++)
             {
@@ -684,6 +717,47 @@ namespace GameCore.UI
 
             Debug.LogError($"Gameplay 解析楼层按钮失败：buttonName={button.name}");
             return 0;
+        }
+
+        private Button ResolveClickedButton(PointerEventData eventData)
+        {
+            if (eventData == null)
+                return null;
+
+            if (eventData.pointerPress != null)
+            {
+                Button button = eventData.pointerPress.GetComponent<Button>();
+                if (button != null)
+                    return button;
+
+                button = eventData.pointerPress.GetComponentInParent<Button>();
+                if (button != null)
+                    return button;
+            }
+
+            if (eventData.pointerCurrentRaycast.gameObject != null)
+            {
+                Button button = eventData.pointerCurrentRaycast.gameObject.GetComponent<Button>();
+                if (button != null)
+                    return button;
+
+                button = eventData.pointerCurrentRaycast.gameObject.GetComponentInParent<Button>();
+                if (button != null)
+                    return button;
+            }
+
+            if (eventData.pointerEnter != null)
+            {
+                Button button = eventData.pointerEnter.GetComponent<Button>();
+                if (button != null)
+                    return button;
+
+                button = eventData.pointerEnter.GetComponentInParent<Button>();
+                if (button != null)
+                    return button;
+            }
+
+            return null;
         }
 
         private void OnOption1Clicked(PointerEventData eventData, object[] args)
@@ -810,6 +884,55 @@ namespace GameCore.UI
             _currentFloor = 1;
             AdvanceToNextCustomer();
             RefreshAllUi();
+        }
+
+        private void ShowSettlementPanel()
+        {
+            if (_isSettlementShowing || UINodeMgr.instance.GetNodeByName(SettlementNodeName) != null)
+                return;
+
+            _isSettlementShowing = true;
+            UIPanelSettlement.pendingTitle = $"第 {_currentDayIndex + 1} 天结算";
+            UIPanelSettlement.pendingSummary = $"第 {_currentDayIndex + 1} 天的客人已经全部接待完成。";
+            UIPanelSettlement.onNextDayClicked = HandleNextDayClicked;
+
+            UINodeMgr.instance.AddNode(new UINodeCommon<UIMonoSettlement, UIPanelSettlement>(
+                SCUIShowType.ADDITION,
+                "panel_settlement",
+                SettlementNodeName,
+                false,
+                false,
+                false,
+                false));
+        }
+
+        private void HandleNextDayClicked()
+        {
+            int nextDayIndex = _currentDayIndex + 1;
+            if (nextDayIndex >= _levelSequence.Count)
+            {
+                SCDebugHelper.Log("所有天数都已完成，游戏结束。");
+                return;
+            }
+
+            _currentDayIndex = nextDayIndex;
+            _currentLevelRefData = _levelSequence[_currentDayIndex];
+            StartCurrentDay();
+            RefreshAllUi();
+        }
+
+        private int FindLevelIndex(LevelRefData targetLevelRefData)
+        {
+            if (targetLevelRefData == null)
+                return 0;
+
+            for (int index = 0; index < _levelSequence.Count; index++)
+            {
+                if (_levelSequence[index] != null && _levelSequence[index].id == targetLevelRefData.id)
+                    return index;
+            }
+
+            return 0;
         }
 
         private void SetButtonText(Button button, string content)

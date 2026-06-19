@@ -109,7 +109,7 @@ namespace GameCore
                     return judgmentEffectData;
             }
 
-            Debug.LogError($"CustomerNeedMgr 未命中 GOTO 配置，开始回退 DEFAULT：needId={needId}，targetFloor={targetFloor}");
+            Debug.LogWarning($"CustomerNeedMgr 未命中 GOTO 配置，开始回退 DEFAULT：needId={needId}，targetFloor={targetFloor}");
             return EvaluateDefault(needId);
         }
 
@@ -119,7 +119,7 @@ namespace GameCore
             if (result != null)
                 return result;
 
-            Debug.LogError($"CustomerNeedMgr 未命中 REFUSE 配置，开始回退 DEFAULT：needId={needId}");
+            Debug.LogWarning($"CustomerNeedMgr 未命中 REFUSE 配置，开始回退 DEFAULT：needId={needId}");
             return EvaluateDefault(needId);
         }
 

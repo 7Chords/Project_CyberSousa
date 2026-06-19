@@ -2,6 +2,8 @@ using System.IO;
 using System.Collections.Generic;
 using GameCore.UI;
 using UnityEditor;
+using UnityEditor.AddressableAssets;
+using UnityEditor.AddressableAssets.Settings;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -216,6 +218,9 @@ namespace GameCore.Editor
             outline.effectColor = new Color(0.73f, 0.73f, 0.73f, 1f);
             outline.effectDistance = new Vector2(1f, -1f);
 
+            GameplayFloorButton floorButton = buttonObject.AddComponent<GameplayFloorButton>();
+            int.TryParse(label, out floorButton.floor);
+
             CreateText($"{name}_Text", rect, new Vector2(0f, 0f), new Vector2(1f, 1f), label, 18, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.20f, 0.20f, 0.20f, 1f));
             return button;
         }
@@ -307,6 +312,7 @@ namespace GameCore.Editor
         private static void SavePrefab(GameObject root)
         {
             GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, PrefabAssetPath);
+            EnsureAddressableEntry();
             EditorUtility.SetDirty(prefab);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -386,6 +392,41 @@ namespace GameCore.Editor
                     AssetDatabase.CreateFolder(current, parts[index]);
                 current = next;
             }
+        }
+
+        private static void EnsureAddressableEntry()
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            if (settings == null)
+            {
+                Debug.LogError("生成游戏内主界面 Prefab 后注册 Addressables 失败：未找到 AddressableAssetSettings。");
+                return;
+            }
+
+            AddressableAssetGroup uiGroup = settings.FindGroup("UI");
+            if (uiGroup == null)
+            {
+                Debug.LogError("生成游戏内主界面 Prefab 后注册 Addressables 失败：未找到 UI 资源组。");
+                return;
+            }
+
+            string prefabGuid = AssetDatabase.AssetPathToGUID(PrefabAssetPath);
+            if (string.IsNullOrEmpty(prefabGuid))
+            {
+                Debug.LogError($"生成游戏内主界面 Prefab 后注册 Addressables 失败：未找到资源 GUID，path={PrefabAssetPath}");
+                return;
+            }
+
+            var entry = settings.CreateOrMoveEntry(prefabGuid, uiGroup);
+            if (entry == null)
+            {
+                Debug.LogError($"生成游戏内主界面 Prefab 后注册 Addressables 失败：无法创建或移动条目，guid={prefabGuid}");
+                return;
+            }
+
+            entry.address = "panel_gameplay_main";
+            EditorUtility.SetDirty(uiGroup);
+            EditorUtility.SetDirty(settings);
         }
     }
 }
