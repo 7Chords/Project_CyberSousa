@@ -960,7 +960,7 @@ namespace GameCore.UI
 
         private void ShowSettlementPanel()
         {
-            if (_isSettlementShowing || UINodeMgr.instance.GetNodeByName(SettlementNodeName) != null)
+            if (_isSettlementShowing)
                 return;
 
             _isSettlementShowing = true;
