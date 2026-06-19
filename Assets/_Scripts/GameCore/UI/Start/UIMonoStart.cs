@@ -1,4 +1,5 @@
 using SCFrame.UI;
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameCore.UI
