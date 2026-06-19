@@ -1,4 +1,5 @@
 ﻿id	judgmentList	dialogueList
 ~id	~判断结果列表（操作符:楼层:好感度)	~对话列表（比较符号:好感度:对话开始id)
+	~GOTO=前往这些楼层时触发；REFUSE=拒绝后触发；DEFAULT=前面都没命中后的默认效果。	
 1001	GOTO:9:50;REFUSE:0:-50;DEFAULT:0:-10	GREATER:50:1001
 		
