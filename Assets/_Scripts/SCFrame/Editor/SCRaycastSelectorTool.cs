@@ -7,69 +7,31 @@ using UnityEngine.EventSystems;
 namespace SCFrame
 {
     /// <summary>
-    /// 运行时在 Game 视图中点击对象后，同步在 Hierarchy 中选中目标。
+    /// 运行时按快捷键后，在 Hierarchy 中选中鼠标当前指向的 UI 对象。
     /// </summary>
-    [InitializeOnLoad]
     public static class SCRaycastSelectorTool
     {
-        private const string MENU_PATH = "SCFrame/工具/切换游戏视图射线选中";
-        private const string PREF_KEY = "SCFrame.SCRaycastSelectorTool.Enabled";
-
-        private static bool s_isEnabled;
-        private static int s_lastHandledFrame = -1;
-
-        static SCRaycastSelectorTool()
-        {
-            s_isEnabled = EditorPrefs.GetBool(PREF_KEY, false);
-            Menu.SetChecked(MENU_PATH, s_isEnabled);
-            EditorApplication.update += OnEditorUpdate;
-        }
+        private const string MENU_PATH = "SCFrame/工具/选中鼠标指向的UI %g";
 
         [MenuItem(MENU_PATH)]
-        private static void ToggleTool()
+        private static void SelectCurrentHoveredUI()
         {
-            s_isEnabled = !s_isEnabled;
-            EditorPrefs.SetBool(PREF_KEY, s_isEnabled);
-            Menu.SetChecked(MENU_PATH, s_isEnabled);
-
-            if (s_isEnabled)
+            if (!EditorApplication.isPlaying)
             {
-                Debug.Log("[RaycastSelector] 已开启。请在运行时聚焦 Game 视图后左键拾取对象。");
-                return;
-            }
-
-            Debug.Log("[RaycastSelector] 已关闭。");
-        }
-
-        private static void OnEditorUpdate()
-        {
-            if (!s_isEnabled || !EditorApplication.isPlaying)
-            {
+                Debug.LogError("[RaycastSelector] 请先进入 Play 模式，再使用 Ctrl+G 选中 UI。");
                 return;
             }
 
             EditorWindow focusedWindow = EditorWindow.focusedWindow;
             if (focusedWindow == null || focusedWindow.GetType().Name != "GameView")
             {
+                Debug.LogError("[RaycastSelector] 请先聚焦 Game 视图，再使用 Ctrl+G 选中 UI。");
                 return;
             }
-
-            if (!Input.GetMouseButtonDown(0))
-            {
-                return;
-            }
-
-            int currentFrame = Time.frameCount;
-            if (s_lastHandledFrame == currentFrame)
-            {
-                return;
-            }
-
-            s_lastHandledFrame = currentFrame;
 
             try
             {
-                DoRaycastSelect(Input.mousePosition);
+                DoUIRaycastSelect(Input.mousePosition);
             }
             catch (Exception ex)
             {
@@ -77,42 +39,29 @@ namespace SCFrame
             }
         }
 
-        private static void DoRaycastSelect(Vector3 screenPos)
+        private static void DoUIRaycastSelect(Vector3 screenPos)
         {
-            // 优先检测 UI（GraphicRaycaster）
-            if (EventSystem.current != null)
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem == null)
             {
-                PointerEventData pointerData = new PointerEventData(EventSystem.current)
-                {
-                    position = screenPos
-                };
-                List<RaycastResult> uiResults = new List<RaycastResult>();
-                EventSystem.current.RaycastAll(pointerData, uiResults);
-                if (uiResults.Count > 0)
-                {
-                    SelectObject(uiResults[0].gameObject);
-                    return;
-                }
+                Debug.LogError("[RaycastSelector] 当前场景中没有可用的 EventSystem。");
+                return;
             }
 
-            // 检测 3D 物体
-            Camera cam = Camera.main;
-            if (cam == null)
+            PointerEventData pointerData = new PointerEventData(eventSystem)
             {
-                cam = UnityEngine.Object.FindObjectOfType<Camera>();
+                position = screenPos
+            };
+
+            List<RaycastResult> uiResults = new List<RaycastResult>();
+            eventSystem.RaycastAll(pointerData, uiResults);
+            if (uiResults.Count > 0)
+            {
+                SelectObject(uiResults[0].gameObject);
+                return;
             }
 
-            if (cam != null)
-            {
-                Ray ray = cam.ScreenPointToRay(screenPos);
-                if (Physics.Raycast(ray, out RaycastHit hit))
-                {
-                    SelectObject(hit.collider.gameObject);
-                    return;
-                }
-            }
-
-            Debug.Log("[RaycastSelector] 未检测到任何物体");
+            Debug.Log("[RaycastSelector] 当前鼠标位置没有检测到 UI 对象。");
         }
 
         /// <summary>
