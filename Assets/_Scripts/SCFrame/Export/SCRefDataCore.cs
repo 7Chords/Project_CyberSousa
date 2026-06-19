@@ -34,7 +34,7 @@ namespace SCFrame
         /// <summary>表头以该前缀开头：整列注释，Excel 导出时跳过。</summary>
         public const string MEMO_COLUMN_PREFIX = "#";
 
-        /// <summary>表头以该前缀开头：注释格，导出保留，解析时跳过。</summary>
+        /// <summary>表头下一行单元格以该前缀开头：竖向注释格，导出保留，解析时跳过整行。</summary>
         public const string MEMO_CELL_PREFIX = "~";
 
         public void readFromTxt()
@@ -125,7 +125,7 @@ namespace SCFrame
             for (int i =0;i<keySplitArr.Length;i++)
             {
                 string key = keySplitArr[i]?.Trim();
-                if (string.IsNullOrEmpty(key) || isMemoCell(key))
+                if (string.IsNullOrEmpty(key))
                     continue;
 
                 _m_keyValueMap[key] = valSplitArr[i]?.Trim();
@@ -143,9 +143,30 @@ namespace SCFrame
         }
         protected abstract void _parseFromString();
 
-        protected static bool isMemoCell(string _key)
+        protected static bool isMemoValue(string _value)
         {
-            return !string.IsNullOrEmpty(_key) && _key.StartsWith(MEMO_CELL_PREFIX);
+            return !string.IsNullOrEmpty(_value) && _value.StartsWith(MEMO_CELL_PREFIX);
+        }
+
+        /// <summary>表头下一行的竖向注释行：非空单元格均以 ~ 开头。</summary>
+        public static bool isMemoRow(string _line)
+        {
+            if (string.IsNullOrWhiteSpace(_line))
+                return false;
+
+            string[] cells = _line.Split('\t');
+            bool hasContent = false;
+            for (int i = 0; i < cells.Length; i++)
+            {
+                string cell = cells[i]?.Trim();
+                if (string.IsNullOrEmpty(cell))
+                    continue;
+
+                hasContent = true;
+                if (!isMemoValue(cell))
+                    return false;
+            }
+            return hasContent;
         }
 
         protected static bool isMemoColumn(string _key)

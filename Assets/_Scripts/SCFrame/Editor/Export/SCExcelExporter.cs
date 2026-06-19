@@ -67,8 +67,6 @@ namespace SCFrame
             IWorkbook workbook = CreatWrokbook(excelPath);
             ISheet sheet = null;
             IRow row = null;
-            ICell cell = null;
-            string cellValue = "";
             for (int i = 0; i < workbook.NumberOfSheets; i++)
             {
                 using (FileStream fs = File.Open(GAME_TXT_PATH + "/" + workbook.GetSheetName(i) + ".txt", FileMode.Create, FileAccess.Write))
@@ -79,46 +77,54 @@ namespace SCFrame
                         sheet = workbook.GetSheetAt(i);
                         if (sheet == null)
                             continue;
-                        List<int> memoIdxList = new List<int>();
-                        for (int j = TITLE_START_INDEX; j <= sheet.LastRowNum; j++)
-                        {
 
+                        IRow headerRow = sheet.GetRow(TITLE_START_INDEX);
+                        if (headerRow == null)
+                            continue;
+
+                        List<int> exportColumnIdxList = new List<int>();
+                        for (int k = 0; k <= headerRow.LastCellNum; k++)
+                        {
+                            ICell headerCell = headerRow.GetCell(k);
+                            if (headerCell == null || string.IsNullOrEmpty(headerCell.ToString()))
+                                continue;
+
+                            if (headerCell.ToString().StartsWith(SCRefDataCore.MEMO_COLUMN_PREFIX))
+                                continue;
+
+                            exportColumnIdxList.Add(k);
+                        }
+
+                        writeRowCells(sw, headerRow, exportColumnIdxList);
+
+                        for (int j = TITLE_START_INDEX + 1; j <= sheet.LastRowNum; j++)
+                        {
                             row = sheet.GetRow(j);
                             if (row == null)
                                 continue;
-                            for (int k = 0; k <= row.LastCellNum; k++)
-                            {
-                                if (memoIdxList.Contains(k))
-                                {
-                                    if(k == row.LastCellNum)
-                                    {
-                                        sw.Write("\n");
-                                    }
-                                    continue;
-                                }
-                                cell = row.GetCell(k);
-                                if (cell == null)
-                                    break;
-                                if (string.IsNullOrEmpty(cell.ToString()))
-                                    break;
-                                //标题列中元素的带# 表示该列是备注列
-                                if (j == TITLE_START_INDEX && cell.ToString().StartsWith("#"))
-                                {
-                                    memoIdxList.Add(k);
-                                    continue;
-                                }
-                                cellValue = cell?.ToString() ?? "";
-                                sw.Write(cellValue);
-                                if (k < row.LastCellNum - 1 && !string.IsNullOrEmpty(row.GetCell(k + 1)?.ToString()))
-                                    sw.Write("\t");
-                            }
-                            sw.Write("\n");
+
+                            writeRowCells(sw, row, exportColumnIdxList);
                         }
                     }
                 }
             }
 
             Debug.Log("导出" + _excelName + "成功！！！");
+        }
+
+        /// <summary>
+        /// 按表头列索引导出整行，空单元格写占位以保持列对齐（支持表头下方竖向 ~ 注释行）。
+        /// </summary>
+        private static void writeRowCells(StreamWriter _sw, IRow _row, List<int> _exportColumnIdxList)
+        {
+            for (int idx = 0; idx < _exportColumnIdxList.Count; idx++)
+            {
+                ICell cell = _row.GetCell(_exportColumnIdxList[idx]);
+                _sw.Write(cell?.ToString() ?? "");
+                if (idx < _exportColumnIdxList.Count - 1)
+                    _sw.Write("\t");
+            }
+            _sw.Write("\n");
         }
 
 

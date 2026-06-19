@@ -1,4 +1,5 @@
 ﻿id	name	content	dialogueType	flagType	nextList	affectValue
+~id	~名字	~内容	~对话类型（STANDARD/SELECT)	~对话标志位（BEGIN/NONE/END)	~下一句对话列表	~好感度影响值
 1001	外星人A	1	STANDARD	BEGIN	1002	0
 1002	外星人A	2	STANDARD	NONE	1003	0
 1003	外星人A	3	STANDARD	NONE	1004	0

@@ -1,3 +1,4 @@
 ﻿id	judgmentList	dialogueList
+~id	~判断结果列表（操作符:楼层:好感度)	~对话列表（比较符号:好感度:对话开始id)
 1001	GOTO:9:50;REFUSE:0:-50;DEFAULT:0:-10	GREATER:50:1001
-
+		

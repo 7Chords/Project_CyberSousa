@@ -1,3 +1,4 @@
 ﻿id	customerIdList	ruleIdList
+~id	~住户id列表	~规则id列表
 1001	1001	1001;1002
-
+		

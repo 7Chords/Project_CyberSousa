@@ -64,7 +64,7 @@ namespace SCFrame
             for (int i = 1; i < lineArray.Length; i++)
             {
                 string line = lineArray[i];
-                if (string.IsNullOrEmpty(line))
+                if (string.IsNullOrEmpty(line) || SCRefDataCore.isMemoRow(line))
                 {
                     continue;
                 }
