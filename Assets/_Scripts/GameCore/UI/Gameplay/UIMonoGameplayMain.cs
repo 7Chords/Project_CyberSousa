@@ -7,6 +7,16 @@ namespace GameCore.UI
 {
     public class UIMonoGameplayMain : _ASCUIMonoBase
     {
+        public RectTransform elevatorRoot;
+        public RectTransform elevatorDoorLeft;
+        public RectTransform elevatorDoorRight;
+        public CanvasGroup customerCanvasGroup;
+        public CanvasGroup currentFloorCanvasGroup;
+        public UIRuntimeFadeEffect customerFadeEffect;
+        public UIRuntimeMoveScaleEffect customerMoveScaleEffect;
+        public UISlidingDoorEffect elevatorDoorEffect;
+        public UITravelShakeEffect elevatorTravelShakeEffect;
+        public UITextChangeMoveEffect floorTextEffect;
         public GameObject dialogueSection;
         public Image dialogueLeftArea;
         public Image dialogueRightArea;

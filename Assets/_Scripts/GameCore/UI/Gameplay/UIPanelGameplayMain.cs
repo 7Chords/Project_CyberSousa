@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Text;
+using DG.Tweening;
 using GameCore.RefData;
 using SCFrame;
 using SCFrame.UI;
@@ -14,6 +15,7 @@ namespace GameCore.UI
         private const string PlayerSpeakerName = "玩家";
         private const long DefaultLevelId = 1001;
         private const string SettlementNodeName = "UINodeSettlement";
+        private const float CustomerFadeDuration = 0.30f;
 
         private readonly Dictionary<long, DialogueRefData> _dialogueMap = new Dictionary<long, DialogueRefData>();
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
@@ -38,6 +40,7 @@ namespace GameCore.UI
         private bool _isDialogueRunning;
         private bool _canCloseDoor;
         private bool _isSettlementShowing;
+        private bool _isTransitionPlaying;
         private bool _hasInitializedRuntime;
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)
@@ -99,6 +102,40 @@ namespace GameCore.UI
 
             if (mono.dialogueRightArea == null)
                 mono.dialogueRightArea = FindChildImage("Dialogue02");
+
+            if (mono.elevatorRoot == null)
+                mono.elevatorRoot = FindChildRect("ElevatorRoot");
+
+            if (mono.elevatorDoorLeft == null)
+                mono.elevatorDoorLeft = FindChildRect("ElevatorDoorLeft");
+
+            if (mono.elevatorDoorRight == null)
+                mono.elevatorDoorRight = FindChildRect("ElevatorDoorRight");
+
+            if (mono.customerCanvasGroup == null)
+            {
+                Transform customerLayer = FindChildTransformRecursive(mono.transform, "CustomerLayer");
+                if (customerLayer != null)
+                    mono.customerCanvasGroup = customerLayer.GetComponent<CanvasGroup>();
+            }
+
+            if (mono.currentFloorCanvasGroup == null && mono.txtCurrentFloor != null)
+                mono.currentFloorCanvasGroup = mono.txtCurrentFloor.GetComponent<CanvasGroup>();
+
+            if (mono.customerFadeEffect == null && mono.customerCanvasGroup != null)
+                mono.customerFadeEffect = mono.customerCanvasGroup.GetComponent<UIRuntimeFadeEffect>();
+
+            if (mono.customerMoveScaleEffect == null && mono.customerCanvasGroup != null)
+                mono.customerMoveScaleEffect = mono.customerCanvasGroup.GetComponent<UIRuntimeMoveScaleEffect>();
+
+            if (mono.elevatorDoorEffect == null && mono.elevatorRoot != null)
+                mono.elevatorDoorEffect = mono.elevatorRoot.GetComponent<UISlidingDoorEffect>();
+
+            if (mono.elevatorTravelShakeEffect == null && mono.elevatorRoot != null)
+                mono.elevatorTravelShakeEffect = mono.elevatorRoot.GetComponent<UITravelShakeEffect>();
+
+            if (mono.floorTextEffect == null && mono.txtCurrentFloor != null)
+                mono.floorTextEffect = mono.txtCurrentFloor.GetComponent<UITextChangeMoveEffect>();
         }
 
         private void BuildLookupMaps()
@@ -216,10 +253,15 @@ namespace GameCore.UI
             _isDialogueRunning = false;
             _canCloseDoor = false;
             _isSettlementShowing = false;
+            _isTransitionPlaying = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
 
+            SetCurrentFloorDisplayInstant(_currentFloor);
+            SetElevatorDoorClosedInstant();
+            SetCustomerHiddenInstant();
             AdvanceToNextCustomer();
+            OpenElevatorDoor();
         }
 
         private LevelRefData FindInitialLevelRefData()
@@ -289,6 +331,7 @@ namespace GameCore.UI
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
+            _isTransitionPlaying = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
 
@@ -315,6 +358,7 @@ namespace GameCore.UI
                 else
                     Debug.LogError($"Gameplay 对话初始化失败：needId={needRefData.id} 未找到有效的开始对话 id。");
 
+                ShowCurrentCustomer();
                 return;
             }
 
@@ -322,6 +366,7 @@ namespace GameCore.UI
             mono.txtAnimalInfo.text = "当前没有新的住户。";
             mono.txtBottomHint.text = "本关住户处理完成。";
             mono.dialogueSection?.SetActive(false);
+            SetCustomerHiddenInstant();
             ShowSettlementPanel();
         }
 
@@ -607,6 +652,8 @@ namespace GameCore.UI
         private void RefreshActionUi()
         {
             bool canOperateMainButtons = !_isDialogueRunning && _currentCustomerRefData != null;
+            if (_isTransitionPlaying)
+                canOperateMainButtons = false;
 
             if (mono.btnReject != null)
                 mono.btnReject.interactable = canOperateMainButtons && !_canCloseDoor;
@@ -620,7 +667,7 @@ namespace GameCore.UI
 
         private void RefreshNumberButtonUi()
         {
-            bool canSelectFloor = !_isDialogueRunning && !_canCloseDoor;
+            bool canSelectFloor = !_isDialogueRunning && !_canCloseDoor && !_isTransitionPlaying;
             for (int index = 0; index < mono.numberButtons.Count; index++)
             {
                 Button button = mono.numberButtons[index];
@@ -680,6 +727,12 @@ namespace GameCore.UI
             if (_isDialogueRunning)
             {
                 SCDebugHelper.Log("当前对话未结束，暂时不能选楼层。");
+                return;
+            }
+
+            if (_isTransitionPlaying)
+            {
+                SCDebugHelper.Log("当前电梯正在移动，暂时不能选楼层。");
                 return;
             }
 
@@ -799,6 +852,12 @@ namespace GameCore.UI
                 return;
             }
 
+            if (_isTransitionPlaying)
+            {
+                SCDebugHelper.Log("当前电梯正在移动，暂时不能拒绝。");
+                return;
+            }
+
             if (_currentNeedRefData == null)
             {
                 Debug.LogError("Gameplay 拒绝失败：当前住户需求配置为空。");
@@ -826,6 +885,12 @@ namespace GameCore.UI
             if (_isDialogueRunning)
             {
                 SCDebugHelper.Log("当前对话未结束，暂时不能确认。");
+                return;
+            }
+
+            if (_isTransitionPlaying)
+            {
+                SCDebugHelper.Log("当前电梯正在移动，暂时不能确认。");
                 return;
             }
 
@@ -865,6 +930,8 @@ namespace GameCore.UI
                 SCDebugHelper.Log($"已确认前往 {finalFloor} 楼，影响值={_lastJudgmentEffectData.affectValue}");
 
             RefreshAllUi();
+            if (_canCloseDoor)
+                StartCustomerDepartureFlow(finalFloor, true);
         }
 
         private void OnCloseDoorClicked(PointerEventData eventData, object[] args)
@@ -875,15 +942,20 @@ namespace GameCore.UI
                 return;
             }
 
+            if (_isTransitionPlaying)
+            {
+                SCDebugHelper.Log("当前电梯正在移动，暂时不能重复关门。");
+                return;
+            }
+
             if (!_canCloseDoor)
             {
                 Debug.LogError("Gameplay 关门失败：当前住户尚未完成处理，不能关门。");
                 return;
             }
 
-            _currentFloor = 1;
-            AdvanceToNextCustomer();
-            RefreshAllUi();
+            int targetFloor = ResolveCustomerDepartureFloor();
+            StartCustomerDepartureFlow(targetFloor, false);
         }
 
         private void ShowSettlementPanel()
@@ -935,6 +1007,206 @@ namespace GameCore.UI
             return 0;
         }
 
+        private int ResolveCustomerDepartureFloor()
+        {
+            if (_lastJudgmentEffectData != null && _lastJudgmentEffectData.elevatorOperator == EElevatorOperator.GOTO)
+            {
+                if (_lastRuleEffectData != null && RuleMgr.instance.TryGetRedirectFloor(_lastRuleEffectData, out int redirectFloor))
+                    return redirectFloor;
+
+                if (_selectedFloor > 0)
+                    return _selectedFloor;
+            }
+
+            return 1;
+        }
+
+        private void StartCustomerDepartureFlow(int targetFloor, bool needBoardAnimation)
+        {
+            _isTransitionPlaying = true;
+            RefreshAllUi();
+            TweenCallback afterBoardAction = () =>
+            {
+                PlayElevatorTravelToFloor(targetFloor, () =>
+                {
+                    OpenElevatorDoor(() =>
+                    {
+                        TweenCallback afterArriveLeave = () =>
+                        {
+                            CloseElevatorDoor(() =>
+                            {
+                                PlayElevatorTravelToFloor(1, () =>
+                                {
+                                    OpenElevatorDoor(() =>
+                                    {
+                                        AdvanceToNextCustomer();
+                                        _isTransitionPlaying = false;
+                                        RefreshAllUi();
+                                    });
+                                });
+                            });
+                        };
+
+                        if (needBoardAnimation)
+                            PlayCustomerLeaveElevator(afterArriveLeave);
+                        else
+                            HideCurrentCustomer(afterArriveLeave);
+                    });
+                });
+            };
+
+            if (needBoardAnimation)
+            {
+                PlayCustomerBoardElevator(() =>
+                {
+                    CloseElevatorDoor(afterBoardAction);
+                });
+                return;
+            }
+
+            CloseElevatorDoor(() =>
+            {
+                HideCurrentCustomer(afterBoardAction);
+            });
+        }
+
+        public void OpenElevatorDoor(TweenCallback onComplete = null)
+        {
+            Tween tween = mono.elevatorDoorEffect?.PlayOpen(onComplete);
+            if (tween == null)
+                onComplete?.Invoke();
+        }
+
+        public void CloseElevatorDoor(TweenCallback onComplete = null)
+        {
+            Tween tween = mono.elevatorDoorEffect?.PlayClose(onComplete);
+            if (tween == null)
+                onComplete?.Invoke();
+        }
+
+        private void SetElevatorDoorClosedInstant()
+        {
+            mono.elevatorDoorEffect?.SetClosedInstant();
+        }
+
+        private void ShowCurrentCustomer()
+        {
+            if (_currentCustomerRefData == null)
+                return;
+
+            mono.customerMoveScaleEffect?.SetOriginInstant();
+            Tween tween = mono.customerFadeEffect?.PlayFadeIn();
+            if (tween == null && mono.customerCanvasGroup != null)
+                mono.customerCanvasGroup.alpha = 1f;
+        }
+
+        private void HideCurrentCustomer(TweenCallback onComplete = null)
+        {
+            Tween tween = mono.customerFadeEffect?.PlayFadeOut(onComplete);
+            if (tween == null)
+            {
+                if (mono.customerCanvasGroup != null)
+                    mono.customerCanvasGroup.alpha = 0f;
+                onComplete?.Invoke();
+            }
+        }
+
+        private void SetCustomerHiddenInstant()
+        {
+            mono.customerMoveScaleEffect?.SetOriginInstant();
+            mono.customerFadeEffect?.SetVisibleInstant(false);
+            if (mono.customerCanvasGroup != null)
+                mono.customerCanvasGroup.alpha = 0f;
+        }
+
+        private void PlayCustomerBoardElevator(TweenCallback onComplete = null)
+        {
+            mono.customerMoveScaleEffect?.SetOriginInstant();
+            mono.customerFadeEffect?.SetVisibleInstant(true);
+            Tween moveTween = mono.customerMoveScaleEffect?.PlayEnter();
+            Tween fadeTween = mono.customerFadeEffect?.PlayFadeOut();
+
+            if (moveTween == null && fadeTween == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            Sequence sequence = DOTween.Sequence();
+            if (moveTween != null)
+                sequence.Join(moveTween);
+            if (fadeTween != null)
+                sequence.Join(fadeTween);
+            if (onComplete != null)
+                sequence.OnComplete(onComplete);
+        }
+
+        private void PlayCustomerLeaveElevator(TweenCallback onComplete = null)
+        {
+            mono.customerMoveScaleEffect?.SetEnterStateInstant();
+            mono.customerFadeEffect?.SetVisibleInstant(true);
+            Tween moveTween = mono.customerMoveScaleEffect?.PlayExit();
+            Tween fadeTween = mono.customerFadeEffect?.PlayFadeOut();
+
+            if (moveTween == null && fadeTween == null)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            Sequence sequence = DOTween.Sequence();
+            if (moveTween != null)
+                sequence.Join(moveTween);
+            if (fadeTween != null)
+                sequence.Join(fadeTween);
+            if (onComplete != null)
+                sequence.OnComplete(onComplete);
+        }
+
+        private void PlayElevatorTravelToFloor(int targetFloor, TweenCallback onComplete)
+        {
+            Sequence sequence = DOTween.Sequence();
+            int fromFloor = _currentFloor;
+            if (fromFloor != targetFloor)
+            {
+                sequence.AppendCallback(() => AnimateFloorText(targetFloor));
+                Tween shakeTween = mono.elevatorTravelShakeEffect?.Play();
+                if (shakeTween != null)
+                    sequence.Join(shakeTween);
+            }
+
+            sequence.AppendInterval(0.08f);
+            sequence.AppendCallback(() =>
+            {
+                _currentFloor = targetFloor;
+                RefreshFloorUi();
+                onComplete?.Invoke();
+            });
+        }
+
+        private void AnimateFloorText(int floor)
+        {
+            string text = $"当前楼层：{floor}";
+            if (mono.floorTextEffect != null)
+            {
+                mono.floorTextEffect.PlayTextChange(text);
+                return;
+            }
+
+            if (mono.txtCurrentFloor != null)
+                mono.txtCurrentFloor.text = text;
+        }
+
+        private void SetCurrentFloorDisplayInstant(int floor)
+        {
+            _currentFloor = floor;
+            string text = $"当前楼层：{floor}";
+            if (mono.floorTextEffect != null)
+                mono.floorTextEffect.SetTextInstant(text);
+            else if (mono.txtCurrentFloor != null)
+                mono.txtCurrentFloor.text = text;
+        }
+
         private void SetButtonText(Button button, string content)
         {
             if (button == null)
@@ -961,6 +1233,15 @@ namespace GameCore.UI
                 return null;
 
             return target.GetComponent<Image>();
+        }
+
+        private RectTransform FindChildRect(string objectName)
+        {
+            Transform target = FindChildTransformRecursive(mono.transform, objectName);
+            if (target == null)
+                return null;
+
+            return target as RectTransform;
         }
 
         private Transform FindChildTransformRecursive(Transform parent, string objectName)

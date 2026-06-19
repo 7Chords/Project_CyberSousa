@@ -1,0 +1,126 @@
+using DG.Tweening;
+using SCFrame;
+using UnityEngine;
+
+namespace GameCore.UI
+{
+    /// <summary>
+    /// 运行时主动控制的电梯门板左右开合动效。
+    /// </summary>
+    [DisallowMultipleComponent]
+    public class UISlidingDoorEffect : UIEffectBase
+    {
+        [SerializeField] private RectTransform leftDoor;
+        [SerializeField] private RectTransform rightDoor;
+        [SerializeField] private float doorTravelDistance = 110f;
+
+        private Vector2 _leftClosedPos;
+        private Vector2 _rightClosedPos;
+        private Vector2 _leftOpenPos;
+        private Vector2 _rightOpenPos;
+        private bool _cacheReady;
+        private bool _isOpen;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            cachePositions();
+        }
+
+        public void Setup(RectTransform leftDoorRect, RectTransform rightDoorRect, float travelDistance, float tweenDuration)
+        {
+            leftDoor = leftDoorRect;
+            rightDoor = rightDoorRect;
+            doorTravelDistance = travelDistance;
+            duration = tweenDuration;
+            cachePositions();
+        }
+
+        public void SetClosedInstant()
+        {
+            _isOpen = false;
+            KillAllTweens();
+            if (!_cacheReady)
+                cachePositions();
+
+            if (leftDoor != null)
+                leftDoor.anchoredPosition = _leftClosedPos;
+            if (rightDoor != null)
+                rightDoor.anchoredPosition = _rightClosedPos;
+        }
+
+        public void SetOpenInstant()
+        {
+            _isOpen = true;
+            KillAllTweens();
+            if (!_cacheReady)
+                cachePositions();
+
+            if (leftDoor != null)
+                leftDoor.anchoredPosition = _leftOpenPos;
+            if (rightDoor != null)
+                rightDoor.anchoredPosition = _rightOpenPos;
+        }
+
+        public Tween PlayOpen(TweenCallback onComplete = null)
+        {
+            _isOpen = true;
+            return playDoor(_leftOpenPos, _rightOpenPos, onComplete);
+        }
+
+        public Tween PlayClose(TweenCallback onComplete = null)
+        {
+            _isOpen = false;
+            return playDoor(_leftClosedPos, _rightClosedPos, onComplete);
+        }
+
+        protected override void RegisterEvents()
+        {
+        }
+
+        protected override void UnregisterEvents()
+        {
+        }
+
+        protected override void ResetState()
+        {
+            if (_isOpen)
+                SetOpenInstant();
+            else
+                SetClosedInstant();
+        }
+
+        private void cachePositions()
+        {
+            if (leftDoor == null || rightDoor == null)
+            {
+                SCDebugHelper.LogError($"[{nameof(UISlidingDoorEffect)}] 门板引用缺失: {name}");
+                _cacheReady = false;
+                return;
+            }
+
+            _leftClosedPos = leftDoor.anchoredPosition;
+            _rightClosedPos = rightDoor.anchoredPosition;
+            _leftOpenPos = _leftClosedPos + Vector2.left * doorTravelDistance;
+            _rightOpenPos = _rightClosedPos + Vector2.right * doorTravelDistance;
+            _cacheReady = true;
+        }
+
+        private Tween playDoor(Vector2 leftTarget, Vector2 rightTarget, TweenCallback onComplete)
+        {
+            if (!_cacheReady)
+                cachePositions();
+
+            if (!_cacheReady)
+                return null;
+
+            KillAllTweens();
+            Sequence sequence = DOTween.Sequence().SetEase(ease);
+            sequence.Join(leftDoor.DOAnchorPos(leftTarget, duration).SetEase(ease));
+            sequence.Join(rightDoor.DOAnchorPos(rightTarget, duration).SetEase(ease));
+            if (onComplete != null)
+                sequence.OnComplete(onComplete);
+            return RegTween(sequence);
+        }
+    }
+}
