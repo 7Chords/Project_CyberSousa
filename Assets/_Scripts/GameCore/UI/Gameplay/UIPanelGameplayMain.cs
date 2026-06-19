@@ -517,7 +517,7 @@ namespace GameCore.UI
                 mono.txtCurrentFloor.text = $"当前楼层：{_currentFloor}";
 
             if (mono.txtTime != null)
-                mono.txtTime.text = "10 : 29（时间）";
+                mono.txtTime.text = $"第 {_currentDayIndex + 1} 天";
         }
 
         private void RefreshRuleUi()
