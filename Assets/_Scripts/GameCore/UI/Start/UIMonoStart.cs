@@ -1,19 +1,15 @@
 using SCFrame.UI;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace GameCore.UI
 {
     public class UIMonoStart : _ASCUIMonoBase
     {
-        [Header("¿ªÊ¼ÓÎÏ·°´Å¥")]
+        [Header("å¼€å§‹æ¸¸æˆæŒ‰é’®")]
         public Button btnStart;
-        [Header("ÉèÖÃ°´Å¥")]
+        [Header("è®¾ç½®æŒ‰é’®")]
         public Button btnSetting;
-        [Header("ÍË³öÓÎÏ·°´Å¥")]
+        [Header("é€€å‡ºæ¸¸æˆæŒ‰é’®")]
         public Button btnExit;
-
     }
 }
