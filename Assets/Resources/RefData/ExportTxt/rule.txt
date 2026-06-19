@@ -1,0 +1,3 @@
+﻿id	ruleName	ruleDesc
+~id	~规则名	~规则描述
+1001	坏掉的九楼	九楼就是坏了

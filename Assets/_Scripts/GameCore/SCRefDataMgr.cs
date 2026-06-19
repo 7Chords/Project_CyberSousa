@@ -13,6 +13,7 @@ namespace GameCore
         public SCRefDataList<CustomerRefData> customerRefList;
         public SCRefDataList<CustomerNeedRefData> customerNeedRefList;
         public SCRefDataList<DialogueRefData> dialogueRefList;
+        public SCRefDataList<RuleRefData> ruleRefList;
 
         public override void OnInitialize()
         {
@@ -28,6 +29,9 @@ namespace GameCore
 
             dialogueRefList = new SCRefDataList<DialogueRefData>(DialogueRefData.assetPath, DialogueRefData.sheetName);
             dialogueRefList.readFromTxt();
+
+            ruleRefList = new SCRefDataList<RuleRefData>(RuleRefData.assetPath, RuleRefData.sheetName);
+            ruleRefList.readFromTxt();
         }
     }
 }
