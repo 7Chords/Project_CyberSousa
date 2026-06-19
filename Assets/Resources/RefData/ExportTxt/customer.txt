@@ -1,2 +1,2 @@
 ﻿id	customerName	customerInfoList	needList
-1001	外星人A	有触角;绿色	1001:1001;1002:1003
+1001	外星人A	有触角;绿色	1001:1001
