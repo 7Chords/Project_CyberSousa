@@ -301,7 +301,6 @@ namespace GameCore.UI
             mono.btnOption1?.AddMouseLeftClickDown(OnOption1Clicked);
             mono.btnOption2?.AddMouseLeftClickDown(OnOption2Clicked);
             mono.btnReject?.AddMouseLeftClickDown(OnRejectClicked);
-            mono.btnConfirm?.AddMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.AddMouseLeftClickDown(OnCloseDoorClicked);
             mono.dialogueLeftArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
             mono.dialogueRightArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
@@ -319,7 +318,6 @@ namespace GameCore.UI
             mono.btnOption1?.RemoveMouseLeftClickDown(OnOption1Clicked);
             mono.btnOption2?.RemoveMouseLeftClickDown(OnOption2Clicked);
             mono.btnReject?.RemoveMouseLeftClickDown(OnRejectClicked);
-            mono.btnConfirm?.RemoveMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.RemoveMouseLeftClickDown(OnCloseDoorClicked);
             mono.dialogueLeftArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
             mono.dialogueRightArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
@@ -699,10 +697,10 @@ namespace GameCore.UI
                 mono.btnReject.interactable = canOperateMainButtons && !_canCloseDoor;
 
             if (mono.btnConfirm != null)
-                mono.btnConfirm.interactable = canOperateMainButtons && !_canCloseDoor;
+                mono.btnConfirm.interactable = false;
 
             if (mono.btnCloseDoor != null)
-                mono.btnCloseDoor.interactable = canOperateMainButtons && _canCloseDoor;
+                mono.btnCloseDoor.interactable = canOperateMainButtons;
         }
 
         private void RefreshNumberButtonUi()
@@ -921,29 +919,36 @@ namespace GameCore.UI
             RefreshAllUi();
         }
 
-        private void OnConfirmClicked(PointerEventData eventData, object[] args)
+        private void OnCloseDoorClicked(PointerEventData eventData, object[] args)
         {
             if (_isDialogueRunning)
             {
-                SCDebugHelper.Log("当前对话未结束，暂时不能确认。");
+                SCDebugHelper.Log("当前对话未结束，暂时不能关门。");
                 return;
             }
 
             if (_isTransitionPlaying)
             {
-                SCDebugHelper.Log("当前电梯正在移动，暂时不能确认。");
+                SCDebugHelper.Log("当前电梯正在移动，暂时不能重复关门。");
+                return;
+            }
+
+            if (_canCloseDoor)
+            {
+                int targetFloor = ResolveCustomerDepartureFloor();
+                StartCustomerDepartureFlow(targetFloor, false);
                 return;
             }
 
             if (_currentNeedRefData == null)
             {
-                Debug.LogError("Gameplay 确认失败：当前住户需求配置为空。");
+                Debug.LogError("Gameplay 关门失败：当前住户需求配置为空。");
                 return;
             }
 
             if (_selectedFloor <= 0)
             {
-                Debug.LogError("Gameplay 确认失败：当前尚未选择目标楼层。");
+                Debug.LogError("Gameplay 关门失败：当前尚未选择目标楼层。");
                 return;
             }
 
@@ -968,35 +973,14 @@ namespace GameCore.UI
             _lastJudgmentEffectData = CustomerNeedMgr.instance.EvaluateGoto(_currentNeedRefData.id, finalFloor);
             _canCloseDoor = _lastJudgmentEffectData != null;
             if (_canCloseDoor)
-                SCDebugHelper.Log($"已确认前往 {finalFloor} 楼，影响值={_lastJudgmentEffectData.affectValue}");
+            {
+                SCDebugHelper.Log($"已关门前往 {finalFloor} 楼，影响值={_lastJudgmentEffectData.affectValue}");
+                RefreshAllUi();
+                StartCustomerDepartureFlow(finalFloor, true);
+                return;
+            }
 
             RefreshAllUi();
-            if (_canCloseDoor)
-                StartCustomerDepartureFlow(finalFloor, true);
-        }
-
-        private void OnCloseDoorClicked(PointerEventData eventData, object[] args)
-        {
-            if (_isDialogueRunning)
-            {
-                SCDebugHelper.Log("当前对话未结束，暂时不能关门。");
-                return;
-            }
-
-            if (_isTransitionPlaying)
-            {
-                SCDebugHelper.Log("当前电梯正在移动，暂时不能重复关门。");
-                return;
-            }
-
-            if (!_canCloseDoor)
-            {
-                Debug.LogError("Gameplay 关门失败：当前住户尚未完成处理，不能关门。");
-                return;
-            }
-
-            int targetFloor = ResolveCustomerDepartureFloor();
-            StartCustomerDepartureFlow(targetFloor, false);
         }
 
         private void ShowSettlementPanel()
