@@ -42,6 +42,7 @@ namespace GameCore.UI
         private bool _isSettlementShowing;
         private bool _isTransitionPlaying;
         private bool _hasInitializedRuntime;
+        private string _activeDialoguePortraitResName;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)
@@ -326,6 +327,7 @@ namespace GameCore.UI
 
         private void AdvanceToNextCustomer()
         {
+            ClearDialoguePortraits();
             _currentCustomerRefData = null;
             _currentNeedRefData = null;
             _currentDialogueRefData = null;
@@ -620,10 +622,19 @@ namespace GameCore.UI
                 return;
 
             bool hasCurrentDialogue = _isDialogueRunning && _currentDialogueRefData != null;
-            mono.dialogueSection.SetActive(hasCurrentDialogue);
+            bool showPortraitOnly = !hasCurrentDialogue
+                && _currentCustomerRefData != null
+                && IsValidPortraitResName(_activeDialoguePortraitResName);
+
+            mono.dialogueSection.SetActive(hasCurrentDialogue || showPortraitOnly);
             if (!hasCurrentDialogue)
             {
-                ClearDialoguePortraits();
+                if (showPortraitOnly)
+                {
+                    HideDialogueTextAndOptions();
+                    ApplyDialoguePortrait(mono.imgDialoguePortrait, _activeDialoguePortraitResName);
+                }
+
                 return;
             }
 
@@ -655,6 +666,27 @@ namespace GameCore.UI
                 SetButtonText(mono.btnOption1, _option1DialogueRefData.content);
                 SetButtonText(mono.btnOption2, _option2DialogueRefData.content);
             }
+        }
+
+        private void HideDialogueTextAndOptions()
+        {
+            mono.txtDialogueLeft.text = string.Empty;
+            mono.txtDialogueRight.text = string.Empty;
+
+            if (mono.dialogueLeftArea != null)
+            {
+                mono.dialogueLeftArea.raycastTarget = false;
+                mono.dialogueLeftArea.enabled = false;
+            }
+
+            if (mono.dialogueRightArea != null)
+            {
+                mono.dialogueRightArea.raycastTarget = false;
+                mono.dialogueRightArea.enabled = false;
+            }
+
+            mono.btnOption1?.gameObject.SetActive(false);
+            mono.btnOption2?.gameObject.SetActive(false);
         }
 
         private void RefreshActionUi()
@@ -1229,16 +1261,14 @@ namespace GameCore.UI
         private void RefreshDialoguePortrait(DialogueRefData dialogueRefData)
         {
             if (dialogueRefData == null)
-            {
-                ClearDialoguePortraits();
                 return;
-            }
 
             ApplyDialoguePortrait(mono.imgDialoguePortrait, dialogueRefData.portraitResName);
         }
 
         private void ClearDialoguePortraits()
         {
+            _activeDialoguePortraitResName = null;
             ApplyDialoguePortrait(mono.imgDialoguePortrait, null);
         }
 
@@ -1262,6 +1292,7 @@ namespace GameCore.UI
                 return;
             }
 
+            _activeDialoguePortraitResName = portraitResName;
             image.sprite = sprite;
             image.preserveAspect = true;
             image.enabled = true;
