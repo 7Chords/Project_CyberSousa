@@ -20,6 +20,7 @@ namespace GameCore.UI
         public GameObject dialogueSection;
         public Image dialogueLeftArea;
         public Image dialogueRightArea;
+        public Image imgDialoguePortrait;
         public Text txtDialogueLeft;
         public Text txtDialogueRight;
         public Text txtCurrentFloor;

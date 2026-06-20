@@ -42,6 +42,7 @@ namespace GameCore.UI
         private bool _isSettlementShowing;
         private bool _isTransitionPlaying;
         private bool _hasInitializedRuntime;
+        private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)
         {
@@ -102,6 +103,9 @@ namespace GameCore.UI
 
             if (mono.dialogueRightArea == null)
                 mono.dialogueRightArea = FindChildImage("Dialogue02");
+
+            if (mono.imgDialoguePortrait == null)
+                mono.imgDialoguePortrait = FindChildImage("DialoguePortrait");
 
             if (mono.elevatorRoot == null)
                 mono.elevatorRoot = FindChildRect("ElevatorRoot");
@@ -618,13 +622,17 @@ namespace GameCore.UI
             bool hasCurrentDialogue = _isDialogueRunning && _currentDialogueRefData != null;
             mono.dialogueSection.SetActive(hasCurrentDialogue);
             if (!hasCurrentDialogue)
+            {
+                ClearDialoguePortraits();
                 return;
+            }
 
             bool isPlayerDialogue = IsPlayerDialogue(_currentDialogueRefData);
             string currentContent = _currentDialogueRefData.content;
 
             mono.txtDialogueLeft.text = isPlayerDialogue ? string.Empty : currentContent;
             mono.txtDialogueRight.text = isPlayerDialogue ? currentContent : string.Empty;
+            RefreshDialoguePortrait(_currentDialogueRefData);
 
             if (mono.dialogueLeftArea != null)
             {
@@ -834,6 +842,7 @@ namespace GameCore.UI
             _currentAffectValue += optionDialogueRefData.affectValue;
             mono.txtDialogueLeft.text = string.Empty;
             mono.txtDialogueRight.text = optionDialogueRefData.content;
+            RefreshDialoguePortrait(optionDialogueRefData);
 
             if (optionDialogueRefData.nextList == null || optionDialogueRefData.nextList.Count == 0 || optionDialogueRefData.nextList[0] == 0)
             {
@@ -1215,6 +1224,68 @@ namespace GameCore.UI
             Text buttonText = button.GetComponentInChildren<Text>();
             if (buttonText != null)
                 buttonText.text = content;
+        }
+
+        private void RefreshDialoguePortrait(DialogueRefData dialogueRefData)
+        {
+            if (dialogueRefData == null)
+            {
+                ClearDialoguePortraits();
+                return;
+            }
+
+            ApplyDialoguePortrait(mono.imgDialoguePortrait, dialogueRefData.portraitResName);
+        }
+
+        private void ClearDialoguePortraits()
+        {
+            ApplyDialoguePortrait(mono.imgDialoguePortrait, null);
+        }
+
+        private void ApplyDialoguePortrait(Image image, string portraitResName)
+        {
+            if (image == null)
+                return;
+
+            if (!IsValidPortraitResName(portraitResName))
+            {
+                image.enabled = false;
+                image.sprite = null;
+                return;
+            }
+
+            Sprite sprite = GetOrLoadPortraitSprite(portraitResName);
+            if (sprite == null)
+            {
+                image.enabled = false;
+                image.sprite = null;
+                return;
+            }
+
+            image.sprite = sprite;
+            image.preserveAspect = true;
+            image.enabled = true;
+        }
+
+        private static bool IsValidPortraitResName(string portraitResName)
+        {
+            return !string.IsNullOrEmpty(portraitResName) && portraitResName != "*";
+        }
+
+        private Sprite GetOrLoadPortraitSprite(string portraitResName)
+        {
+            if (_portraitSpriteCache.TryGetValue(portraitResName, out Sprite cachedSprite))
+                return cachedSprite;
+
+            Sprite sprite = ResourcesHelper.LoadAsset<Sprite>(portraitResName);
+            if (sprite == null)
+            {
+                Debug.LogError($"Gameplay 加载对话立绘失败：portraitResName={portraitResName}");
+                return null;
+            }
+
+            _portraitSpriteCache[portraitResName] = sprite;
+            return sprite;
         }
 
         private Text FindChildText(string objectName)
