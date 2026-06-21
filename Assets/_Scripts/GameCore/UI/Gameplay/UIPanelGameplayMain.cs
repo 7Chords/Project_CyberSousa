@@ -90,11 +90,7 @@ namespace GameCore.UI
             if (mono.txtCurrentFloor == null)
                 mono.txtCurrentFloor = FindChildText("CurrentFloorPanel_Text");
 
-            if (mono.txtNoticeBoard01 == null)
-                mono.txtNoticeBoard01 = FindChildText("NoticeBoard01_Text");
-
-            if (mono.txtNoticeBoard02 == null)
-                mono.txtNoticeBoard02 = FindChildText("NoticeBoard02_Text");
+            EnsureNoticeBoardReferences();
 
             if (mono.txtCustomerName == null)
                 mono.txtCustomerName = FindChildText("AnimalLabel");
@@ -526,41 +522,135 @@ namespace GameCore.UI
 
         private void RefreshRuleUi()
         {
-            if (mono.txtNoticeBoard01 == null)
-                return;
+            EnsureNoticeBoardReferences();
 
-            if (_currentRuleIdList == null || _currentRuleIdList.Count == 0)
+            List<NoticeBoardItem> noticeBoardList = mono.noticeBoardList;
+            if (noticeBoardList == null || noticeBoardList.Count == 0)
             {
-                mono.txtNoticeBoard01.text = "本关暂无规则";
-                if (mono.txtNoticeBoard02 != null)
-                    mono.txtNoticeBoard02.text = "告示2";
+                Debug.LogError("Gameplay 告示板列表为空，无法刷新规则 UI。");
                 return;
+            }
+
+            int ruleCount = _currentRuleIdList != null ? _currentRuleIdList.Count : 0;
+            if (ruleCount == 0)
+            {
+                SetNoticeBoardVisible(noticeBoardList, 0, true, "本关暂无规则");
+                for (int index = 1; index < noticeBoardList.Count; index++)
+                    SetNoticeBoardVisible(noticeBoardList, index, false, null);
+                return;
+            }
+
+            if (ruleCount > noticeBoardList.Count)
+                Debug.LogError($"Gameplay 告示板数量不足：需要 {ruleCount} 个，当前只有 {noticeBoardList.Count} 个。请重新生成 panel_gameplay_main Prefab。");
+
+            int visibleCount = Mathf.Min(ruleCount, noticeBoardList.Count);
+            for (int index = 0; index < visibleCount; index++)
+            {
+                long ruleId = _currentRuleIdList[index];
+                SetNoticeBoardVisible(noticeBoardList, index, true, BuildRuleDisplayText(ruleId));
+            }
+
+            for (int index = visibleCount; index < noticeBoardList.Count; index++)
+                SetNoticeBoardVisible(noticeBoardList, index, false, null);
+        }
+
+        private string BuildRuleDisplayText(long ruleId)
+        {
+            if (!_ruleMap.TryGetValue(ruleId, out RuleRefData ruleRefData))
+            {
+                Debug.LogError($"Gameplay 获取规则配置失败：未找到 ruleId={ruleId}");
+                return "规则配置缺失";
             }
 
             StringBuilder builder = new StringBuilder();
-            for (int index = 0; index < _currentRuleIdList.Count; index++)
+            builder.Append(ruleRefData.ruleName);
+            if (!string.IsNullOrEmpty(ruleRefData.ruleDesc))
             {
-                long ruleId = _currentRuleIdList[index];
-                if (!_ruleMap.TryGetValue(ruleId, out RuleRefData ruleRefData))
-                {
-                    Debug.LogError($"Gameplay 获取规则配置失败：未找到 ruleId={ruleId}");
-                    continue;
-                }
-
-                if (builder.Length > 0)
-                    builder.AppendLine();
-
-                builder.Append(ruleRefData.ruleName);
-                if (!string.IsNullOrEmpty(ruleRefData.ruleDesc))
-                {
-                    builder.AppendLine();
-                    builder.Append(ruleRefData.ruleDesc);
-                }
+                builder.AppendLine();
+                builder.Append(ruleRefData.ruleDesc);
             }
 
-            mono.txtNoticeBoard01.text = builder.Length > 0 ? builder.ToString() : "本关暂无可显示规则";
-            if (mono.txtNoticeBoard02 != null)
-                mono.txtNoticeBoard02.text = "告示2";
+            return builder.ToString();
+        }
+
+        private static void SetNoticeBoardVisible(List<NoticeBoardItem> noticeBoardList, int index, bool visible, string text)
+        {
+            NoticeBoardItem noticeBoardItem = noticeBoardList[index];
+            if (noticeBoardItem.root != null)
+                SCCommon.SetGameObjectEnable(noticeBoardItem.root, visible);
+            else if (noticeBoardItem.text != null)
+                SCCommon.SetGameObjectEnable(noticeBoardItem.text.gameObject, visible);
+
+            if (visible && noticeBoardItem.text != null && text != null)
+                noticeBoardItem.text.text = text;
+        }
+
+        private void EnsureNoticeBoardReferences()
+        {
+            if (mono.noticeBoardList == null)
+                mono.noticeBoardList = new List<NoticeBoardItem>();
+
+            for (int index = 0; index < mono.noticeBoardList.Count; index++)
+            {
+                NoticeBoardItem noticeBoardItem = mono.noticeBoardList[index];
+                if (noticeBoardItem == null)
+                    continue;
+
+                if (noticeBoardItem.text == null && noticeBoardItem.root != null)
+                    noticeBoardItem.text = noticeBoardItem.root.GetComponentInChildren<Text>(true);
+            }
+
+            if (mono.noticeBoardList.Count > 0)
+                return;
+
+            Transform leftBand = FindChildTransformRecursive(mono.transform, "LeftBand");
+            if (leftBand == null)
+            {
+                Debug.LogError("Gameplay 未找到 LeftBand，无法自动收集告示板。");
+                return;
+            }
+
+            Transform noticeBoardRoot = leftBand.Find("NoticeBoardRoot");
+            if (noticeBoardRoot != null)
+                CollectNoticeBoardsFromTransform(noticeBoardRoot);
+            else
+                CollectNoticeBoardsFromTransform(leftBand);
+        }
+
+        private void CollectNoticeBoardsFromTransform(Transform parent)
+        {
+            for (int index = 0; index < parent.childCount; index++)
+            {
+                Transform child = parent.GetChild(index);
+                if (!child.name.StartsWith("NoticeBoard"))
+                    continue;
+
+                if (TryGetNoticeBoardItem(child, out NoticeBoardItem noticeBoardItem))
+                    mono.noticeBoardList.Add(noticeBoardItem);
+            }
+
+            mono.noticeBoardList.Sort((left, right) =>
+            {
+                string leftName = left.root != null ? left.root.name : string.Empty;
+                string rightName = right.root != null ? right.root.name : string.Empty;
+                return string.CompareOrdinal(leftName, rightName);
+            });
+        }
+
+        private static bool TryGetNoticeBoardItem(Transform boardRoot, out NoticeBoardItem noticeBoardItem)
+        {
+            noticeBoardItem = null;
+            if (boardRoot == null)
+                return false;
+
+            Transform textTransform = boardRoot.Find($"{boardRoot.name}_Text");
+            Text text = textTransform != null ? textTransform.GetComponent<Text>() : boardRoot.GetComponentInChildren<Text>(true);
+            noticeBoardItem = new NoticeBoardItem
+            {
+                root = boardRoot.gameObject,
+                text = text
+            };
+            return true;
         }
 
         private void RefreshCustomerUi()

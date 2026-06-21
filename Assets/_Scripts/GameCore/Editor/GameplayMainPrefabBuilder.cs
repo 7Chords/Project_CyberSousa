@@ -13,6 +13,7 @@ namespace GameCore.Editor
     {
         private const string PrefabAssetPath = "Assets/GameRes/UI/panel_gameplay_main.prefab";
         private const string WhiteSpriteAssetPath = "Assets/GameRes/UI/Generated/gameplay_main_white.png";
+        private const int NoticeBoardSlotCount = 6;
 
         private static Sprite _whiteSprite;
         private static Font _defaultFont;
@@ -87,12 +88,30 @@ namespace GameCore.Editor
 
         private static void CreateLeftColumn(RectTransform leftBand)
         {
-            Text noticeBoard01Text;
-            Text noticeBoard02Text;
-            CreateCardWithTitle("NoticeBoard01", leftBand, new Vector2(0.11f, 0.64f), new Vector2(0.67f, 0.88f), "告示1", 22, FontStyle.Bold, out noticeBoard01Text);
-            CreateCardWithTitle("NoticeBoard02", leftBand, new Vector2(0.23f, 0.32f), new Vector2(0.79f, 0.55f), "告示2", 22, FontStyle.Bold, out noticeBoard02Text);
-            _currentMono.txtNoticeBoard01 = noticeBoard01Text;
-            _currentMono.txtNoticeBoard02 = noticeBoard02Text;
+            RectTransform noticeBoardRoot = CreateContainer("NoticeBoardRoot", leftBand, Vector2.zero, Vector2.one);
+            _currentMono.noticeBoardList = new List<NoticeBoardItem>();
+
+            float top = 0.95f;
+            float bottom = 0.08f;
+            float gap = 0.02f;
+            float totalHeight = top - bottom;
+            float cellHeight = (totalHeight - gap * (NoticeBoardSlotCount - 1)) / NoticeBoardSlotCount;
+
+            for (int index = 0; index < NoticeBoardSlotCount; index++)
+            {
+                float anchorMaxY = top - index * (cellHeight + gap);
+                float anchorMinY = anchorMaxY - cellHeight;
+                Vector2 anchorMin = new Vector2(0.08f, anchorMinY);
+                Vector2 anchorMax = new Vector2(0.88f, anchorMaxY);
+                string boardName = $"NoticeBoard{(index + 1):00}";
+                Text noticeBoardText;
+                GameObject noticeBoardRootObject = CreateCardWithTitle(boardName, noticeBoardRoot, anchorMin, anchorMax, string.Empty, 22, FontStyle.Bold, out noticeBoardText).gameObject;
+                _currentMono.noticeBoardList.Add(new NoticeBoardItem
+                {
+                    root = noticeBoardRootObject,
+                    text = noticeBoardText
+                });
+            }
         }
 
         private static void CreateCenterColumn(RectTransform centerBand)
@@ -230,6 +249,7 @@ namespace GameCore.Editor
             titleText = CreateText($"{name}_Text", card.rectTransform, new Vector2(0.08f, 0.08f), new Vector2(0.92f, 0.92f), text, fontSize, TextAnchor.MiddleCenter, fontStyle, new Color(0.18f, 0.18f, 0.18f, 1f));
             titleText.horizontalOverflow = HorizontalWrapMode.Wrap;
             titleText.verticalOverflow = VerticalWrapMode.Overflow;
+            card.gameObject.SetActive(false);
             return card;
         }
 
