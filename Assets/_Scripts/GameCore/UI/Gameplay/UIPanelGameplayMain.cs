@@ -27,8 +27,10 @@ namespace GameCore.UI
         private CustomerRefData _currentCustomerRefData;
         private CustomerNeedRefData _currentNeedRefData;
         private DialogueRefData _currentDialogueRefData;
-        private DialogueRefData _option1DialogueRefData;
-        private DialogueRefData _option2DialogueRefData;
+        private readonly List<DialogueRefData> _currentOptionDialogueList = new List<DialogueRefData>();
+        private readonly List<UIMonoDialogueOption> _dialogueOptionItemPool = new List<UIMonoDialogueOption>();
+        private GameObject _dialogueOptionItemPrefab;
+        private bool _dialogueOptionPrefabReady;
         private JudgmentEffectData _lastJudgmentEffectData;
         private RuleEffectData _lastRuleEffectData;
 
@@ -112,6 +114,9 @@ namespace GameCore.UI
 
             if (mono.elevatorDoorRight == null)
                 mono.elevatorDoorRight = FindChildRect("ElevatorDoorRight");
+
+            if (mono.dialogueOptionRoot == null)
+                mono.dialogueOptionRoot = FindChildRect("OptionSection");
 
             if (mono.customerCanvasGroup == null)
             {
@@ -294,8 +299,6 @@ namespace GameCore.UI
                     numberButton.AddMouseLeftClickDown(OnNumberButtonClicked);
             }
 
-            mono.btnOption1?.AddMouseLeftClickDown(OnOption1Clicked);
-            mono.btnOption2?.AddMouseLeftClickDown(OnOption2Clicked);
             mono.btnReject?.AddMouseLeftClickDown(OnRejectClicked);
             mono.btnCloseDoor?.AddMouseLeftClickDown(OnCloseDoorClicked);
             mono.dialogueLeftArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
@@ -311,8 +314,7 @@ namespace GameCore.UI
                     numberButton.RemoveMouseLeftClickDown(OnNumberButtonClicked);
             }
 
-            mono.btnOption1?.RemoveMouseLeftClickDown(OnOption1Clicked);
-            mono.btnOption2?.RemoveMouseLeftClickDown(OnOption2Clicked);
+            UnbindAllDialogueOptionItems();
             mono.btnReject?.RemoveMouseLeftClickDown(OnRejectClicked);
             mono.btnCloseDoor?.RemoveMouseLeftClickDown(OnCloseDoorClicked);
             mono.dialogueLeftArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
@@ -325,8 +327,7 @@ namespace GameCore.UI
             _currentCustomerRefData = null;
             _currentNeedRefData = null;
             _currentDialogueRefData = null;
-            _option1DialogueRefData = null;
-            _option2DialogueRefData = null;
+            ClearDialogueOptions();
             _selectedFloor = 0;
             _currentAffectValue = 0;
             _isDialogueRunning = false;
@@ -421,8 +422,7 @@ namespace GameCore.UI
 
         private void StartDialogue(long dialogueStartId)
         {
-            _option1DialogueRefData = null;
-            _option2DialogueRefData = null;
+            ClearDialogueOptions();
             _isDialogueRunning = true;
             SetCurrentDialogue(dialogueStartId);
         }
@@ -441,36 +441,70 @@ namespace GameCore.UI
 
             if (dialogueRefData.dialogueType == EDialogueType.SELECT)
             {
+                ClearDialogueOptions();
                 ShowDialogueSelectionFromNode(dialogueRefData);
                 return;
             }
 
-            _option1DialogueRefData = null;
-            _option2DialogueRefData = null;
-            if (dialogueRefData.nextList != null && dialogueRefData.nextList.Count == 2)
-                PrepareSelection(dialogueRefData);
+            ClearDialogueOptions();
+            if (ShouldPrepareDialogueOptions(dialogueRefData))
+                PrepareDialogueOptions(dialogueRefData);
 
             RefreshAllUi();
         }
 
-        private void PrepareSelection(DialogueRefData dialogueRefData)
+        private bool ShouldPrepareDialogueOptions(DialogueRefData dialogueRefData)
         {
-            if (dialogueRefData == null || dialogueRefData.nextList == null || dialogueRefData.nextList.Count != 2)
-                return;
+            if (dialogueRefData?.nextList == null || dialogueRefData.nextList.Count == 0)
+                return false;
 
-            _option1DialogueRefData = GetDialogueRefData(dialogueRefData.nextList[0]);
-            _option2DialogueRefData = GetDialogueRefData(dialogueRefData.nextList[1]);
-
-            if (_option1DialogueRefData == null || _option2DialogueRefData == null)
+            for (int index = 0; index < dialogueRefData.nextList.Count; index++)
             {
-                Debug.LogError($"Gameplay 对话分支初始化失败：dialogueId={dialogueRefData.id} 的分支节点不完整。");
-                _option1DialogueRefData = null;
-                _option2DialogueRefData = null;
-                return;
+                long nextDialogueId = dialogueRefData.nextList[index];
+                if (nextDialogueId == 0)
+                    continue;
+
+                DialogueRefData nextDialogueRefData = GetDialogueRefData(nextDialogueId);
+                if (nextDialogueRefData != null && nextDialogueRefData.dialogueType == EDialogueType.SELECT)
+                    return true;
             }
 
-            if (_option1DialogueRefData.dialogueType != EDialogueType.SELECT || _option2DialogueRefData.dialogueType != EDialogueType.SELECT)
-                Debug.LogError($"Gameplay 对话分支结构异常：dialogueId={dialogueRefData.id} 的 nextList 期望指向 SELECT 节点。");
+            return false;
+        }
+
+        private void PrepareDialogueOptions(DialogueRefData dialogueRefData)
+        {
+            ClearDialogueOptions();
+            if (dialogueRefData == null || dialogueRefData.nextList == null || dialogueRefData.nextList.Count == 0)
+                return;
+
+            for (int index = 0; index < dialogueRefData.nextList.Count; index++)
+            {
+                long nextDialogueId = dialogueRefData.nextList[index];
+                if (nextDialogueId == 0)
+                    continue;
+
+                DialogueRefData optionDialogueRefData = GetDialogueRefData(nextDialogueId);
+                if (optionDialogueRefData == null)
+                    continue;
+
+                if (optionDialogueRefData.dialogueType != EDialogueType.SELECT)
+                {
+                    Debug.LogError($"Gameplay 对话分支结构异常：dialogueId={dialogueRefData.id} 的 nextList[{index}]={nextDialogueId} 不是 SELECT 节点。");
+                    continue;
+                }
+
+                _currentOptionDialogueList.Add(optionDialogueRefData);
+            }
+
+            if (_currentOptionDialogueList.Count == 0)
+                Debug.LogError($"Gameplay 对话分支初始化失败：dialogueId={dialogueRefData.id} 没有可用的选项节点。");
+        }
+
+        private void ClearDialogueOptions()
+        {
+            _currentOptionDialogueList.Clear();
+            HideAllDialogueOptionItems();
         }
 
         private DialogueRefData GetDialogueRefData(long dialogueId)
@@ -492,8 +526,7 @@ namespace GameCore.UI
         {
             _isDialogueRunning = false;
             _currentDialogueRefData = null;
-            _option1DialogueRefData = null;
-            _option2DialogueRefData = null;
+            ClearDialogueOptions();
 
             // TODO: 这里可以接 CustomerNeedMgr.EvaluateDialogue，根据当前好感度触发额外需求对话。
 
@@ -745,14 +778,42 @@ namespace GameCore.UI
                 mono.dialogueRightArea.enabled = !string.IsNullOrEmpty(mono.txtDialogueRight.text);
             }
 
-            bool showOptions = _option1DialogueRefData != null && _option2DialogueRefData != null;
-            mono.btnOption1?.gameObject.SetActive(showOptions);
-            mono.btnOption2?.gameObject.SetActive(showOptions);
+            RefreshDialogueOptionUi();
+        }
 
-            if (showOptions)
+        private void RefreshDialogueOptionUi()
+        {
+            HideAllDialogueOptionItems();
+
+            if (mono.dialogueOptionRoot == null)
             {
-                SetButtonText(mono.btnOption1, _option1DialogueRefData.content);
-                SetButtonText(mono.btnOption2, _option2DialogueRefData.content);
+                if (_currentOptionDialogueList.Count > 0)
+                    Debug.LogError("Gameplay 对话选项容器为空，无法显示选项。");
+                return;
+            }
+
+            bool showOptions = _currentOptionDialogueList.Count > 0;
+            mono.dialogueOptionRoot.gameObject.SetActive(showOptions);
+            if (!showOptions)
+                return;
+
+            EnsureDialogueOptionPrefab();
+            if (_dialogueOptionItemPrefab == null)
+            {
+                Debug.LogError("Gameplay 对话选项预制体未加载完成，无法显示选项。");
+                return;
+            }
+
+            for (int index = 0; index < _currentOptionDialogueList.Count; index++)
+            {
+                UIMonoDialogueOption optionItem = GetOrCreateDialogueOptionItem(index);
+                if (optionItem == null)
+                    continue;
+
+                DialogueRefData optionDialogueRefData = _currentOptionDialogueList[index];
+                optionItem.gameObject.SetActive(true);
+                optionItem.SetContent(optionDialogueRefData.content);
+                BindDialogueOptionItem(optionItem, index);
             }
         }
 
@@ -773,8 +834,9 @@ namespace GameCore.UI
                 mono.dialogueRightArea.enabled = false;
             }
 
-            mono.btnOption1?.gameObject.SetActive(false);
-            mono.btnOption2?.gameObject.SetActive(false);
+            HideAllDialogueOptionItems();
+            if (mono.dialogueOptionRoot != null)
+                mono.dialogueOptionRoot.gameObject.SetActive(false);
         }
 
         private void RefreshActionUi()
@@ -824,7 +886,7 @@ namespace GameCore.UI
             if (_currentDialogueRefData == null)
                 return false;
 
-            if (_option1DialogueRefData != null || _option2DialogueRefData != null)
+            if (_currentOptionDialogueList.Count > 0)
                 return false;
 
             if (_currentDialogueRefData.flagType == EDialogueFlagType.END)
@@ -941,14 +1003,30 @@ namespace GameCore.UI
             return null;
         }
 
-        private void OnOption1Clicked(PointerEventData eventData, object[] args)
+        private void OnDialogueOptionClicked(PointerEventData eventData, object[] args)
         {
-            HandleDialogueOptionSelection(_option1DialogueRefData);
+            int optionIndex = ParseDialogueOptionIndex(args);
+            if (optionIndex < 0 || optionIndex >= _currentOptionDialogueList.Count)
+            {
+                Debug.LogError($"Gameplay 选择对话选项失败：选项索引无效，index={optionIndex}");
+                return;
+            }
+
+            HandleDialogueOptionSelection(_currentOptionDialogueList[optionIndex]);
         }
 
-        private void OnOption2Clicked(PointerEventData eventData, object[] args)
+        private static int ParseDialogueOptionIndex(object[] args)
         {
-            HandleDialogueOptionSelection(_option2DialogueRefData);
+            if (args == null || args.Length == 0 || args[0] == null)
+                return -1;
+
+            if (args[0] is int optionIndex)
+                return optionIndex;
+
+            if (int.TryParse(args[0].ToString(), out optionIndex))
+                return optionIndex;
+
+            return -1;
         }
 
         private void HandleDialogueOptionSelection(DialogueRefData optionDialogueRefData)
@@ -1322,14 +1400,89 @@ namespace GameCore.UI
                 mono.txtCurrentFloor.text = text;
         }
 
-        private void SetButtonText(Button button, string content)
+        private void EnsureDialogueOptionPrefab()
         {
-            if (button == null)
+            if (_dialogueOptionPrefabReady && _dialogueOptionItemPrefab != null)
                 return;
 
-            Text buttonText = button.GetComponentInChildren<Text>();
-            if (buttonText != null)
-                buttonText.text = content;
+            if (string.IsNullOrEmpty(mono.dialogueOptionItemResName))
+            {
+                Debug.LogError("Gameplay 对话选项预制体未配置：请在 UIMonoGameplayMain 上填写 Addressables 资源名。");
+                return;
+            }
+
+            _dialogueOptionItemPrefab = ResourcesHelper.LoadAsset<GameObject>(mono.dialogueOptionItemResName);
+            if (_dialogueOptionItemPrefab == null)
+            {
+                Debug.LogError($"Gameplay 加载对话选项预制体失败：resName={mono.dialogueOptionItemResName}");
+                return;
+            }
+
+            if (_dialogueOptionItemPrefab.GetComponent<UIMonoDialogueOption>() == null)
+            {
+                Debug.LogError($"Gameplay 对话选项预制体缺少 UIMonoDialogueOption 组件：resName={mono.dialogueOptionItemResName}");
+                _dialogueOptionItemPrefab = null;
+                return;
+            }
+
+            _dialogueOptionPrefabReady = true;
+        }
+
+        private UIMonoDialogueOption GetOrCreateDialogueOptionItem(int index)
+        {
+            while (_dialogueOptionItemPool.Count <= index)
+            {
+                if (_dialogueOptionItemPrefab == null || mono.dialogueOptionRoot == null)
+                    return null;
+
+                GameObject instanceObject = Object.Instantiate(_dialogueOptionItemPrefab, mono.dialogueOptionRoot);
+                instanceObject.name = $"DialogueOption_{index}";
+                UIMonoDialogueOption optionItem = instanceObject.GetComponent<UIMonoDialogueOption>();
+                if (optionItem == null)
+                {
+                    Debug.LogError("Gameplay 实例化对话选项失败：缺少 UIMonoDialogueOption 组件。");
+                    Object.Destroy(instanceObject);
+                    return null;
+                }
+
+                optionItem.EnsureReferences();
+                optionItem.gameObject.SetActive(false);
+                _dialogueOptionItemPool.Add(optionItem);
+            }
+
+            return _dialogueOptionItemPool[index];
+        }
+
+        private void BindDialogueOptionItem(UIMonoDialogueOption optionItem, int optionIndex)
+        {
+            if (optionItem == null || optionItem.btnOption == null)
+            {
+                Debug.LogError("Gameplay 绑定对话选项失败：选项按钮为空。");
+                return;
+            }
+
+            optionItem.btnOption.RemoveAllListener(ESCEventType.ON_MOUSE_LEFT_CLICK_DOWN);
+            optionItem.btnOption.AddMouseLeftClickDown(OnDialogueOptionClicked, optionIndex);
+        }
+
+        private void UnbindAllDialogueOptionItems()
+        {
+            for (int index = 0; index < _dialogueOptionItemPool.Count; index++)
+            {
+                UIMonoDialogueOption optionItem = _dialogueOptionItemPool[index];
+                optionItem?.btnOption?.RemoveAllListener(ESCEventType.ON_MOUSE_LEFT_CLICK_DOWN);
+            }
+        }
+
+        private void HideAllDialogueOptionItems()
+        {
+            UnbindAllDialogueOptionItems();
+            for (int index = 0; index < _dialogueOptionItemPool.Count; index++)
+            {
+                UIMonoDialogueOption optionItem = _dialogueOptionItemPool[index];
+                if (optionItem != null)
+                    optionItem.gameObject.SetActive(false);
+            }
         }
 
         private void RefreshDialoguePortrait(DialogueRefData dialogueRefData)

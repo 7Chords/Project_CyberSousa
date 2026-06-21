@@ -60,10 +60,10 @@ namespace GameCore.UI
         public Text txtAnimalInfo;
         [Header("底部提示文本")]
         public Text txtBottomHint;
-        [Header("对话选项1按钮")]
-        public Button btnOption1;
-        [Header("对话选项2按钮")]
-        public Button btnOption2;
+        [Header("对话选项容器")]
+        public RectTransform dialogueOptionRoot;
+        [Header("对话选项 Addressables 资源名")]
+        public string dialogueOptionItemResName = "item_dialogue_option";
         [Header("拒绝按钮")]
         public Button btnReject;
         [Header("确认按钮")]

@@ -201,8 +201,14 @@ namespace GameCore.Editor
             mono.imgDialoguePortrait = CreatePortraitImage("DialoguePortrait", dialogueSection, new Vector2(0.16f, 0.85f), new Vector2(0.37f, 0.99f));
 
             RectTransform optionSection = CreateContainer("OptionSection", dialogueSection, new Vector2(0.63f, 0.18f), new Vector2(0.79f, 0.31f));
-            mono.btnOption1 = CreateTextButton("Option01", optionSection, new Vector2(0f, 0.56f), new Vector2(1f, 1f), "选项1", 18, new Color(0.88f, 0.88f, 0.88f, 0.98f));
-            mono.btnOption2 = CreateTextButton("Option02", optionSection, new Vector2(0f, 0f), new Vector2(1f, 0.44f), "选项2", 18, new Color(0.88f, 0.88f, 0.88f, 0.98f));
+            VerticalLayoutGroup optionLayout = optionSection.gameObject.AddComponent<VerticalLayoutGroup>();
+            optionLayout.childAlignment = TextAnchor.UpperCenter;
+            optionLayout.spacing = 8f;
+            optionLayout.childControlWidth = true;
+            optionLayout.childControlHeight = true;
+            optionLayout.childForceExpandWidth = true;
+            optionLayout.childForceExpandHeight = false;
+            mono.dialogueOptionRoot = optionSection;
 
             dialogueSection.gameObject.SetActive(false);
         }
