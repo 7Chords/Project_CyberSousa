@@ -25,6 +25,7 @@ namespace GameCore
             SCSettingMgr.instance.Initialize();
             SCMsgCenter.instance.Initialize();
             SCTaskHelper.instance.Initialize();
+            AudioMgr.instance.Initialize();
             SCPoolMgr.instance.Initialize();
             SCInputListener.instance.Initialize();
             SCRefDataMgr.instance.Initialize();
@@ -45,6 +46,7 @@ namespace GameCore
             SCRefDataMgr.instance.Discard();
             SCInputListener.instance.Discard();
             SCPoolMgr.instance.Discard();
+            AudioMgr.instance.Discard();
             SCTaskHelper.instance.Discard();
             SCMsgCenter.instance.Discard();
             SCSettingMgr.instance.Discard();

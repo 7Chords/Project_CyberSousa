@@ -1,4 +1,5 @@
 using DG.Tweening;
+using GameCore;
 using GameCore.Flow;
 using SCFrame;
 using SCFrame.UI;
@@ -46,13 +47,13 @@ namespace GameCore.UI
         {
             if (mono.sldMusic != null)
             {
-                mono.sldMusic.onValueChanged.AddListener(value => SCSettingMgr.instance.bgmVolumeFactor = value);
+                mono.sldMusic.onValueChanged.AddListener(onMusicVolumeChanged);
                 mono.sldMusic.value = SCSettingMgr.instance.bgmVolumeFactor;
             }
 
             if (mono.sldSound != null)
             {
-                mono.sldSound.onValueChanged.AddListener(value => SCSettingMgr.instance.sfxVolumeFactor = value);
+                mono.sldSound.onValueChanged.AddListener(onSoundVolumeChanged);
                 mono.sldSound.value = SCSettingMgr.instance.sfxVolumeFactor;
             }
 
@@ -71,6 +72,18 @@ namespace GameCore.UI
         {
             if (mono.btnReturnMain != null)
                 SCCommon.SetGameObjectEnable(mono.btnReturnMain.gameObject, _needShow);
+        }
+
+        private void onMusicVolumeChanged(float value)
+        {
+            SCSettingMgr.instance.bgmVolumeFactor = value;
+            AudioMgr.instance.RefreshVolume();
+        }
+
+        private void onSoundVolumeChanged(float value)
+        {
+            SCSettingMgr.instance.sfxVolumeFactor = value;
+            AudioMgr.instance.RefreshVolume();
         }
 
         private void onBtnReturnMainMouseEnter(PointerEventData _data, object[] _objs)
