@@ -43,11 +43,47 @@ namespace GameCore
             NotifyTimeChanged();
         }
 
+        public void SetClockTime(TimeEffectData clockTime)
+        {
+            StopAdvanceTween();
+            if (clockTime == null)
+                return;
+
+            _totalSeconds = NormalizeSeconds(clockTime.TotalSeconds);
+            NotifyTimeChanged();
+        }
+
         public string GetDisplayText()
         {
             int hour = _totalSeconds / 3600;
             int minute = (_totalSeconds % 3600) / 60;
             return $"{hour:D2}:{minute:D2}";
+        }
+
+        public bool HasReachedNeedTime(TimeEffectData needTime)
+        {
+            if (needTime == null)
+                return true;
+
+            return _totalSeconds >= NormalizeSeconds(needTime.TotalSeconds);
+        }
+
+        public bool MatchesClockTime(TimeEffectData clockTime)
+        {
+            if (clockTime == null)
+                return true;
+
+            int currentHour = _totalSeconds / 3600;
+            int currentMinute = (_totalSeconds % 3600) / 60;
+            return currentHour == clockTime.hour && currentMinute == clockTime.minute;
+        }
+
+        public static string FormatClockTime(TimeEffectData clockTime)
+        {
+            if (clockTime == null)
+                return "--:--";
+
+            return $"{clockTime.hour:D2}:{clockTime.minute:D2}";
         }
 
         public void AddTimeInstant(TimeEffectData timeEffect)

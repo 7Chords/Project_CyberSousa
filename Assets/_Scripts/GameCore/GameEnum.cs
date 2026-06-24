@@ -31,4 +31,10 @@ namespace GameCore
         REDIRECT_TARGET_FLOOR,
         FORBID_REFUSE,
     }
+
+    public enum ECustomerType
+    {
+        SPECIAL,
+        RANDOM,
+    }
 }

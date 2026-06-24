@@ -56,6 +56,20 @@ namespace GameCore
             return null;
         }
 
+        public bool CanSpawnCustomerNeed(CustomerNeedRefData needRefData, int currentFloor)
+        {
+            if (needRefData == null)
+                return false;
+
+            if (!GameTimeMgr.instance.HasReachedNeedTime(needRefData.needTime))
+                return false;
+
+            if (needRefData.needFloor > 0 && currentFloor != needRefData.needFloor)
+                return false;
+
+            return true;
+        }
+
         public JudgmentEffectData EvaluateJudgment(long needId, EElevatorOperator actionType, int targetFloor)
         {
             JudgmentEffectData result = null;

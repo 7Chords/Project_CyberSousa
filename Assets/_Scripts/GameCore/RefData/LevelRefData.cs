@@ -6,13 +6,13 @@ namespace GameCore.RefData
     public class LevelRefData : SCRefDataCore
     {
         public long id;
-        public List<long> customerIdList;
+        public List<CustomerEffectData> customerEffectList;
         public List<long> ruleIdList;
 
         protected override void _parseFromString()
         {
             id = getLong("id");
-            customerIdList = getList<long>("customerIdList");
+            customerEffectList = getList<CustomerEffectData>("customerEffectList");
             ruleIdList = getList<long>("ruleIdList");
         }
 

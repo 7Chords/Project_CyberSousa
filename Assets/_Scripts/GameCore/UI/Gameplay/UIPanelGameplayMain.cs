@@ -54,14 +54,14 @@ namespace GameCore.UI
 
         public override void AfterInitialize()
         {
-            GameTimeMgr.instance.OnTimeChanged += RefreshClockUi;
+            GameTimeMgr.instance.OnTimeChanged += OnGameTimeChanged;
             InitializeRuntimeData();
             RefreshAllUi();
         }
 
         public override void BeforeDiscard()
         {
-            GameTimeMgr.instance.OnTimeChanged -= RefreshClockUi;
+            GameTimeMgr.instance.OnTimeChanged -= OnGameTimeChanged;
             GameTimeMgr.instance.StopAdvanceTween();
             UnbindButtons();
         }
@@ -76,10 +76,17 @@ namespace GameCore.UI
             if (!_hasInitializedRuntime)
                 InitializeRuntimeData();
 
-            GameTimeMgr.instance.OnTimeChanged -= RefreshClockUi;
-            GameTimeMgr.instance.OnTimeChanged += RefreshClockUi;
+            GameTimeMgr.instance.OnTimeChanged -= OnGameTimeChanged;
+            GameTimeMgr.instance.OnTimeChanged += OnGameTimeChanged;
             BindButtons();
             RefreshAllUi();
+        }
+
+        private void OnGameTimeChanged()
+        {
+            RefreshClockUi();
+            if (_currentCustomerRefData == null && !_isTransitionPlaying)
+                TrySpawnNextPendingCustomer();
         }
 
         private void InitializeRuntimeData()
@@ -256,10 +263,11 @@ namespace GameCore.UI
                 : new List<long>();
 
             _pendingCustomerIds.Clear();
-            if (_currentLevelRefData != null && _currentLevelRefData.customerIdList != null)
+            if (_currentLevelRefData != null && _currentLevelRefData.customerEffectList != null)
             {
-                for (int index = 0; index < _currentLevelRefData.customerIdList.Count; index++)
-                    _pendingCustomerIds.Enqueue(_currentLevelRefData.customerIdList[index]);
+                List<long> customerIds = CustomerPoolMgr.instance.ResolveCustomerIds(_currentLevelRefData.customerEffectList);
+                for (int index = 0; index < customerIds.Count; index++)
+                    _pendingCustomerIds.Enqueue(customerIds[index]);
             }
 
             _currentFloor = 1;
@@ -276,8 +284,25 @@ namespace GameCore.UI
             GameTimeMgr.instance.ResetToDayStart();
             SetElevatorDoorClosedInstant();
             SetCustomerHiddenInstant();
-            AdvanceToNextCustomer();
-            OpenElevatorDoor();
+
+            if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData firstNeedRefData))
+            {
+                ShowDayCompleteState();
+                return;
+            }
+
+            _isTransitionPlaying = true;
+            GameTimeMgr.instance.SetClockTime(firstNeedRefData.needTime);
+            int firstFloor = firstNeedRefData.needFloor > 0 ? firstNeedRefData.needFloor : 1;
+            PlayElevatorTravelToFloor(firstFloor, () =>
+            {
+                OpenElevatorDoor(() =>
+                {
+                    TrySpawnNextPendingCustomer();
+                    _isTransitionPlaying = false;
+                    RefreshAllUi();
+                });
+            });
         }
 
         private LevelRefData FindInitialLevelRefData()
@@ -331,7 +356,103 @@ namespace GameCore.UI
             mono.dialogueRightArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
         }
 
-        private void AdvanceToNextCustomer()
+        private void TrySpawnNextPendingCustomer()
+        {
+            if (_currentCustomerRefData != null)
+                return;
+
+            if (_pendingCustomerIds.Count == 0)
+            {
+                ShowDayCompleteState();
+                return;
+            }
+
+            long customerId = _pendingCustomerIds.Peek();
+            CustomerRefData customerRefData = GetCustomerRefData(customerId);
+            if (customerRefData == null)
+            {
+                _pendingCustomerIds.Dequeue();
+                TrySpawnNextPendingCustomer();
+                return;
+            }
+
+            CustomerNeedRefData needRefData = FindNeedRefDataForCurrentLevel(customerRefData);
+            if (needRefData == null)
+            {
+                Debug.LogError($"Gameplay 住户初始化失败：customerId={customerId} 未找到当前关卡需求配置。");
+                _pendingCustomerIds.Dequeue();
+                TrySpawnNextPendingCustomer();
+                return;
+            }
+
+            if (!CustomerNeedMgr.instance.CanSpawnCustomerNeed(needRefData, _currentFloor))
+            {
+                if (GameTimeMgr.instance.HasReachedNeedTime(needRefData.needTime))
+                {
+                    StartPickupTravelToNextCustomer(needRefData, false);
+                    return;
+                }
+
+                SetCustomerHiddenInstant();
+                RefreshAllUi();
+                return;
+            }
+
+            _pendingCustomerIds.Dequeue();
+            SpawnCustomer(customerRefData, needRefData);
+        }
+
+        private void SpawnCustomer(CustomerRefData customerRefData, CustomerNeedRefData needRefData)
+        {
+            ClearDialoguePortraits();
+            _selectedFloor = 0;
+            _currentAffectValue = 0;
+            _isDialogueRunning = false;
+            _canCloseDoor = false;
+            _lastJudgmentEffectData = null;
+            _lastRuleEffectData = null;
+            _currentCustomerRefData = customerRefData;
+            _currentNeedRefData = needRefData;
+
+            long dialogueStartId = GetDialogueStartId(needRefData);
+            if (dialogueStartId > 0)
+                StartDialogue(dialogueStartId);
+            else
+                Debug.LogError($"Gameplay 对话初始化失败：needId={needRefData.id} 未找到有效的开始对话 id。");
+
+            ShowCurrentCustomer();
+            RefreshAllUi();
+        }
+
+        private void ShowDayCompleteState()
+        {
+            mono.txtCustomerName.text = "本关已完成";
+            mono.txtAnimalInfo.text = "当前没有新的住户。";
+            mono.txtBottomHint.text = "本关住户处理完成。";
+            mono.dialogueSection?.SetActive(false);
+            SetCustomerHiddenInstant();
+            ShowSettlementPanel();
+        }
+
+        private void FinishCurrentCustomerService()
+        {
+            ClearCurrentCustomerState();
+            if (_pendingCustomerIds.Count == 0)
+            {
+                ShowDayCompleteState();
+                return;
+            }
+
+            if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData))
+            {
+                ShowDayCompleteState();
+                return;
+            }
+
+            StartPickupTravelToNextCustomer(nextNeedRefData, false);
+        }
+
+        private void ClearCurrentCustomerState()
         {
             ClearDialoguePortraits();
             _currentCustomerRefData = null;
@@ -342,43 +463,79 @@ namespace GameCore.UI
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
-            _isTransitionPlaying = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
+            SetCustomerHiddenInstant();
+        }
 
-            while (_pendingCustomerIds.Count > 0)
+        private void StartPickupTravelToNextCustomer(CustomerNeedRefData needRefData, bool jumpTimeToNeed)
+        {
+            if (needRefData == null)
+                return;
+
+            if (jumpTimeToNeed)
+                GameTimeMgr.instance.SetClockTime(needRefData.needTime);
+
+            int targetFloor = needRefData.needFloor > 0 ? needRefData.needFloor : 1;
+            if (_currentFloor == targetFloor)
             {
-                long customerId = _pendingCustomerIds.Dequeue();
-                CustomerRefData customerRefData = GetCustomerRefData(customerId);
-                if (customerRefData == null)
-                    continue;
-
-                CustomerNeedRefData needRefData = FindNeedRefDataForCurrentLevel(customerRefData);
-                if (needRefData == null)
-                {
-                    Debug.LogError($"Gameplay 住户初始化失败：customerId={customerId} 未找到当前关卡需求配置。");
-                    continue;
-                }
-
-                _currentCustomerRefData = customerRefData;
-                _currentNeedRefData = needRefData;
-
-                long dialogueStartId = GetDialogueStartId(needRefData);
-                if (dialogueStartId > 0)
-                    StartDialogue(dialogueStartId);
-                else
-                    Debug.LogError($"Gameplay 对话初始化失败：needId={needRefData.id} 未找到有效的开始对话 id。");
-
-                ShowCurrentCustomer();
+                _isTransitionPlaying = false;
+                TrySpawnNextPendingCustomer();
+                RefreshAllUi();
                 return;
             }
 
-            mono.txtCustomerName.text = "本关已完成";
-            mono.txtAnimalInfo.text = "当前没有新的住户。";
-            mono.txtBottomHint.text = "本关住户处理完成。";
-            mono.dialogueSection?.SetActive(false);
-            SetCustomerHiddenInstant();
-            ShowSettlementPanel();
+            _isTransitionPlaying = true;
+            _selectedFloor = 0;
+            RefreshAllUi();
+            CloseElevatorDoor(() =>
+            {
+                PlayElevatorTravelToFloor(targetFloor, () =>
+                {
+                    OpenElevatorDoor(() =>
+                    {
+                        _isTransitionPlaying = false;
+                        TrySpawnNextPendingCustomer();
+                        RefreshAllUi();
+                    });
+                });
+            });
+        }
+
+        private void StartRejectAndPickupNextFlow()
+        {
+            _isTransitionPlaying = true;
+            RefreshAllUi();
+            CloseElevatorDoor(() =>
+            {
+                HideCurrentCustomer(() =>
+                {
+                    ClearCurrentCustomerState();
+                    if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData))
+                    {
+                        _isTransitionPlaying = false;
+                        ShowDayCompleteState();
+                        return;
+                    }
+
+                    StartPickupTravelToNextCustomer(nextNeedRefData, true);
+                });
+            });
+        }
+
+        private bool TryGetPeekPendingNeedRefData(out CustomerNeedRefData needRefData)
+        {
+            needRefData = null;
+            if (_pendingCustomerIds.Count == 0)
+                return false;
+
+            long customerId = _pendingCustomerIds.Peek();
+            CustomerRefData customerRefData = GetCustomerRefData(customerId);
+            if (customerRefData == null)
+                return false;
+
+            needRefData = FindNeedRefDataForCurrentLevel(customerRefData);
+            return needRefData != null;
         }
 
         private CustomerRefData GetCustomerRefData(long customerId)
@@ -709,7 +866,22 @@ namespace GameCore.UI
         private void RefreshCustomerUi()
         {
             if (_currentCustomerRefData == null)
+            {
+                if (_pendingCustomerIds.Count > 0)
+                {
+                    CustomerRefData pendingCustomer = GetCustomerRefData(_pendingCustomerIds.Peek());
+                    if (pendingCustomer != null)
+                    {
+                        if (mono.txtCustomerName != null)
+                            mono.txtCustomerName.text = pendingCustomer.customerName;
+
+                        if (mono.txtAnimalInfo != null)
+                            mono.txtAnimalInfo.text = BuildCustomerInfoText(pendingCustomer);
+                    }
+                }
+
                 return;
+            }
 
             if (mono.txtCustomerName != null)
                 mono.txtCustomerName.text = _currentCustomerRefData.customerName;
@@ -749,6 +921,42 @@ namespace GameCore.UI
             if (_selectedFloor > 0)
             {
                 mono.txtBottomHint.text = $"当前已选择楼层：{_selectedFloor} 楼。";
+                return;
+            }
+
+            if (TryGetPeekPendingNeedRefData(out CustomerNeedRefData pendingNeedRefData))
+            {
+                string needTimeText = GameTimeMgr.FormatClockTime(pendingNeedRefData.needTime);
+                int needFloor = pendingNeedRefData.needFloor > 0 ? pendingNeedRefData.needFloor : _currentFloor;
+                if (!GameTimeMgr.instance.HasReachedNeedTime(pendingNeedRefData.needTime))
+                {
+                    mono.txtBottomHint.text =
+                        $"约 {needTimeText} 将在 {needFloor} 楼发出需求，请提前前往。";
+                    return;
+                }
+
+                if (pendingNeedRefData.needFloor > 0 && _currentFloor != pendingNeedRefData.needFloor)
+                {
+                    mono.txtBottomHint.text =
+                        $"已在 {needTimeText} 于 {needFloor} 楼发出需求，请前往接待。";
+                    return;
+                }
+
+                mono.txtBottomHint.text = $"正在 {needFloor} 楼等待住户出现。";
+                return;
+            }
+
+            if (_currentNeedRefData != null)
+            {
+                string needTimeText = GameTimeMgr.FormatClockTime(_currentNeedRefData.needTime);
+                if (_currentNeedRefData.needFloor > 0)
+                {
+                    mono.txtBottomHint.text =
+                        $"住户于 {needTimeText} 在 {_currentNeedRefData.needFloor} 楼发出需求。";
+                    return;
+                }
+
+                mono.txtBottomHint.text = $"住户于 {needTimeText} 发出需求。";
                 return;
             }
 
@@ -871,18 +1079,17 @@ namespace GameCore.UI
 
         private void RefreshActionUi()
         {
-            bool canOperateMainButtons = !_isDialogueRunning && _currentCustomerRefData != null;
-            if (_isTransitionPlaying)
-                canOperateMainButtons = false;
+            bool canOperateElevator = !_isDialogueRunning && !_canCloseDoor && !_isTransitionPlaying;
+            bool hasCustomer = _currentCustomerRefData != null;
 
             if (mono.btnReject != null)
-                mono.btnReject.interactable = canOperateMainButtons && !_canCloseDoor;
+                mono.btnReject.interactable = canOperateElevator && hasCustomer;
 
             if (mono.btnConfirm != null)
                 mono.btnConfirm.interactable = false;
 
             if (mono.btnCloseDoor != null)
-                mono.btnCloseDoor.interactable = canOperateMainButtons;
+                mono.btnCloseDoor.interactable = canOperateElevator && (hasCustomer || _selectedFloor > 0);
         }
 
         private void RefreshNumberButtonUi()
@@ -1131,8 +1338,27 @@ namespace GameCore.UI
                 return;
             }
 
+            if (_currentCustomerRefData == null)
+            {
+                if (_selectedFloor <= 0)
+                {
+                    SCDebugHelper.Log("请先选择要前往的楼层。");
+                    return;
+                }
+
+                StartEmptyElevatorTravel(_selectedFloor);
+                return;
+            }
+
             if (_canCloseDoor)
             {
+                if (_lastJudgmentEffectData != null
+                    && _lastJudgmentEffectData.elevatorOperator == EElevatorOperator.REFUSE)
+                {
+                    StartRejectAndPickupNextFlow();
+                    return;
+                }
+
                 int targetFloor = ResolveCustomerDepartureFloor();
                 StartCustomerDepartureFlow(targetFloor, false);
                 return;
@@ -1179,6 +1405,31 @@ namespace GameCore.UI
             }
 
             RefreshAllUi();
+        }
+
+        private void StartEmptyElevatorTravel(int targetFloor)
+        {
+            if (targetFloor <= 0)
+            {
+                Debug.LogError("Gameplay 空梯移动失败：目标楼层无效。");
+                return;
+            }
+
+            _isTransitionPlaying = true;
+            _selectedFloor = 0;
+            RefreshAllUi();
+            CloseElevatorDoor(() =>
+            {
+                PlayElevatorTravelToFloor(targetFloor, () =>
+                {
+                    OpenElevatorDoor(() =>
+                    {
+                        _isTransitionPlaying = false;
+                        TrySpawnNextPendingCustomer();
+                        RefreshAllUi();
+                    });
+                });
+            });
         }
 
         private void ShowSettlementPanel()
@@ -1258,15 +1509,9 @@ namespace GameCore.UI
                         {
                             CloseElevatorDoor(() =>
                             {
-                                PlayElevatorTravelToFloor(1, () =>
-                                {
-                                    OpenElevatorDoor(() =>
-                                    {
-                                        AdvanceToNextCustomer();
-                                        _isTransitionPlaying = false;
-                                        RefreshAllUi();
-                                    });
-                                });
+                                FinishCurrentCustomerService();
+                                _isTransitionPlaying = false;
+                                RefreshAllUi();
                             });
                         };
 

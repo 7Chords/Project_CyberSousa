@@ -31,6 +31,7 @@ namespace GameCore
             SCRefDataMgr.instance.Initialize();
             GameTimeMgr.instance.Initialize();
             RuleMgr.instance.Initialize();
+            CustomerPoolMgr.instance.Initialize();
             CustomerNeedMgr.instance.Initialize();
             UINodeMgr.instance.Initialize();
             GameFlowController.instance.InitializeFlow();
@@ -43,6 +44,7 @@ namespace GameCore
             GameFlowController.instance.DiscardFlow();
             UINodeMgr.instance.Discard();
             CustomerNeedMgr.instance.Discard();
+            CustomerPoolMgr.instance.Discard();
             RuleMgr.instance.Discard();
             GameTimeMgr.instance.Discard();
             SCRefDataMgr.instance.Discard();

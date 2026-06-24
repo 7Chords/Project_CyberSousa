@@ -11,6 +11,7 @@ namespace GameCore
 
         public SCRefDataList<LevelRefData> levelRefList;
         public SCRefDataList<CustomerRefData> customerRefList;
+        public SCRefDataList<CustomerPoolRefData> customerPoolRefList;
         public SCRefDataList<CustomerNeedRefData> customerNeedRefList;
         public SCRefDataList<DialogueRefData> dialogueRefList;
         public SCRefDataList<RuleRefData> ruleRefList;
@@ -26,6 +27,9 @@ namespace GameCore
 
             customerRefList = new SCRefDataList<CustomerRefData>(CustomerRefData.assetPath, CustomerRefData.sheetName);
             customerRefList.readFromTxt();
+
+            customerPoolRefList = new SCRefDataList<CustomerPoolRefData>(CustomerPoolRefData.assetPath, CustomerPoolRefData.sheetName);
+            customerPoolRefList.readFromTxt();
 
             customerNeedRefList = new SCRefDataList<CustomerNeedRefData>(CustomerNeedRefData.assetPath, CustomerNeedRefData.sheetName);
             customerNeedRefList.readFromTxt();
