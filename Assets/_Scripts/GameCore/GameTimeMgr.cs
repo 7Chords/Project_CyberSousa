@@ -53,6 +53,26 @@ namespace GameCore
             NotifyTimeChanged();
         }
 
+        public int GetElevatorTravelSeconds()
+        {
+            TimeEffectData travelTime = SCRefDataMgr.instance.globalConfigRefData?.elevatorTravelTime;
+            if (travelTime == null || travelTime.TotalSeconds <= 0)
+                return 0;
+
+            return travelTime.TotalSeconds;
+        }
+
+        public void SetClockTimeBeforeElevatorTravel(TimeEffectData targetNeedTime)
+        {
+            StopAdvanceTween();
+            if (targetNeedTime == null)
+                return;
+
+            int targetSeconds = NormalizeSeconds(targetNeedTime.TotalSeconds);
+            _totalSeconds = NormalizeSeconds(targetSeconds - GetElevatorTravelSeconds());
+            NotifyTimeChanged();
+        }
+
         public string GetDisplayText()
         {
             int hour = _totalSeconds / 3600;

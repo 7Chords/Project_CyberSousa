@@ -468,15 +468,20 @@ namespace GameCore.UI
             SetCustomerHiddenInstant();
         }
 
-        private void StartPickupTravelToNextCustomer(CustomerNeedRefData needRefData, bool jumpTimeToNeed)
+        private void StartPickupTravelToNextCustomer(CustomerNeedRefData needRefData, bool prepareRejectTravelTime)
         {
             if (needRefData == null)
                 return;
 
-            if (jumpTimeToNeed)
-                GameTimeMgr.instance.SetClockTime(needRefData.needTime);
-
             int targetFloor = needRefData.needFloor > 0 ? needRefData.needFloor : 1;
+            if (prepareRejectTravelTime)
+            {
+                if (_currentFloor != targetFloor)
+                    GameTimeMgr.instance.SetClockTimeBeforeElevatorTravel(needRefData.needTime);
+                else
+                    GameTimeMgr.instance.SetClockTime(needRefData.needTime);
+            }
+
             if (_currentFloor == targetFloor)
             {
                 _isTransitionPlaying = false;
@@ -1317,11 +1322,14 @@ namespace GameCore.UI
             }
 
             _lastJudgmentEffectData = CustomerNeedMgr.instance.EvaluateRefuse(_currentNeedRefData.id);
-            _canCloseDoor = _lastJudgmentEffectData != null;
-            if (_canCloseDoor)
-                SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
+            if (_lastJudgmentEffectData == null)
+            {
+                Debug.LogError("Gameplay 拒绝失败：未命中拒绝判定配置。");
+                return;
+            }
 
-            RefreshAllUi();
+            SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
+            StartRejectAndPickupNextFlow();
         }
 
         private void OnCloseDoorClicked(PointerEventData eventData, object[] args)
@@ -1352,13 +1360,6 @@ namespace GameCore.UI
 
             if (_canCloseDoor)
             {
-                if (_lastJudgmentEffectData != null
-                    && _lastJudgmentEffectData.elevatorOperator == EElevatorOperator.REFUSE)
-                {
-                    StartRejectAndPickupNextFlow();
-                    return;
-                }
-
                 int targetFloor = ResolveCustomerDepartureFloor();
                 StartCustomerDepartureFlow(targetFloor, false);
                 return;
