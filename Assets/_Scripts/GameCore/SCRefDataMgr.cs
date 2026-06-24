@@ -14,9 +14,12 @@ namespace GameCore
         public SCRefDataList<CustomerNeedRefData> customerNeedRefList;
         public SCRefDataList<DialogueRefData> dialogueRefList;
         public SCRefDataList<RuleRefData> ruleRefList;
+        public GlobalConfigRefData globalConfigRefData;
 
         public override void OnInitialize()
         {
+            globalConfigRefData = new GlobalConfigRefData();
+            globalConfigRefData.readFromTxt();
 
             levelRefList = new SCRefDataList<LevelRefData>(LevelRefData.assetPath, LevelRefData.sheetName);
             levelRefList.readFromTxt();

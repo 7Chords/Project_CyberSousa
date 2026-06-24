@@ -8,12 +8,14 @@ namespace GameCore.RefData
         public long id;
         public List<JudgmentEffectData> judgmentList;
         public List<DialogueEffectData> dialogueList;
+        public TimeEffectData timeEffect;
 
         protected override void _parseFromString()
         {
             id = getLong("id");
             judgmentList = getList<JudgmentEffectData>("judgmentList");
             dialogueList = getList<DialogueEffectData>("dialogueList");
+            timeEffect = getEffect<TimeEffectData>("timeEffect");
         }
 
         public static readonly string assetPath = "RefData/ExportTxt";

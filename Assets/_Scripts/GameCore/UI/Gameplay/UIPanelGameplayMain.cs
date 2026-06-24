@@ -16,6 +16,7 @@ namespace GameCore.UI
         private const long DefaultLevelId = 1001;
         private const string SettlementNodeName = "UINodeSettlement";
         private const float CustomerFadeDuration = 0.30f;
+        private const float ElevatorTravelAnimDuration = 0.90f;
 
         private readonly Dictionary<long, DialogueRefData> _dialogueMap = new Dictionary<long, DialogueRefData>();
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
@@ -53,12 +54,15 @@ namespace GameCore.UI
 
         public override void AfterInitialize()
         {
+            GameTimeMgr.instance.OnTimeChanged += RefreshClockUi;
             InitializeRuntimeData();
             RefreshAllUi();
         }
 
         public override void BeforeDiscard()
         {
+            GameTimeMgr.instance.OnTimeChanged -= RefreshClockUi;
+            GameTimeMgr.instance.StopAdvanceTween();
             UnbindButtons();
         }
 
@@ -72,6 +76,8 @@ namespace GameCore.UI
             if (!_hasInitializedRuntime)
                 InitializeRuntimeData();
 
+            GameTimeMgr.instance.OnTimeChanged -= RefreshClockUi;
+            GameTimeMgr.instance.OnTimeChanged += RefreshClockUi;
             BindButtons();
             RefreshAllUi();
         }
@@ -142,6 +148,9 @@ namespace GameCore.UI
 
             if (mono.floorTextEffect == null && mono.txtCurrentFloor != null)
                 mono.floorTextEffect = mono.txtCurrentFloor.GetComponent<UITextChangeMoveEffect>();
+
+            if (mono.txtClockTime == null)
+                mono.txtClockTime = FindChildText("ClockTimePanel_Text");
         }
 
         private void BuildLookupMaps()
@@ -264,6 +273,7 @@ namespace GameCore.UI
             _lastRuleEffectData = null;
 
             SetCurrentFloorDisplayInstant(_currentFloor);
+            GameTimeMgr.instance.ResetToDayStart();
             SetElevatorDoorClosedInstant();
             SetCustomerHiddenInstant();
             AdvanceToNextCustomer();
@@ -528,6 +538,8 @@ namespace GameCore.UI
             _currentDialogueRefData = null;
             ClearDialogueOptions();
 
+            GameTimeMgr.instance.AddTimeInstant(_currentNeedRefData?.timeEffect);
+
             // TODO: 这里可以接 CustomerNeedMgr.EvaluateDialogue，根据当前好感度触发额外需求对话。
 
             RefreshAllUi();
@@ -551,6 +563,14 @@ namespace GameCore.UI
 
             if (mono.txtTime != null)
                 mono.txtTime.text = $"第 {_currentDayIndex + 1} 天";
+
+            RefreshClockUi();
+        }
+
+        private void RefreshClockUi()
+        {
+            if (mono.txtClockTime != null)
+                mono.txtClockTime.text = GameTimeMgr.instance.GetDisplayText();
         }
 
         private void RefreshRuleUi()
@@ -1372,6 +1392,7 @@ namespace GameCore.UI
             int fromFloor = _currentFloor;
             if (fromFloor != targetFloor)
             {
+                GameTimeMgr.instance.PlayElevatorTravelAdvance(ElevatorTravelAnimDuration);
                 sequence.AppendCallback(() => AnimateFloorText(targetFloor));
                 Tween shakeTween = mono.elevatorTravelShakeEffect?.Play();
                 if (shakeTween != null)

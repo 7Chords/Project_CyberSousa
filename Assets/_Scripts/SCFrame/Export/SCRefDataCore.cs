@@ -76,11 +76,14 @@ namespace SCFrame
             string[] lineArray = _string.Split('\n');
             for (int i = 1; i < lineArray.Length; i++)
             {
-                string line = lineArray[i];
+                string line = lineArray[i].TrimEnd('\r');
                 if (string.IsNullOrEmpty(line) || line == "\t")
                 {
                     continue;
                 }
+                if (isMemoRow(line))
+                    continue;
+
                 string[] lineSplit = line.Split('\t');
                 if (lineSplit.Length < 2)
                 {
@@ -338,6 +341,19 @@ namespace SCFrame
 
             rect.Set(SCCommon.ParseFloat(strs[0]), SCCommon.ParseFloat(strs[1]), SCCommon.ParseFloat(strs[2]), SCCommon.ParseFloat(strs[3]));
             return rect;
+        }
+
+        protected T getEffect<T>(string _name) where T : _AEffectObjBase
+        {
+            string tempValue = getString(_name);
+            if (string.IsNullOrEmpty(tempValue) || tempValue == EXCEL_EMPTY_FLAG)
+                return null;
+
+            T effect = SCCommon.ParseEffectObj(tempValue, typeof(T)) as T;
+            if (effect == null)
+                Debug.LogError($"表 \"{_m_assetPath},{_m_sheetName}\"\t填写错误：字段 {_name}，效果解析失败，类型：{typeof(T)}");
+
+            return effect;
         }
 
         protected List<T> getList<T>(string _name, bool _canNull = true)

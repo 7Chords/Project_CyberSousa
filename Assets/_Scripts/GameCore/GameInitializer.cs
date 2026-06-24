@@ -29,6 +29,7 @@ namespace GameCore
             SCPoolMgr.instance.Initialize();
             SCInputListener.instance.Initialize();
             SCRefDataMgr.instance.Initialize();
+            GameTimeMgr.instance.Initialize();
             RuleMgr.instance.Initialize();
             CustomerNeedMgr.instance.Initialize();
             UINodeMgr.instance.Initialize();
@@ -43,6 +44,7 @@ namespace GameCore
             UINodeMgr.instance.Discard();
             CustomerNeedMgr.instance.Discard();
             RuleMgr.instance.Discard();
+            GameTimeMgr.instance.Discard();
             SCRefDataMgr.instance.Discard();
             SCInputListener.instance.Discard();
             SCPoolMgr.instance.Discard();
