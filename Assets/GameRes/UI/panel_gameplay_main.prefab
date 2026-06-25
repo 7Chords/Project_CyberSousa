@@ -71,15 +71,11 @@ MonoBehaviour:
   canvasGroup: {fileID: 225000000000101}
   fadeInDuration: 0.2
   fadeOutDuration: 0.2
-  elevatorRoot: {fileID: 5905532970995615651}
-  elevatorDoorLeft: {fileID: 2892354050271438489}
-  elevatorDoorRight: {fileID: 6994137974480087714}
+  elevatorView: {fileID: 114777000000777}
   customerCanvasGroup: {fileID: 6563648586861851903}
   currentFloorCanvasGroup: {fileID: 4013398619417847213}
   customerFadeEffect: {fileID: 6074161913858889776}
   customerMoveScaleEffect: {fileID: 3171313844681532139}
-  elevatorDoorEffect: {fileID: 4333576930633338234}
-  elevatorTravelShakeEffect: {fileID: 5843388949479056425}
   floorTextEffect: {fileID: 2256711616455328047}
   dialogueSection: {fileID: 8873971711127791423}
   dialogueLeftArea: {fileID: 5816753997432167119}
@@ -2754,6 +2750,7 @@ GameObject:
   - component: {fileID: 6828395274070947220}
   - component: {fileID: 4333576930633338234}
   - component: {fileID: 5843388949479056425}
+  - component: {fileID: 114777000000777}
   m_Layer: 0
   m_Name: ElevatorRoot
   m_TagString: Untagged
@@ -2836,6 +2833,23 @@ MonoBehaviour:
   elasticity: 0.7
   rotationPunch: {x: 0, y: 0, z: 3}
   rotationVibrato: 10
+--- !u!114 &114777000000777
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5029187468083407508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e4a33d34ff2440c9f13458be24242f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  elevatorRoot: {fileID: 5905532970995615651}
+  elevatorDoorLeft: {fileID: 2892354050271438489}
+  elevatorDoorRight: {fileID: 6994137974480087714}
+  doorEffect: {fileID: 4333576930633338234}
+  travelShakeEffect: {fileID: 5843388949479056425}
 --- !u!1 &5123649609676846726
 GameObject:
   m_ObjectHideFlags: 0

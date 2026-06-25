@@ -119,14 +119,14 @@ namespace GameCore.UI
             if (mono.imgDialoguePortrait == null)
                 mono.imgDialoguePortrait = FindChildImage("DialoguePortrait");
 
-            if (mono.elevatorRoot == null)
-                mono.elevatorRoot = FindChildRect("ElevatorRoot");
+            if (mono.elevatorView == null)
+            {
+                Transform elevatorRoot = FindChildTransformRecursive(mono.transform, "ElevatorRoot");
+                if (elevatorRoot != null)
+                    mono.elevatorView = elevatorRoot.GetComponent<UIElevatorView>();
+            }
 
-            if (mono.elevatorDoorLeft == null)
-                mono.elevatorDoorLeft = FindChildRect("ElevatorDoorLeft");
-
-            if (mono.elevatorDoorRight == null)
-                mono.elevatorDoorRight = FindChildRect("ElevatorDoorRight");
+            mono.elevatorView?.EnsureReferences();
 
             if (mono.dialogueOptionRoot == null)
                 mono.dialogueOptionRoot = FindChildRect("OptionSection");
@@ -146,12 +146,6 @@ namespace GameCore.UI
 
             if (mono.customerMoveScaleEffect == null && mono.customerCanvasGroup != null)
                 mono.customerMoveScaleEffect = mono.customerCanvasGroup.GetComponent<UIRuntimeMoveScaleEffect>();
-
-            if (mono.elevatorDoorEffect == null && mono.elevatorRoot != null)
-                mono.elevatorDoorEffect = mono.elevatorRoot.GetComponent<UISlidingDoorEffect>();
-
-            if (mono.elevatorTravelShakeEffect == null && mono.elevatorRoot != null)
-                mono.elevatorTravelShakeEffect = mono.elevatorRoot.GetComponent<UITravelShakeEffect>();
 
             if (mono.floorTextEffect == null && mono.txtCurrentFloor != null)
                 mono.floorTextEffect = mono.txtCurrentFloor.GetComponent<UITextChangeMoveEffect>();
@@ -1541,21 +1535,21 @@ namespace GameCore.UI
 
         public void OpenElevatorDoor(TweenCallback onComplete = null)
         {
-            Tween tween = mono.elevatorDoorEffect?.PlayOpen(onComplete);
+            Tween tween = mono.elevatorView?.PlayOpen(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
         }
 
         public void CloseElevatorDoor(TweenCallback onComplete = null)
         {
-            Tween tween = mono.elevatorDoorEffect?.PlayClose(onComplete);
+            Tween tween = mono.elevatorView?.PlayClose(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
         }
 
         private void SetElevatorDoorClosedInstant()
         {
-            mono.elevatorDoorEffect?.SetClosedInstant();
+            mono.elevatorView?.SetDoorClosedInstant();
         }
 
         private void ShowCurrentCustomer()
@@ -1640,7 +1634,7 @@ namespace GameCore.UI
             {
                 GameTimeMgr.instance.PlayElevatorTravelAdvance(ElevatorTravelAnimDuration);
                 sequence.AppendCallback(() => AnimateFloorText(targetFloor));
-                Tween shakeTween = mono.elevatorTravelShakeEffect?.Play();
+                Tween shakeTween = mono.elevatorView?.PlayTravelShake();
                 if (shakeTween != null)
                     sequence.Join(shakeTween);
             }

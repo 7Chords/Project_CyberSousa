@@ -16,12 +16,8 @@ namespace GameCore.UI
 
     public class UIMonoGameplayMain : _ASCUIMonoBase
     {
-        [Header("电梯根节点")]
-        public RectTransform elevatorRoot;
-        [Header("电梯左门")]
-        public RectTransform elevatorDoorLeft;
-        [Header("电梯右门")]
-        public RectTransform elevatorDoorRight;
+        [Header("电梯视图")]
+        public UIElevatorView elevatorView;
         [Header("住户层 CanvasGroup")]
         public CanvasGroup customerCanvasGroup;
         [Header("当前楼层 CanvasGroup")]
@@ -30,10 +26,6 @@ namespace GameCore.UI
         public UIRuntimeFadeEffect customerFadeEffect;
         [Header("住户移动缩放松动效")]
         public UIRuntimeMoveScaleEffect customerMoveScaleEffect;
-        [Header("电梯开关门动效")]
-        public UISlidingDoorEffect elevatorDoorEffect;
-        [Header("电梯运行震动感效")]
-        public UITravelShakeEffect elevatorTravelShakeEffect;
         [Header("楼层文字切换动效")]
         public UITextChangeMoveEffect floorTextEffect;
         [Header("对话区域根节点")]
