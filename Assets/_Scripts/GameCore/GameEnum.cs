@@ -37,4 +37,11 @@ namespace GameCore
         SPECIAL,
         RANDOM,
     }
+
+    public enum EGameEndingType
+    {
+        BAD,
+        ENDING_1,
+        ENDING_2,
+    }
 }

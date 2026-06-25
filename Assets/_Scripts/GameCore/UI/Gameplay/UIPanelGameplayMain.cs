@@ -15,6 +15,7 @@ namespace GameCore.UI
         private const string PlayerSpeakerName = "玩家";
         private const long DefaultLevelId = 1001;
         private const string SettlementNodeName = "UINodeSettlement";
+        private const string EndingNodeName = "UINodeEnding";
         private const float CustomerFadeDuration = 0.30f;
         private const float ElevatorTravelAnimDuration = 0.90f;
 
@@ -329,6 +330,7 @@ namespace GameCore.UI
             }
 
             mono.btnReject?.AddMouseLeftClickDown(OnRejectClicked);
+            mono.btnConfirm?.AddMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.AddMouseLeftClickDown(OnCloseDoorClicked);
             mono.dialogueLeftArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
             mono.dialogueRightArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
@@ -345,6 +347,7 @@ namespace GameCore.UI
 
             UnbindAllDialogueOptionItems();
             mono.btnReject?.RemoveMouseLeftClickDown(OnRejectClicked);
+            mono.btnConfirm?.RemoveMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.RemoveMouseLeftClickDown(OnCloseDoorClicked);
             mono.dialogueLeftArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
             mono.dialogueRightArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
@@ -425,6 +428,10 @@ namespace GameCore.UI
             mono.txtBottomHint.text = "本关住户处理完成。";
             mono.dialogueSection?.SetActive(false);
             SetCustomerHiddenInstant();
+
+            if (TryShowEndingOnDayComplete())
+                return;
+
             ShowSettlementPanel();
         }
 
@@ -1085,7 +1092,7 @@ namespace GameCore.UI
                 mono.btnReject.interactable = canOperateElevator && hasCustomer;
 
             if (mono.btnConfirm != null)
-                mono.btnConfirm.interactable = false;
+                mono.btnConfirm.interactable = canOperateElevator && IsFinalDayLastSpecialCustomer() && !GamePlayerDataMgr.instance.hasConfirmedFinalSpecialCustomer;
 
             if (mono.btnCloseDoor != null)
                 mono.btnCloseDoor.interactable = canOperateElevator && (hasCustomer || _selectedFloor > 0);
@@ -1171,6 +1178,18 @@ namespace GameCore.UI
 
             _selectedFloor = GetFloorFromButton(clickedButton);
             SCDebugHelper.Log($"点击动物编号按钮：{clickedButton.name}，当前选择楼层={_selectedFloor}");
+            RefreshAllUi();
+        }
+
+        private void OnConfirmClicked(PointerEventData eventData, object[] args)
+        {
+            if (!IsFinalDayLastSpecialCustomer())
+            {
+                SCDebugHelper.Log("当前不是最终特殊住户确认节点。");
+                return;
+            }
+
+            GamePlayerDataMgr.instance.MarkFinalSpecialCustomerConfirmed();
             RefreshAllUi();
         }
 
@@ -1323,6 +1342,7 @@ namespace GameCore.UI
             }
 
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
+            ApplyPerformanceByJudgment(_lastJudgmentEffectData);
             StartRejectAndPickupNextFlow();
         }
 
@@ -1394,12 +1414,22 @@ namespace GameCore.UI
             if (_canCloseDoor)
             {
                 SCDebugHelper.Log($"已关门前往 {finalFloor} 楼，影响值={_lastJudgmentEffectData.affectValue}");
+                ApplyPerformanceByJudgment(_lastJudgmentEffectData);
                 RefreshAllUi();
                 StartCustomerDepartureFlow(finalFloor, true);
                 return;
             }
 
             RefreshAllUi();
+        }
+
+        private void ApplyPerformanceByJudgment(JudgmentEffectData judgmentEffectData)
+        {
+            if (judgmentEffectData == null)
+                return;
+
+            if (judgmentEffectData.affectValue < 0)
+                GamePlayerDataMgr.instance.DeductPerformance(-judgmentEffectData.affectValue);
         }
 
         private void StartEmptyElevatorTravel(int targetFloor)
@@ -1447,6 +1477,37 @@ namespace GameCore.UI
                 false));
         }
 
+        private bool TryShowEndingOnDayComplete()
+        {
+            if (GamePlayerDataMgr.instance.performanceValue < 0)
+            {
+                ShowEndingPanel(EGameEndingType.BAD);
+                return true;
+            }
+
+            if (!IsFinalDay())
+                return false;
+
+            ShowEndingPanel(GamePlayerDataMgr.instance.hasConfirmedFinalSpecialCustomer
+                ? EGameEndingType.ENDING_1
+                : EGameEndingType.ENDING_2);
+            return true;
+        }
+
+        private void ShowEndingPanel(EGameEndingType endingType)
+        {
+            UIPanelEnding.pendingEndingType = endingType;
+
+            UINodeMgr.instance.AddNode(new UINodeCommon<UIMonoEnding, UIPanelEnding>(
+                SCUIShowType.FULL,
+                "panel_ending",
+                EndingNodeName,
+                true,
+                true,
+                false,
+                false));
+        }
+
         private void HandleNextDayClicked()
         {
             int nextDayIndex = _currentDayIndex + 1;
@@ -1474,6 +1535,31 @@ namespace GameCore.UI
             }
 
             return 0;
+        }
+
+        private bool IsFinalDay()
+        {
+            return _levelSequence.Count > 0 && _currentDayIndex >= _levelSequence.Count - 1;
+        }
+
+        private bool IsFinalDayLastSpecialCustomer()
+        {
+            if (!IsFinalDay() || _currentCustomerRefData == null || _currentLevelRefData == null)
+                return false;
+
+            if (_pendingCustomerIds.Count > 0)
+                return false;
+
+            List<CustomerEffectData> customerEffectList = _currentLevelRefData.customerEffectList;
+            if (customerEffectList == null || customerEffectList.Count == 0)
+                return false;
+
+            CustomerEffectData lastCustomerEffectData = customerEffectList[customerEffectList.Count - 1];
+            if (lastCustomerEffectData == null || lastCustomerEffectData.customerType != ECustomerType.SPECIAL)
+                return false;
+
+            long specialCustomerId = CustomerPoolMgr.instance.ResolveCustomerId(lastCustomerEffectData);
+            return specialCustomerId == _currentCustomerRefData.id;
         }
 
         private int ResolveCustomerDepartureFloor()
