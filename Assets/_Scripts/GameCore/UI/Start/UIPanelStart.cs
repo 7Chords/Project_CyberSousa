@@ -1,7 +1,9 @@
 using GameCore.Flow;
 using SCFrame;
 using SCFrame.UI;
+using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace GameCore.UI
 {
@@ -23,6 +25,8 @@ namespace GameCore.UI
         {
             if (mono.btnStart != null)
                 mono.btnStart.RemoveMouseLeftClickDown(onBtnStartClicked);
+            if (mono.btnContinue != null)
+                mono.btnContinue.RemoveMouseLeftClickDown(onBtnContinueClicked);
             if (mono.btnSetting != null)
                 mono.btnSetting.RemoveMouseLeftClickDown(onBtnSettingClicked);
             if (mono.btnExit != null)
@@ -33,14 +37,31 @@ namespace GameCore.UI
         {
             if (mono.btnStart != null)
                 mono.btnStart.AddMouseLeftClickDown(onBtnStartClicked);
+            if (mono.btnContinue != null)
+                mono.btnContinue.AddMouseLeftClickDown(onBtnContinueClicked);
             if (mono.btnSetting != null)
                 mono.btnSetting.AddMouseLeftClickDown(onBtnSettingClicked);
             if (mono.btnExit != null)
                 mono.btnExit.AddMouseLeftClickDown(onBtnExitClicked);
+
+            RefreshContinueButton();
         }
 
         private void onBtnStartClicked(PointerEventData _data, object[] _objs)
         {
+            GamePlayerDataMgr.instance.BeginNewGame();
+            GameFlowController.instance.EnterGameplay();
+        }
+
+        private void onBtnContinueClicked(PointerEventData _data, object[] _objs)
+        {
+            if (!GamePlayerDataMgr.instance.TryLoadSaveData())
+            {
+                SCDebugHelper.Log("没有可继续的存档。");
+                RefreshContinueButton();
+                return;
+            }
+
             GameFlowController.instance.EnterGameplay();
         }
 
@@ -52,6 +73,14 @@ namespace GameCore.UI
         private void onBtnSettingClicked(PointerEventData arg1, object[] arg2)
         {
             UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, false));
+        }
+
+        private void RefreshContinueButton()
+        {
+            if (mono.btnContinue == null)
+                return;
+
+            SCCommon.SetGameObjectEnable(mono.btnContinue.gameObject, GamePlayerDataMgr.instance.hasSaveData);
         }
     }
 }

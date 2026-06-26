@@ -64,6 +64,8 @@ namespace GameCore.UI
         public Button btnConfirm;
         [Header("关门按钮")]
         public Button btnCloseDoor;
+        [Header("设置按钮")]
+        public Button btnSetting;
         [Header("楼层数字按键列表")]
         public List<Button> numberButtons = new List<Button>();
     }

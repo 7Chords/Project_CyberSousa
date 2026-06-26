@@ -46,6 +46,7 @@ namespace GameCore.UI
         private bool _isSettlementShowing;
         private bool _isTransitionPlaying;
         private bool _hasInitializedRuntime;
+        private string _serviceFeedbackText;
         private string _activeDialoguePortraitResName;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
 
@@ -153,6 +154,13 @@ namespace GameCore.UI
 
             if (mono.txtClockTime == null)
                 mono.txtClockTime = FindChildText("ClockTimePanel_Text");
+
+            if (mono.btnSetting == null)
+            {
+                Transform btnSettingTransform = FindChildTransformRecursive(mono.transform, "BtnSetting");
+                if (btnSettingTransform != null)
+                    mono.btnSetting = btnSettingTransform.GetComponent<Button>();
+            }
         }
 
         private void BuildLookupMaps()
@@ -246,8 +254,8 @@ namespace GameCore.UI
 
         private void InitializeLevelRuntime()
         {
-            _currentLevelRefData = FindInitialLevelRefData();
-            _currentDayIndex = FindLevelIndex(_currentLevelRefData);
+            _currentDayIndex = Mathf.Clamp(GamePlayerDataMgr.instance.startDayIndex, 0, Mathf.Max(0, _levelSequence.Count - 1));
+            _currentLevelRefData = _levelSequence.Count > 0 ? _levelSequence[_currentDayIndex] : FindInitialLevelRefData();
             StartCurrentDay();
         }
 
@@ -274,6 +282,7 @@ namespace GameCore.UI
             _isTransitionPlaying = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
+            _serviceFeedbackText = null;
 
             SetCurrentFloorDisplayInstant(_currentFloor);
             GameTimeMgr.instance.ResetToDayStart();
@@ -332,6 +341,7 @@ namespace GameCore.UI
             mono.btnReject?.AddMouseLeftClickDown(OnRejectClicked);
             mono.btnConfirm?.AddMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.AddMouseLeftClickDown(OnCloseDoorClicked);
+            mono.btnSetting?.AddMouseLeftClickDown(OnSettingClicked);
             mono.dialogueLeftArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
             mono.dialogueRightArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
         }
@@ -349,6 +359,7 @@ namespace GameCore.UI
             mono.btnReject?.RemoveMouseLeftClickDown(OnRejectClicked);
             mono.btnConfirm?.RemoveMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.RemoveMouseLeftClickDown(OnCloseDoorClicked);
+            mono.btnSetting?.RemoveMouseLeftClickDown(OnSettingClicked);
             mono.dialogueLeftArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
             mono.dialogueRightArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
         }
@@ -408,6 +419,7 @@ namespace GameCore.UI
             _canCloseDoor = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
+            _serviceFeedbackText = null;
             _currentCustomerRefData = customerRefData;
             _currentNeedRefData = needRefData;
 
@@ -466,6 +478,7 @@ namespace GameCore.UI
             _canCloseDoor = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
+            _serviceFeedbackText = null;
             SetCustomerHiddenInstant();
         }
 
@@ -611,6 +624,7 @@ namespace GameCore.UI
 
             _currentDialogueRefData = dialogueRefData;
             _currentAffectValue += dialogueRefData.affectValue;
+            AddCurrentCustomerFavor(dialogueRefData.affectValue);
 
             if (dialogueRefData.dialogueType == EDialogueType.SELECT)
             {
@@ -914,7 +928,9 @@ namespace GameCore.UI
 
             if (_canCloseDoor)
             {
-                mono.txtBottomHint.text = "当前住户已处理完成，可以点击关门送走。";
+                mono.txtBottomHint.text = string.IsNullOrEmpty(_serviceFeedbackText)
+                    ? "当前住户已处理完成，可以点击关门送走。"
+                    : $"{_serviceFeedbackText}\n点击关门送走当前住户。";
                 return;
             }
 
@@ -1193,6 +1209,11 @@ namespace GameCore.UI
             RefreshAllUi();
         }
 
+        private void OnSettingClicked(PointerEventData eventData, object[] args)
+        {
+            UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, false));
+        }
+
         private int GetFloorFromButton(Button button)
         {
             if (button == null)
@@ -1293,6 +1314,7 @@ namespace GameCore.UI
             }
 
             _currentAffectValue += optionDialogueRefData.affectValue;
+            AddCurrentCustomerFavor(optionDialogueRefData.affectValue);
             mono.txtDialogueLeft.text = string.Empty;
             mono.txtDialogueRight.text = optionDialogueRefData.content;
             RefreshDialoguePortrait(optionDialogueRefData);
@@ -1341,8 +1363,8 @@ namespace GameCore.UI
                 return;
             }
 
+            ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
-            ApplyPerformanceByJudgment(_lastJudgmentEffectData);
             StartRejectAndPickupNextFlow();
         }
 
@@ -1413,8 +1435,8 @@ namespace GameCore.UI
             _canCloseDoor = _lastJudgmentEffectData != null;
             if (_canCloseDoor)
             {
+                ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
                 SCDebugHelper.Log($"已关门前往 {finalFloor} 楼，影响值={_lastJudgmentEffectData.affectValue}");
-                ApplyPerformanceByJudgment(_lastJudgmentEffectData);
                 RefreshAllUi();
                 StartCustomerDepartureFlow(finalFloor, true);
                 return;
@@ -1423,13 +1445,30 @@ namespace GameCore.UI
             RefreshAllUi();
         }
 
-        private void ApplyPerformanceByJudgment(JudgmentEffectData judgmentEffectData)
+        private void ApplyServiceFeedbackByJudgment(JudgmentEffectData judgmentEffectData)
         {
             if (judgmentEffectData == null)
                 return;
 
+            AddCurrentCustomerFavor(judgmentEffectData.affectValue);
+
             if (judgmentEffectData.affectValue < 0)
+            {
                 GamePlayerDataMgr.instance.DeductPerformance(-judgmentEffectData.affectValue);
+                _serviceFeedbackText =
+                    $"处理错误：绩效值 -{-judgmentEffectData.affectValue}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
+                return;
+            }
+
+            _serviceFeedbackText = $"处理正确：影响值 +{judgmentEffectData.affectValue}。";
+        }
+
+        private void AddCurrentCustomerFavor(int favorValue)
+        {
+            if (_currentCustomerRefData == null || favorValue == 0)
+                return;
+
+            GamePlayerDataMgr.instance.AddNpcFavor(_currentCustomerRefData.id, favorValue);
         }
 
         private void StartEmptyElevatorTravel(int targetFloor)
@@ -1463,6 +1502,7 @@ namespace GameCore.UI
                 return;
 
             _isSettlementShowing = true;
+            GamePlayerDataMgr.instance.SaveDailyProgress(_currentDayIndex + 1);
             UIPanelSettlement.pendingTitle = $"第 {_currentDayIndex + 1} 天结算";
             UIPanelSettlement.pendingSummary = $"第 {_currentDayIndex + 1} 天的客人已经全部接待完成。";
             UIPanelSettlement.onNextDayClicked = HandleNextDayClicked;
