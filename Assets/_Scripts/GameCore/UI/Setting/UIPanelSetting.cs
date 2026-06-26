@@ -104,6 +104,7 @@ namespace GameCore.UI
 
         private void onBtnReturnMainClickDown(PointerEventData _data, object[] _objs)
         {
+            UIPanelGameplayMain.SaveCurrentDayProgressIfActive();
             UINodeMgr.instance.CloseTopNode();
             GameFlowController.instance.EnterMainMenu();
         }

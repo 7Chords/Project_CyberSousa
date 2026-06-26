@@ -12,6 +12,8 @@ namespace GameCore.UI
 {
     public class UIPanelGameplayMain : _ASCUIPanelBase<UIMonoGameplayMain>
     {
+        private static UIPanelGameplayMain _activePanel;
+
         private const string PlayerSpeakerName = "玩家";
         private const long DefaultLevelId = 1001;
         private const string SettlementNodeName = "UINodeSettlement";
@@ -23,11 +25,12 @@ namespace GameCore.UI
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
         private readonly Dictionary<long, RuleRefData> _ruleMap = new Dictionary<long, RuleRefData>();
         private readonly List<LevelRefData> _levelSequence = new List<LevelRefData>();
-        private readonly Queue<long> _pendingCustomerIds = new Queue<long>();
+        private readonly Queue<PendingCustomerRuntimeData> _pendingCustomers = new Queue<PendingCustomerRuntimeData>();
 
         private LevelRefData _currentLevelRefData;
         private CustomerRefData _currentCustomerRefData;
         private CustomerNeedRefData _currentNeedRefData;
+        private TimeEffectData _currentNeedTime;
         private DialogueRefData _currentDialogueRefData;
         private readonly List<DialogueRefData> _currentOptionDialogueList = new List<DialogueRefData>();
         private readonly List<UIMonoDialogueOption> _dialogueOptionItemPool = new List<UIMonoDialogueOption>();
@@ -56,6 +59,7 @@ namespace GameCore.UI
 
         public override void AfterInitialize()
         {
+            _activePanel = this;
             GameTimeMgr.instance.OnTimeChanged += OnGameTimeChanged;
             InitializeRuntimeData();
             RefreshAllUi();
@@ -63,9 +67,26 @@ namespace GameCore.UI
 
         public override void BeforeDiscard()
         {
+            if (_hasInitializedRuntime && !_isSettlementShowing)
+                GamePlayerDataMgr.instance.SaveDailyProgress(_currentDayIndex);
+
+            if (_activePanel == this)
+                _activePanel = null;
+
             GameTimeMgr.instance.OnTimeChanged -= OnGameTimeChanged;
             GameTimeMgr.instance.StopAdvanceTween();
             UnbindButtons();
+        }
+
+        public static void SaveCurrentDayProgressIfActive()
+        {
+            if (_activePanel == null || !_activePanel._hasInitializedRuntime)
+                return;
+
+            if (_activePanel._isSettlementShowing)
+                return;
+
+            GamePlayerDataMgr.instance.SaveDailyProgress(_activePanel._currentDayIndex);
         }
 
         public override void OnHidePanel()
@@ -265,12 +286,30 @@ namespace GameCore.UI
                 ? new List<long>(_currentLevelRefData.ruleIdList)
                 : new List<long>();
 
-            _pendingCustomerIds.Clear();
+            _pendingCustomers.Clear();
             if (_currentLevelRefData != null && _currentLevelRefData.customerEffectList != null)
             {
-                List<long> customerIds = CustomerPoolMgr.instance.ResolveCustomerIds(_currentLevelRefData.customerEffectList);
-                for (int index = 0; index < customerIds.Count; index++)
-                    _pendingCustomerIds.Enqueue(customerIds[index]);
+                for (int index = 0; index < _currentLevelRefData.customerEffectList.Count; index++)
+                {
+                    CustomerEffectData customerEffectData = _currentLevelRefData.customerEffectList[index];
+                    if (customerEffectData == null)
+                    {
+                        Debug.LogError($"Gameplay 关卡住户初始化失败：levelId={_currentLevelRefData.id} 的 customerEffectList 第 {index} 项为空。");
+                        continue;
+                    }
+
+                    long customerId = CustomerPoolMgr.instance.ResolveCustomerId(customerEffectData);
+                    if (customerId <= 0)
+                        continue;
+
+                    if (customerEffectData.needTime == null)
+                    {
+                        Debug.LogError($"Gameplay 关卡住户初始化失败：levelId={_currentLevelRefData.id}，customerId={customerId} 未配置出现时间。");
+                        continue;
+                    }
+
+                    _pendingCustomers.Enqueue(new PendingCustomerRuntimeData(customerId, customerEffectData.needTime));
+                }
             }
 
             _currentFloor = 1;
@@ -289,24 +328,13 @@ namespace GameCore.UI
             SetElevatorDoorClosedInstant();
             SetCustomerHiddenInstant();
 
-            if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData firstNeedRefData))
+            if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData firstNeedRefData, out TimeEffectData firstNeedTime))
             {
                 ShowDayCompleteState();
                 return;
             }
 
-            _isTransitionPlaying = true;
-            GameTimeMgr.instance.SetClockTime(firstNeedRefData.needTime);
-            int firstFloor = firstNeedRefData.needFloor > 0 ? firstNeedRefData.needFloor : 1;
-            PlayElevatorTravelToFloor(firstFloor, () =>
-            {
-                OpenElevatorDoor(() =>
-                {
-                    TrySpawnNextPendingCustomer();
-                    _isTransitionPlaying = false;
-                    RefreshAllUi();
-                });
-            });
+            StartPickupTravelToNextCustomer(firstNeedRefData, firstNeedTime, true);
         }
 
         private LevelRefData FindInitialLevelRefData()
@@ -369,35 +397,36 @@ namespace GameCore.UI
             if (_currentCustomerRefData != null)
                 return;
 
-            if (_pendingCustomerIds.Count == 0)
+            if (_pendingCustomers.Count == 0)
             {
                 ShowDayCompleteState();
                 return;
             }
 
-            long customerId = _pendingCustomerIds.Peek();
+            PendingCustomerRuntimeData pendingCustomerData = _pendingCustomers.Peek();
+            long customerId = pendingCustomerData.customerId;
             CustomerRefData customerRefData = GetCustomerRefData(customerId);
             if (customerRefData == null)
             {
-                _pendingCustomerIds.Dequeue();
+                _pendingCustomers.Dequeue();
                 TrySpawnNextPendingCustomer();
                 return;
             }
 
-            CustomerNeedRefData needRefData = FindNeedRefDataForCurrentLevel(customerRefData);
+            CustomerNeedRefData needRefData = FindNeedRefDataForCustomer(customerRefData);
             if (needRefData == null)
             {
-                Debug.LogError($"Gameplay 住户初始化失败：customerId={customerId} 未找到当前关卡需求配置。");
-                _pendingCustomerIds.Dequeue();
+                Debug.LogError($"Gameplay 住户初始化失败：levelId={_currentLevelRefData?.id}，customerId={customerId} 未找到当前关卡需求配置。");
+                _pendingCustomers.Dequeue();
                 TrySpawnNextPendingCustomer();
                 return;
             }
 
-            if (!CustomerNeedMgr.instance.CanSpawnCustomerNeed(needRefData, _currentFloor))
+            if (!CustomerNeedMgr.instance.CanSpawnCustomerNeed(needRefData, pendingCustomerData.needTime, _currentFloor))
             {
-                if (GameTimeMgr.instance.HasReachedNeedTime(needRefData.needTime))
+                if (GameTimeMgr.instance.HasReachedNeedTime(pendingCustomerData.needTime))
                 {
-                    StartPickupTravelToNextCustomer(needRefData, false);
+                    StartPickupTravelToNextCustomer(needRefData, pendingCustomerData.needTime, false);
                     return;
                 }
 
@@ -406,11 +435,11 @@ namespace GameCore.UI
                 return;
             }
 
-            _pendingCustomerIds.Dequeue();
-            SpawnCustomer(customerRefData, needRefData);
+            _pendingCustomers.Dequeue();
+            SpawnCustomer(customerRefData, needRefData, pendingCustomerData.needTime);
         }
 
-        private void SpawnCustomer(CustomerRefData customerRefData, CustomerNeedRefData needRefData)
+        private void SpawnCustomer(CustomerRefData customerRefData, CustomerNeedRefData needRefData, TimeEffectData needTime)
         {
             ClearDialoguePortraits();
             _selectedFloor = 0;
@@ -422,6 +451,7 @@ namespace GameCore.UI
             _serviceFeedbackText = null;
             _currentCustomerRefData = customerRefData;
             _currentNeedRefData = needRefData;
+            _currentNeedTime = needTime;
 
             long dialogueStartId = GetDialogueStartId(needRefData);
             if (dialogueStartId > 0)
@@ -450,19 +480,19 @@ namespace GameCore.UI
         private void FinishCurrentCustomerService()
         {
             ClearCurrentCustomerState();
-            if (_pendingCustomerIds.Count == 0)
+            if (_pendingCustomers.Count == 0)
             {
                 ShowDayCompleteState();
                 return;
             }
 
-            if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData))
+            if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData, out TimeEffectData nextNeedTime))
             {
                 ShowDayCompleteState();
                 return;
             }
 
-            StartPickupTravelToNextCustomer(nextNeedRefData, false);
+            StartPickupTravelToNextCustomer(nextNeedRefData, nextNeedTime, false);
         }
 
         private void ClearCurrentCustomerState()
@@ -470,6 +500,7 @@ namespace GameCore.UI
             ClearDialoguePortraits();
             _currentCustomerRefData = null;
             _currentNeedRefData = null;
+            _currentNeedTime = null;
             _currentDialogueRefData = null;
             ClearDialogueOptions();
             _selectedFloor = 0;
@@ -482,7 +513,7 @@ namespace GameCore.UI
             SetCustomerHiddenInstant();
         }
 
-        private void StartPickupTravelToNextCustomer(CustomerNeedRefData needRefData, bool prepareRejectTravelTime)
+        private void StartPickupTravelToNextCustomer(CustomerNeedRefData needRefData, TimeEffectData needTime, bool prepareRejectTravelTime)
         {
             if (needRefData == null)
                 return;
@@ -491,9 +522,9 @@ namespace GameCore.UI
             if (prepareRejectTravelTime)
             {
                 if (_currentFloor != targetFloor)
-                    GameTimeMgr.instance.SetClockTimeBeforeElevatorTravel(needRefData.needTime);
+                    GameTimeMgr.instance.SetClockTimeBeforeElevatorTravel(needTime);
                 else
-                    GameTimeMgr.instance.SetClockTime(needRefData.needTime);
+                    GameTimeMgr.instance.SetClockTime(needTime);
             }
 
             if (_currentFloor == targetFloor)
@@ -530,47 +561,42 @@ namespace GameCore.UI
                 HideCurrentCustomer(() =>
                 {
                     ClearCurrentCustomerState();
-                    if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData))
+                    if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData, out TimeEffectData nextNeedTime))
                     {
                         _isTransitionPlaying = false;
                         ShowDayCompleteState();
                         return;
                     }
 
-                    StartPickupTravelToNextCustomer(nextNeedRefData, true);
+                    StartPickupTravelToNextCustomer(nextNeedRefData, nextNeedTime, true);
                 });
             });
         }
 
-        private bool TryGetPeekPendingNeedRefData(out CustomerNeedRefData needRefData)
+        private bool TryGetPeekPendingNeedRefData(out CustomerNeedRefData needRefData, out TimeEffectData needTime)
         {
             needRefData = null;
-            if (_pendingCustomerIds.Count == 0)
+            needTime = null;
+            if (_pendingCustomers.Count == 0)
                 return false;
 
-            long customerId = _pendingCustomerIds.Peek();
+            PendingCustomerRuntimeData pendingCustomerData = _pendingCustomers.Peek();
+            long customerId = pendingCustomerData.customerId;
             CustomerRefData customerRefData = GetCustomerRefData(customerId);
             if (customerRefData == null)
                 return false;
 
-            needRefData = FindNeedRefDataForCurrentLevel(customerRefData);
+            needRefData = FindNeedRefDataForCustomer(customerRefData);
+            needTime = pendingCustomerData.needTime;
             return needRefData != null;
         }
 
-        private CustomerRefData GetCustomerRefData(long customerId)
-        {
-            if (_customerMap.TryGetValue(customerId, out CustomerRefData customerRefData))
-                return customerRefData;
-
-            Debug.LogError($"Gameplay 获取住户配置失败：未找到 customerId={customerId}");
-            return null;
-        }
-
-        private CustomerNeedRefData FindNeedRefDataForCurrentLevel(CustomerRefData customerRefData)
+        private CustomerNeedRefData FindNeedRefDataForCustomer(CustomerRefData customerRefData)
         {
             if (customerRefData == null || customerRefData.needList == null)
                 return null;
 
+            CustomerNeedRefData fallbackNeedRefData = null;
             for (int index = 0; index < customerRefData.needList.Count; index++)
             {
                 NeedEffectData needEffectData = customerRefData.needList[index];
@@ -580,14 +606,26 @@ namespace GameCore.UI
                     continue;
                 }
 
-                if (_currentLevelRefData != null && needEffectData.levelId != _currentLevelRefData.id)
+                CustomerNeedRefData needRefData = CustomerNeedMgr.instance.GetNeedRefData(needEffectData.needId);
+                if (needRefData == null)
                     continue;
 
-                CustomerNeedRefData needRefData = CustomerNeedMgr.instance.GetNeedRefData(needEffectData.needId);
-                if (needRefData != null)
+                if (_currentLevelRefData != null && needEffectData.levelId == _currentLevelRefData.id)
                     return needRefData;
+
+                if (fallbackNeedRefData == null)
+                    fallbackNeedRefData = needRefData;
             }
 
+            return fallbackNeedRefData;
+        }
+
+        private CustomerRefData GetCustomerRefData(long customerId)
+        {
+            if (_customerMap.TryGetValue(customerId, out CustomerRefData customerRefData))
+                return customerRefData;
+
+            Debug.LogError($"Gameplay 获取住户配置失败：未找到 customerId={customerId}");
             return null;
         }
 
@@ -887,9 +925,9 @@ namespace GameCore.UI
         {
             if (_currentCustomerRefData == null)
             {
-                if (_pendingCustomerIds.Count > 0)
+                if (_pendingCustomers.Count > 0)
                 {
-                    CustomerRefData pendingCustomer = GetCustomerRefData(_pendingCustomerIds.Peek());
+                    CustomerRefData pendingCustomer = GetCustomerRefData(_pendingCustomers.Peek().customerId);
                     if (pendingCustomer != null)
                     {
                         if (mono.txtCustomerName != null)
@@ -946,11 +984,11 @@ namespace GameCore.UI
                 return;
             }
 
-            if (TryGetPeekPendingNeedRefData(out CustomerNeedRefData pendingNeedRefData))
+            if (TryGetPeekPendingNeedRefData(out CustomerNeedRefData pendingNeedRefData, out TimeEffectData pendingNeedTime))
             {
-                string needTimeText = GameTimeMgr.FormatClockTime(pendingNeedRefData.needTime);
+                string needTimeText = GameTimeMgr.FormatClockTime(pendingNeedTime);
                 int needFloor = pendingNeedRefData.needFloor > 0 ? pendingNeedRefData.needFloor : _currentFloor;
-                if (!GameTimeMgr.instance.HasReachedNeedTime(pendingNeedRefData.needTime))
+                if (!GameTimeMgr.instance.HasReachedNeedTime(pendingNeedTime))
                 {
                     mono.txtBottomHint.text =
                         $"约 {needTimeText} 将在 {needFloor} 楼发出需求，请提前前往。";
@@ -970,7 +1008,7 @@ namespace GameCore.UI
 
             if (_currentNeedRefData != null)
             {
-                string needTimeText = GameTimeMgr.FormatClockTime(_currentNeedRefData.needTime);
+                string needTimeText = GameTimeMgr.FormatClockTime(_currentNeedTime);
                 if (_currentNeedRefData.needFloor > 0)
                 {
                     mono.txtBottomHint.text =
@@ -1559,6 +1597,7 @@ namespace GameCore.UI
 
             _currentDayIndex = nextDayIndex;
             _currentLevelRefData = _levelSequence[_currentDayIndex];
+            GamePlayerDataMgr.instance.SaveDailyProgress(_currentDayIndex);
             StartCurrentDay();
             RefreshAllUi();
         }
@@ -1587,7 +1626,7 @@ namespace GameCore.UI
             if (!IsFinalDay() || _currentCustomerRefData == null || _currentLevelRefData == null)
                 return false;
 
-            if (_pendingCustomerIds.Count > 0)
+            if (_pendingCustomers.Count > 0)
                 return false;
 
             List<CustomerEffectData> customerEffectList = _currentLevelRefData.customerEffectList;
@@ -1600,6 +1639,18 @@ namespace GameCore.UI
 
             long specialCustomerId = CustomerPoolMgr.instance.ResolveCustomerId(lastCustomerEffectData);
             return specialCustomerId == _currentCustomerRefData.id;
+        }
+
+        private readonly struct PendingCustomerRuntimeData
+        {
+            public readonly long customerId;
+            public readonly TimeEffectData needTime;
+
+            public PendingCustomerRuntimeData(long customerId, TimeEffectData needTime)
+            {
+                this.customerId = customerId;
+                this.needTime = needTime;
+            }
         }
 
         private int ResolveCustomerDepartureFloor()

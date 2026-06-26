@@ -102,9 +102,10 @@ namespace GameCore
 
         public void SaveDailyProgress(int nextDayIndex)
         {
+            _startDayIndex = Mathf.Max(0, nextDayIndex);
             SaveData saveData = new SaveData
             {
-                nextDayIndex = Mathf.Max(0, nextDayIndex),
+                nextDayIndex = _startDayIndex,
                 performanceValue = _performanceValue,
                 hasConfirmedFinalSpecialCustomer = _hasConfirmedFinalSpecialCustomer,
                 npcFavorList = new List<NpcFavorSaveData>()

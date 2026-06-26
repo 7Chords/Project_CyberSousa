@@ -1,6 +1,6 @@
-key	value
+﻿key	value
 ~key	~配置值
-~dayStartTime	~每天开始时间（时:分:秒）
-~elevatorTravelTime	~电梯移动消耗的游戏时间（时:分:秒）
-dayStartTime	8:0:0
-elevatorTravelTime	0:5:0
+dayStartTime	8:00:00
+elevatorTravelTime	0:05:00
+	
+	

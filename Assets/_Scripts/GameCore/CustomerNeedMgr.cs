@@ -56,12 +56,12 @@ namespace GameCore
             return null;
         }
 
-        public bool CanSpawnCustomerNeed(CustomerNeedRefData needRefData, int currentFloor)
+        public bool CanSpawnCustomerNeed(CustomerNeedRefData needRefData, TimeEffectData needTime, int currentFloor)
         {
             if (needRefData == null)
                 return false;
 
-            if (!GameTimeMgr.instance.HasReachedNeedTime(needRefData.needTime))
+            if (!GameTimeMgr.instance.HasReachedNeedTime(needTime))
                 return false;
 
             if (needRefData.needFloor > 0 && currentFloor != needRefData.needFloor)

@@ -84,27 +84,5 @@ namespace GameCore
             }
         }
 
-        public List<long> ResolveCustomerIds(List<CustomerEffectData> customerEffectList)
-        {
-            List<long> customerIds = new List<long>();
-            if (customerEffectList == null)
-                return customerIds;
-
-            for (int index = 0; index < customerEffectList.Count; index++)
-            {
-                CustomerEffectData customerEffectData = customerEffectList[index];
-                if (customerEffectData == null)
-                {
-                    Debug.LogError($"CustomerPoolMgr 解析住户失败：第 {index} 条 customerEffectList 为空。");
-                    continue;
-                }
-
-                long customerId = ResolveCustomerId(customerEffectData);
-                if (customerId > 0)
-                    customerIds.Add(customerId);
-            }
-
-            return customerIds;
-        }
     }
 }
