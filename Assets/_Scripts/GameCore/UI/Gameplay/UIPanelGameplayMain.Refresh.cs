@@ -246,6 +246,12 @@ namespace GameCore.UI
                 return;
             }
 
+            if (_recentFloorInputData.recentFloorList.Count > 0)
+            {
+                mono.txtBottomHint.text = $"当前输入：{string.Join(",", _recentFloorInputData.recentFloorList)}";
+                return;
+            }
+
             if (_selectedFloor > 0)
             {
                 mono.txtBottomHint.text = $"当前已选择楼层：{_selectedFloor} 楼。";

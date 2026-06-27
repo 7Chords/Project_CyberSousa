@@ -5,6 +5,15 @@ using UnityEngine;
 
 namespace GameCore
 {
+    public class GotoRuleResolutionResult
+    {
+        public int originalFloor;
+        public int finalFloor;
+        public bool comboMatched;
+        public bool isBlocked;
+        public RuleEffectData lastEffectData;
+    }
+
     /// <summary>
     /// 规则处理器
     /// </summary>
@@ -115,6 +124,146 @@ namespace GameCore
             return true;
         }
 
+        public bool TryResolveGotoRuleSequence(List<long> ruleIdList, int selectedFloor, List<int> recentFloorList,
+            out GotoRuleResolutionResult resolutionResult)
+        {
+            resolutionResult = new GotoRuleResolutionResult
+            {
+                originalFloor = selectedFloor,
+                finalFloor = selectedFloor,
+            };
+            if (selectedFloor <= 0)
+            {
+                Debug.LogError($"RuleMgr 顺序判断楼层规则失败：selectedFloor 无效，selectedFloor={selectedFloor}");
+                resolutionResult.isBlocked = true;
+                return false;
+            }
+
+            if (ruleIdList != null && ruleIdList.Count > 0)
+            {
+                for (int ruleIndex = 0; ruleIndex < ruleIdList.Count; ruleIndex++)
+                {
+                    RuleRefData ruleRefData = GetRuleRefData(ruleIdList[ruleIndex]);
+                    if (ruleRefData == null)
+                        continue;
+
+                    List<RuleEffectData> effectList = ruleRefData.effectList;
+                    if (effectList == null || effectList.Count == 0)
+                    {
+                        Debug.LogError($"RuleMgr 顺序判断楼层规则失败：ruleId={ruleRefData.id} 的 effectList 为空。");
+                        continue;
+                    }
+
+                    for (int effectIndex = 0; effectIndex < effectList.Count; effectIndex++)
+                    {
+                        RuleEffectData effectData = effectList[effectIndex];
+                        if (effectData == null)
+                        {
+                            Debug.LogError($"RuleMgr 顺序判断楼层规则失败：ruleId={ruleRefData.id} 的 effectList 第 {effectIndex} 项为空。");
+                            continue;
+                        }
+
+                        if (effectData.elevatorOperator != EElevatorOperator.GOTO)
+                            continue;
+
+                        switch (effectData.effectType)
+                        {
+                            case ERuleEffectType.FORBID_TARGET_FLOOR:
+                                if (effectData.param1 == resolutionResult.finalFloor)
+                                {
+                                    resolutionResult.isBlocked = true;
+                                    resolutionResult.lastEffectData = effectData;
+                                }
+                                break;
+                            case ERuleEffectType.REDIRECT_TARGET_FLOOR:
+                                if (effectData.param1 == resolutionResult.finalFloor)
+                                {
+                                    resolutionResult.finalFloor = effectData.param2;
+                                    resolutionResult.isBlocked = false;
+                                    resolutionResult.lastEffectData = effectData;
+                                }
+                                break;
+                            case ERuleEffectType.COMBO_TARGET_FLOOR:
+                                if (!IsComboFloorMatched(effectData.comboFloorList, recentFloorList))
+                                    break;
+
+                                if (!TryGetComboTargetFloor(effectData, out int comboTargetFloor))
+                                {
+                                    Debug.LogError($"RuleMgr 顺序判断楼层规则失败：ruleId={ruleRefData.id} 的组合键目标楼层无效。");
+                                    break;
+                                }
+
+                                resolutionResult.finalFloor = comboTargetFloor;
+                                resolutionResult.comboMatched = true;
+                                resolutionResult.isBlocked = false;
+                                resolutionResult.lastEffectData = effectData;
+                                break;
+                            default:
+                                Debug.LogError($"RuleMgr 顺序判断楼层规则失败：未支持的规则效果类型 {effectData.effectType}，ruleId={ruleRefData.id}");
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (!resolutionResult.isBlocked
+                && !resolutionResult.comboMatched
+                && resolutionResult.finalFloor == selectedFloor
+                && IsComboOnlyTargetFloor(ruleIdList, selectedFloor))
+            {
+                resolutionResult.isBlocked = true;
+                resolutionResult.lastEffectData = new RuleEffectData
+                {
+                    elevatorOperator = EElevatorOperator.GOTO,
+                    effectType = ERuleEffectType.COMBO_TARGET_FLOOR,
+                    param2 = selectedFloor
+                };
+            }
+
+            return !resolutionResult.isBlocked;
+        }
+
+        public bool IsComboOnlyTargetFloor(List<long> ruleIdList, int targetFloor)
+        {
+            if (targetFloor <= 0 || ruleIdList == null || ruleIdList.Count == 0)
+                return false;
+
+            for (int index = 0; index < ruleIdList.Count; index++)
+            {
+                RuleRefData ruleRefData = GetRuleRefData(ruleIdList[index]);
+                if (ruleRefData == null || ruleRefData.effectList == null)
+                    continue;
+
+                for (int effectIndex = 0; effectIndex < ruleRefData.effectList.Count; effectIndex++)
+                {
+                    RuleEffectData effectData = ruleRefData.effectList[effectIndex];
+                    if (effectData == null)
+                    {
+                        Debug.LogError($"RuleMgr 判断组合目标楼层失败：ruleId={ruleRefData.id} 的 effectList 第 {effectIndex} 项为空。");
+                        continue;
+                    }
+
+                    if (effectData.elevatorOperator != EElevatorOperator.GOTO || effectData.effectType != ERuleEffectType.COMBO_TARGET_FLOOR)
+                        continue;
+
+                    if (effectData.param2 == targetFloor)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetComboTargetFloor(RuleEffectData ruleEffectData, out int comboTargetFloor)
+        {
+            comboTargetFloor = 0;
+            if (ruleEffectData == null || ruleEffectData.effectType != ERuleEffectType.COMBO_TARGET_FLOOR)
+                return false;
+
+            comboTargetFloor = ruleEffectData.param2;
+            return comboTargetFloor > 0;
+        }
+
         private RuleEffectData MatchRuleEffect(RuleRefData ruleRefData, EElevatorOperator actionType, int targetFloor)
         {
             List<RuleEffectData> effectList = ruleRefData.effectList;
@@ -152,6 +301,8 @@ namespace GameCore
                         if (actionType == EElevatorOperator.REFUSE)
                             return effectData;
                         break;
+                    case ERuleEffectType.COMBO_TARGET_FLOOR:
+                        break;
                     default:
                         Debug.LogError($"RuleMgr 判断规则失败：未支持的规则效果类型 {effectData.effectType}，ruleId={ruleRefData.id}");
                         break;
@@ -159,6 +310,31 @@ namespace GameCore
             }
 
             return null;
+        }
+
+        private static bool IsComboFloorMatched(List<int> comboFloorList, List<int> recentFloorList)
+        {
+            if (comboFloorList == null || comboFloorList.Count == 0 || recentFloorList == null || recentFloorList.Count == 0)
+                return false;
+
+            if (recentFloorList.Count < comboFloorList.Count)
+                return false;
+
+            List<int> recentTailFloorList = new List<int>(comboFloorList.Count);
+            int startIndex = recentFloorList.Count - comboFloorList.Count;
+            for (int index = startIndex; index < recentFloorList.Count; index++)
+                recentTailFloorList.Add(recentFloorList[index]);
+
+            for (int index = 0; index < comboFloorList.Count; index++)
+            {
+                int matchFloor = comboFloorList[index];
+                if (!recentTailFloorList.Contains(matchFloor))
+                    return false;
+
+                recentTailFloorList.Remove(matchFloor);
+            }
+
+            return true;
         }
     }
 }

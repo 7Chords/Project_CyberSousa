@@ -25,6 +25,7 @@ namespace GameCore.UI
         private readonly Dictionary<long, RuleRefData> _ruleMap = new Dictionary<long, RuleRefData>();
         private readonly List<LevelRefData> _levelSequence = new List<LevelRefData>();
         private readonly Queue<PendingCustomerRuntimeData> _pendingCustomers = new Queue<PendingCustomerRuntimeData>();
+        private readonly RecentFloorInputData _recentFloorInputData = new RecentFloorInputData();
 
         private LevelRefData _currentLevelRefData;
         private CustomerRefData _currentCustomerRefData;
@@ -41,6 +42,7 @@ namespace GameCore.UI
         private List<long> _currentRuleIdList = new List<long>();
         private int _currentFloor = 1;
         private int _selectedFloor;
+        private int _resolvedTargetFloor;
         private int _currentAffectValue;
         private int _currentDayIndex;
         private bool _isDialogueRunning;
@@ -132,6 +134,27 @@ namespace GameCore.UI
             bool canAdvanceByScreenClick = _isDialogueRunning && CanAdvanceDialogueByClick();
             mono.dialogueAdvanceClickArea.raycastTarget = canAdvanceByScreenClick;
             mono.dialogueAdvanceClickArea.enabled = canAdvanceByScreenClick;
+        }
+
+        private class RecentFloorInputData
+        {
+            public int latestSingleFloor;
+            public readonly List<int> recentFloorList = new List<int>();
+
+            public void Clear()
+            {
+                latestSingleFloor = 0;
+                recentFloorList.Clear();
+            }
+
+            public void RecordFloor(int floor)
+            {
+                if (floor <= 0)
+                    return;
+
+                latestSingleFloor = floor;
+                recentFloorList.Add(floor);
+            }
         }
     }
 }

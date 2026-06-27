@@ -85,6 +85,8 @@ namespace GameCore.UI
             }
 
             _selectedFloor = GetFloorFromButton(clickedButton);
+            _resolvedTargetFloor = 0;
+            _recentFloorInputData.RecordFloor(_selectedFloor);
             _ruleFeedbackText = null;
             SCDebugHelper.Log($"点击动物编号按钮：{clickedButton.name}，当前选择楼层={_selectedFloor}");
             RefreshAllUi();
@@ -251,7 +253,15 @@ namespace GameCore.UI
                     return;
                 }
 
-                StartEmptyElevatorTravel(_selectedFloor);
+                if (TryResolveFloorOperation(_selectedFloor, false, out int emptyTravelFloor, out _lastRuleEffectData, out _lastJudgmentEffectData))
+                {
+                    StartEmptyElevatorTravel(emptyTravelFloor);
+                    return;
+                }
+
+                ApplyGotoFailureFeedback();
+                _resolvedTargetFloor = 0;
+                RefreshAllUi();
                 return;
             }
 
@@ -274,7 +284,7 @@ namespace GameCore.UI
                 return;
             }
 
-            if (TryResolveGotoOperation(_selectedFloor, out int finalFloor, out _lastRuleEffectData, out _lastJudgmentEffectData))
+            if (TryResolveFloorOperation(_selectedFloor, true, out int finalFloor, out _lastRuleEffectData, out _lastJudgmentEffectData))
             {
                 _canCloseDoor = true;
                 ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
@@ -285,13 +295,74 @@ namespace GameCore.UI
             }
 
             _canCloseDoor = false;
-            if (RuleMgr.instance.IsGotoBlocked(_lastRuleEffectData))
+            ApplyGotoFailureFeedback();
+            _resolvedTargetFloor = 0;
+            RefreshAllUi();
+        }
+
+        private bool TryResolveFloorOperation(int selectedFloor, bool hasCustomer, out int finalFloor, out RuleEffectData ruleEffectData,
+            out JudgmentEffectData judgmentEffectData)
+        {
+            finalFloor = selectedFloor;
+            ruleEffectData = null;
+            judgmentEffectData = null;
+            _resolvedTargetFloor = 0;
+
+            if (!RuleMgr.instance.TryResolveGotoRuleSequence(_currentRuleIdList, selectedFloor, _recentFloorInputData.recentFloorList,
+                    out GotoRuleResolutionResult resolutionResult))
             {
-                _ruleFeedbackText = $"测试提示：规则生效，禁止前往 {_selectedFloor} 楼。";
-                SCDebugHelper.Log($"当前规则禁止前往 {_selectedFloor} 楼。");
+                finalFloor = resolutionResult != null ? resolutionResult.finalFloor : selectedFloor;
+                ruleEffectData = resolutionResult?.lastEffectData;
+                return false;
             }
 
-            RefreshAllUi();
+            finalFloor = resolutionResult.finalFloor;
+            ruleEffectData = resolutionResult.lastEffectData;
+            _resolvedTargetFloor = finalFloor;
+
+            if (ruleEffectData != null && ruleEffectData.effectType == ERuleEffectType.COMBO_TARGET_FLOOR)
+            {
+                _ruleFeedbackText = $"测试提示：规则生效，组合键 {string.Join(",", ruleEffectData.comboFloorList)} 对应 {finalFloor} 楼。";
+                SCDebugHelper.Log($"组合键命中：{string.Join(",", ruleEffectData.comboFloorList)} -> {finalFloor}");
+            }
+            else if (ruleEffectData != null && RuleMgr.instance.TryGetRedirectFloor(ruleEffectData, out int redirectFloor))
+            {
+                _ruleFeedbackText = $"测试提示：规则生效，楼层从 {selectedFloor} 楼改写到 {redirectFloor} 楼。";
+                SCDebugHelper.Log($"规则将楼层从 {selectedFloor} 改写为 {redirectFloor}。");
+            }
+            else
+            {
+                _ruleFeedbackText = null;
+            }
+
+            if (!hasCustomer)
+                return true;
+
+            judgmentEffectData = CustomerNeedMgr.instance.EvaluateGoto(_currentNeedRefData.id, finalFloor);
+            if (judgmentEffectData != null)
+                return true;
+
+            Debug.LogError($"Gameplay 前往楼层失败：needId={_currentNeedRefData.id}，finalFloor={finalFloor} 未命中住户需求判定。");
+            return false;
+        }
+
+        private void ApplyGotoFailureFeedback()
+        {
+            if (RuleMgr.instance.IsGotoBlocked(_lastRuleEffectData))
+            {
+                int blockedFloor = _lastRuleEffectData != null && _lastRuleEffectData.param1 > 0
+                    ? _lastRuleEffectData.param1
+                    : _selectedFloor;
+                _ruleFeedbackText = $"测试提示：规则生效，禁止前往 {blockedFloor} 楼。";
+                SCDebugHelper.Log($"当前规则禁止前往 {blockedFloor} 楼。");
+                return;
+            }
+
+            if (_lastRuleEffectData != null && _lastRuleEffectData.effectType == ERuleEffectType.COMBO_TARGET_FLOOR)
+            {
+                _ruleFeedbackText = $"测试提示：规则生效，{_selectedFloor} 楼需要通过组合键到达。";
+                SCDebugHelper.Log($"当前规则要求通过组合键前往 {_selectedFloor} 楼。");
+            }
         }
 
         // 规则管理器只给出业务判断结果，具体表现仍由面板自己决定。
@@ -311,34 +382,6 @@ namespace GameCore.UI
 
             Debug.LogError("Gameplay 拒绝失败：未命中拒绝判定配置。");
             return false;
-        }
-
-        private bool TryResolveGotoOperation(int selectedFloor, out int finalFloor, out RuleEffectData ruleEffectData,
-            out JudgmentEffectData judgmentEffectData)
-        {
-            finalFloor = selectedFloor;
-            ruleEffectData = RuleMgr.instance.EvaluateRuleList(_currentRuleIdList, EElevatorOperator.GOTO, selectedFloor);
-            if (RuleMgr.instance.IsGotoBlocked(ruleEffectData))
-            {
-                // 新增“规则命中后但不允许继续”的表现分支时，优先在 Input 层根据 ruleEffectData 写提示、日志和流程分支。
-                judgmentEffectData = null;
-                return false;
-            }
-
-            if (RuleMgr.instance.TryGetRedirectFloor(ruleEffectData, out int redirectFloor))
-            {
-                // 新增“规则命中后允许继续，但要改写目标/参数”的表现分支时，也在 Input 层消费 ruleEffectData。
-                finalFloor = redirectFloor;
-                _ruleFeedbackText = $"测试提示：规则生效，楼层从 {selectedFloor} 楼改写到 {finalFloor} 楼。";
-                SCDebugHelper.Log($"规则将楼层从 {selectedFloor} 改写为 {finalFloor}。");
-            }
-            else
-            {
-                _ruleFeedbackText = null;
-            }
-
-            judgmentEffectData = CustomerNeedMgr.instance.EvaluateGoto(_currentNeedRefData.id, finalFloor);
-            return judgmentEffectData != null;
         }
     }
 }

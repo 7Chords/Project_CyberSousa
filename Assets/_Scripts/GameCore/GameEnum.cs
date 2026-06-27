@@ -30,6 +30,7 @@ namespace GameCore
         FORBID_TARGET_FLOOR,
         REDIRECT_TARGET_FLOOR,
         FORBID_REFUSE,
+        COMBO_TARGET_FLOOR,
     }
 
     public enum ECustomerType

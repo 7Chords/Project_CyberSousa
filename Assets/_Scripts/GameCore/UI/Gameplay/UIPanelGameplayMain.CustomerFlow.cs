@@ -61,6 +61,7 @@ namespace GameCore.UI
         {
             ClearDialoguePortraits();
             _selectedFloor = 0;
+            _resolvedTargetFloor = 0;
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
@@ -126,6 +127,8 @@ namespace GameCore.UI
             _currentDialogueRefData = null;
             ClearDialogueOptions();
             _selectedFloor = 0;
+            _resolvedTargetFloor = 0;
+            _recentFloorInputData.Clear();
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
@@ -161,6 +164,7 @@ namespace GameCore.UI
 
             _isTransitionPlaying = true;
             _selectedFloor = 0;
+            _resolvedTargetFloor = 0;
             RefreshAllUi();
             CloseElevatorDoor(() =>
             {
@@ -287,6 +291,7 @@ namespace GameCore.UI
 
             _isTransitionPlaying = true;
             _selectedFloor = 0;
+            _resolvedTargetFloor = 0;
             RefreshAllUi();
             CloseElevatorDoor(() =>
             {
@@ -380,13 +385,7 @@ namespace GameCore.UI
         private int ResolveCustomerDepartureFloor()
         {
             if (_lastJudgmentEffectData != null && _lastJudgmentEffectData.elevatorOperator == EElevatorOperator.GOTO)
-            {
-                if (_lastRuleEffectData != null && RuleMgr.instance.TryGetRedirectFloor(_lastRuleEffectData, out int redirectFloor))
-                    return redirectFloor;
-
-                if (_selectedFloor > 0)
-                    return _selectedFloor;
-            }
+                return _resolvedTargetFloor > 0 ? _resolvedTargetFloor : _selectedFloor;
 
             return 1;
         }

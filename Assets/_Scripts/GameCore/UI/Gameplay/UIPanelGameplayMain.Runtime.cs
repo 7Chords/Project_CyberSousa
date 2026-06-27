@@ -257,6 +257,8 @@ namespace GameCore.UI
 
             _currentFloor = 1;
             _selectedFloor = 0;
+            _resolvedTargetFloor = 0;
+            _recentFloorInputData.Clear();
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
