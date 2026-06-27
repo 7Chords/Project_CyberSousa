@@ -343,6 +343,8 @@ namespace GameCore.UI
 
         private void ShowEndingPanel(EGameEndingType endingType)
         {
+            _hasRunEnded = true;
+            GamePlayerDataMgr.instance.ClearSaveData();
             UIPanelEnding.pendingEndingType = endingType;
 
             UINodeMgr.instance.AddNode(new UINodeCommon<UIMonoEnding, UIPanelEnding>(

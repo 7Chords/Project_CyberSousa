@@ -48,6 +48,7 @@ namespace GameCore.UI
         private bool _isSettlementShowing;
         private bool _isTransitionPlaying;
         private bool _hasInitializedRuntime;
+        private bool _hasRunEnded;
         private string _serviceFeedbackText;
         private string _activeDialoguePortraitResName;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
@@ -66,7 +67,7 @@ namespace GameCore.UI
 
         public override void BeforeDiscard()
         {
-            if (_hasInitializedRuntime && !_isSettlementShowing)
+            if (_hasInitializedRuntime && !_isSettlementShowing && !_hasRunEnded)
                 GamePlayerDataMgr.instance.SaveDailyProgress(_currentDayIndex);
 
             if (_activePanel == this)
@@ -82,7 +83,7 @@ namespace GameCore.UI
             if (_activePanel == null || !_activePanel._hasInitializedRuntime)
                 return;
 
-            if (_activePanel._isSettlementShowing)
+            if (_activePanel._isSettlementShowing || _activePanel._hasRunEnded)
                 return;
 
             GamePlayerDataMgr.instance.SaveDailyProgress(_activePanel._currentDayIndex);

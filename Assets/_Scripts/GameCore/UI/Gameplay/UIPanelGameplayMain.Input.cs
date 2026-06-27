@@ -105,7 +105,7 @@ namespace GameCore.UI
 
         private void OnSettingClicked(PointerEventData eventData, object[] args)
         {
-            UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, false));
+            UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, true));
         }
 
 
