@@ -227,15 +227,22 @@ namespace GameCore.UI
 
             if (_canCloseDoor)
             {
-                mono.txtBottomHint.text = string.IsNullOrEmpty(_serviceFeedbackText)
+                string feedbackText = BuildBottomFeedbackText();
+                mono.txtBottomHint.text = string.IsNullOrEmpty(feedbackText)
                     ? "当前住户已处理完成，可以点击关门送走。"
-                    : $"{_serviceFeedbackText}\n点击关门送走当前住户。";
+                    : $"{feedbackText}\n点击关门送走当前住户。";
                 return;
             }
 
             if (_isDialogueRunning)
             {
                 mono.txtBottomHint.text = "点击屏幕继续推进对话。";
+                return;
+            }
+
+            if (!string.IsNullOrEmpty(_ruleFeedbackText))
+            {
+                mono.txtBottomHint.text = _ruleFeedbackText;
                 return;
             }
 
@@ -284,6 +291,17 @@ namespace GameCore.UI
             mono.txtBottomHint.text =
                 "动物信息档案，点击弹出（用于确认动物的档案，\n" +
                 "如果与所住房屋不符合，需要拒绝或询问原因）";
+        }
+
+        private string BuildBottomFeedbackText()
+        {
+            if (string.IsNullOrEmpty(_ruleFeedbackText))
+                return _serviceFeedbackText;
+
+            if (string.IsNullOrEmpty(_serviceFeedbackText))
+                return _ruleFeedbackText;
+
+            return $"{_ruleFeedbackText}\n{_serviceFeedbackText}";
         }
 
 

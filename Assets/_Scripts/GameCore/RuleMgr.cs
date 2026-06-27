@@ -62,11 +62,7 @@ namespace GameCore
             if (ruleRefData == null)
                 return null;
 
-            RuleEffectData result = MatchRuleEffect(ruleRefData, actionType, targetFloor);
-            if (result != null)
-                ExecuteRuleEffect(result, actionType, targetFloor);
-
-            return result;
+            return MatchRuleEffect(ruleRefData, actionType, targetFloor);
         }
 
         public RuleEffectData EvaluateRuleList(List<long> ruleIdList, EElevatorOperator actionType, int targetFloor)
@@ -102,6 +98,13 @@ namespace GameCore
             return ruleEffectData != null && ruleEffectData.effectType == ERuleEffectType.FORBID_TARGET_FLOOR;
         }
 
+        // 新增“拒绝类”的规则效果时，继续在 RuleMgr 提供纯业务判定接口，不要在这里直接写 UI 或流程表现。
+        public bool IsRefuseBlocked(RuleEffectData ruleEffectData)
+        {
+            return ruleEffectData != null && ruleEffectData.effectType == ERuleEffectType.FORBID_REFUSE;
+        }
+
+        // 新增“改写目标”的规则效果时，继续在 RuleMgr 提供结果解析接口，由外层决定怎么表现。
         public bool TryGetRedirectFloor(RuleEffectData ruleEffectData, out int redirectFloor)
         {
             redirectFloor = 0;
@@ -135,6 +138,8 @@ namespace GameCore
 
                 switch (effectData.effectType)
                 {
+                    // 新增规则效果类型时，先在这里补“是否命中该效果”的纯业务判断。
+                    // 这里只负责返回 RuleEffectData，不要在 RuleMgr 里直接改 UI、播动画或推进流程。
                     case ERuleEffectType.FORBID_TARGET_FLOOR:
                         if (actionType == EElevatorOperator.GOTO && effectData.param1 == targetFloor)
                             return effectData;
@@ -154,70 +159,6 @@ namespace GameCore
             }
 
             return null;
-        }
-
-        private void ExecuteRuleEffect(RuleEffectData effectData, EElevatorOperator actionType, int targetFloor)
-        {
-            switch (effectData.effectType)
-            {
-                case ERuleEffectType.FORBID_TARGET_FLOOR:
-                    HandleForbidTargetFloor(effectData, actionType, targetFloor);
-                    break;
-                case ERuleEffectType.REDIRECT_TARGET_FLOOR:
-                    HandleRedirectTargetFloor(effectData, actionType, targetFloor);
-                    break;
-                case ERuleEffectType.FORBID_REFUSE:
-                    HandleForbidRefuse(effectData, actionType);
-                    break;
-                default:
-                    Debug.LogError($"RuleMgr 执行规则失败：未支持的规则效果类型 {effectData.effectType}");
-                    break;
-            }
-        }
-
-        private void HandleForbidTargetFloor(RuleEffectData effectData, EElevatorOperator actionType, int targetFloor)
-        {
-            if (actionType != EElevatorOperator.GOTO)
-            {
-                Debug.LogError($"RuleMgr 执行禁止楼层规则失败：操作类型不匹配，actionType={actionType}");
-                return;
-            }
-
-            if (effectData.param1 != targetFloor)
-            {
-                Debug.LogError($"RuleMgr 执行禁止楼层规则失败：目标楼层不匹配，targetFloor={targetFloor}，ruleFloor={effectData.param1}");
-                return;
-            }
-
-            // TODO: 这里接真实的禁止前往楼层逻辑，例如拦截按钮确认、弹出提示并阻止流程继续推进。
-        }
-
-        private void HandleRedirectTargetFloor(RuleEffectData effectData, EElevatorOperator actionType, int targetFloor)
-        {
-            if (actionType != EElevatorOperator.GOTO)
-            {
-                Debug.LogError($"RuleMgr 执行改写楼层规则失败：操作类型不匹配，actionType={actionType}");
-                return;
-            }
-
-            if (effectData.param1 != targetFloor)
-            {
-                Debug.LogError($"RuleMgr 执行改写楼层规则失败：目标楼层不匹配，targetFloor={targetFloor}，ruleFloor={effectData.param1}");
-                return;
-            }
-
-            // TODO: 这里接真实的楼层改写逻辑，例如把当前请求楼层从 param1 改成 param2，并通知后续流程使用新楼层。
-        }
-
-        private void HandleForbidRefuse(RuleEffectData effectData, EElevatorOperator actionType)
-        {
-            if (actionType != EElevatorOperator.REFUSE)
-            {
-                Debug.LogError($"RuleMgr 执行禁止拒绝规则失败：操作类型不匹配，actionType={actionType}");
-                return;
-            }
-
-            // TODO: 这里接真实的禁止拒绝逻辑，例如拦截拒绝操作、弹出提示并要求玩家改为其他处理方式。
         }
     }
 }

@@ -50,6 +50,7 @@ namespace GameCore.UI
         private bool _hasInitializedRuntime;
         private bool _hasRunEnded;
         private string _serviceFeedbackText;
+        private string _ruleFeedbackText;
         private string _activeDialoguePortraitResName;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
 

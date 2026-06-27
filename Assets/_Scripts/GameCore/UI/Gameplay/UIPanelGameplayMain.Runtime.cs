@@ -62,6 +62,11 @@ namespace GameCore.UI
             if (mono.txtClockTime == null)
                 mono.txtClockTime = FindChildText("ClockTimePanel_Text");
 
+            if (mono.txtBottomHint == null)
+                mono.txtBottomHint = FindChildText("BottomHintText");
+            //暂时注释测试tip
+            //EnsureBottomHintVisible();
+
             if (mono.btnSetting == null)
             {
                 Transform btnSettingTransform = FindChildTransformRecursive(mono.transform, "BtnSetting");
@@ -70,6 +75,22 @@ namespace GameCore.UI
             }
 
             EnsureDialogueAdvanceClickArea();
+        }
+
+        private void EnsureBottomHintVisible()
+        {
+            if (mono.txtBottomHint == null)
+            {
+                Debug.LogError("Gameplay 底部提示初始化失败：未找到 BottomHintText。");
+                return;
+            }
+
+            if (!mono.txtBottomHint.gameObject.activeSelf)
+                mono.txtBottomHint.gameObject.SetActive(true);
+
+            Transform bottomHintPanel = mono.txtBottomHint.transform.parent;
+            if (bottomHintPanel != null && !bottomHintPanel.gameObject.activeSelf)
+                bottomHintPanel.gameObject.SetActive(true);
         }
 
         private void EnsureDialogueAdvanceClickArea()
@@ -245,6 +266,7 @@ namespace GameCore.UI
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
             _serviceFeedbackText = null;
+            _ruleFeedbackText = null;
 
             SetCurrentFloorDisplayInstant(_currentFloor);
             GameTimeMgr.instance.ResetToDayStart();

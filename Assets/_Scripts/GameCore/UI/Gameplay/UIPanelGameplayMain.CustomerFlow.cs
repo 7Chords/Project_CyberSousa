@@ -67,6 +67,7 @@ namespace GameCore.UI
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
             _serviceFeedbackText = null;
+            _ruleFeedbackText = null;
             _currentCustomerRefData = customerRefData;
             _currentNeedRefData = needRefData;
             _currentNeedTime = needTime;
@@ -131,6 +132,7 @@ namespace GameCore.UI
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
             _serviceFeedbackText = null;
+            _ruleFeedbackText = null;
             SetCustomerHiddenInstant();
         }
 
