@@ -12,6 +12,7 @@ namespace GameCore.RefData
         public int param1;
         public int param2;
         public List<int> comboFloorList = new List<int>();
+        public List<string> customerTagList = new List<string>();
 
         protected override void OnDeserialize(string _str)
         {
@@ -25,6 +26,7 @@ namespace GameCore.RefData
             elevatorOperator = (EElevatorOperator)Enum.Parse(typeof(EElevatorOperator), strs[0]);
             effectType = (ERuleEffectType)Enum.Parse(typeof(ERuleEffectType), strs[1]);
             comboFloorList.Clear();
+            customerTagList.Clear();
             param1 = 0;
             param2 = 0;
 
@@ -44,6 +46,22 @@ namespace GameCore.RefData
                 return;
             }
 
+            if (effectType == ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR)
+            {
+                string[] tagStrs = strs[2].Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (tagStrs.Length == 0)
+                {
+                    Debug.LogError($"RuleEffectData 解析失败：住户标签为空，原始数据：{_str}");
+                    return;
+                }
+
+                for (int index = 0; index < tagStrs.Length; index++)
+                    customerTagList.Add(tagStrs[index].Trim());
+
+                param2 = int.Parse(strs[3]);
+                return;
+            }
+
             param1 = int.Parse(strs[2]);
             param2 = int.Parse(strs[3]);
         }
@@ -52,6 +70,9 @@ namespace GameCore.RefData
         {
             if (effectType == ERuleEffectType.COMBO_TARGET_FLOOR)
                 return $"{elevatorOperator}:{effectType}:{string.Join(",", comboFloorList)}:{param2}";
+
+            if (effectType == ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR)
+                return $"{elevatorOperator}:{effectType}:{string.Join(",", customerTagList)}:{param2}";
 
             return $"{elevatorOperator}:{effectType}:{param1}:{param2}";
         }

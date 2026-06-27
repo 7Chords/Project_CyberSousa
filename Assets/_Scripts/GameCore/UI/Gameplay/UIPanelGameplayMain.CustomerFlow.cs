@@ -272,6 +272,31 @@ namespace GameCore.UI
         }
 
 
+        private void ApplyGotoViolationDepartureFeedback(int departureFloor)
+        {
+            GamePlayerDataMgr.instance.DeductPerformance(1);
+            _serviceFeedbackText = $"违反规则，绩效-1，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
+
+            string ruleEffectType = _lastRuleEffectData != null ? _lastRuleEffectData.effectType.ToString() : "NONE";
+            long customerId = _currentCustomerRefData != null ? _currentCustomerRefData.id : 0;
+            long needId = _currentNeedRefData != null ? _currentNeedRefData.id : 0;
+            Debug.LogWarning(
+                $"Gameplay 违反规则，绩效-1，仍放走当前住户。customerId={customerId}，needId={needId}，selectedFloor={_selectedFloor}，departureFloor={departureFloor}，ruleEffectType={ruleEffectType}");
+        }
+
+
+        private int ResolveFailedCustomerDepartureFloor(int selectedFloor, int resolvedFloor)
+        {
+            int departureFloor = resolvedFloor > 0 ? resolvedFloor : selectedFloor;
+            if (departureFloor > 0)
+                return departureFloor;
+
+            Debug.LogError(
+                $"Gameplay 规则异常：无法解析住户离开楼层，selectedFloor={selectedFloor}，resolvedFloor={resolvedFloor}，currentFloor={_currentFloor}");
+            return _currentFloor > 0 ? _currentFloor : 1;
+        }
+
+
         private void AddCurrentCustomerFavor(int favorValue)
         {
             if (_currentCustomerRefData == null || favorValue == 0)
@@ -393,6 +418,13 @@ namespace GameCore.UI
 
         private void StartCustomerDepartureFlow(int targetFloor, bool needBoardAnimation)
         {
+            if (targetFloor <= 0)
+            {
+                Debug.LogError($"Gameplay ס���뿪ʧ�ܣ�Ŀ��¥����Ч��targetFloor={targetFloor}");
+                targetFloor = _currentFloor > 0 ? _currentFloor : 1;
+            }
+
+            _canCloseDoor = false;
             _isTransitionPlaying = true;
             RefreshAllUi();
             TweenCallback afterBoardAction = () =>

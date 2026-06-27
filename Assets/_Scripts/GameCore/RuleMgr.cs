@@ -76,6 +76,11 @@ namespace GameCore
 
         public RuleEffectData EvaluateRuleList(List<long> ruleIdList, EElevatorOperator actionType, int targetFloor)
         {
+            return EvaluateRuleList(ruleIdList, actionType, targetFloor, -1);
+        }
+
+        public RuleEffectData EvaluateRuleList(List<long> ruleIdList, EElevatorOperator actionType, int targetFloor, int currentTotalSeconds)
+        {
             if (ruleIdList == null || ruleIdList.Count == 0)
             {
                 Debug.LogError("RuleMgr 批量判断规则失败：ruleIdList 为空。");
@@ -84,7 +89,11 @@ namespace GameCore
 
             for (int index = 0; index < ruleIdList.Count; index++)
             {
-                RuleEffectData result = EvaluateRule(ruleIdList[index], actionType, targetFloor);
+                RuleRefData ruleRefData = GetRuleRefData(ruleIdList[index]);
+                if (!IsRuleActive(ruleRefData, currentTotalSeconds))
+                    continue;
+
+                RuleEffectData result = MatchRuleEffect(ruleRefData, actionType, targetFloor);
                 if (result != null)
                     return result;
             }
@@ -104,7 +113,10 @@ namespace GameCore
 
         public bool IsGotoBlocked(RuleEffectData ruleEffectData)
         {
-            return ruleEffectData != null && ruleEffectData.effectType == ERuleEffectType.FORBID_TARGET_FLOOR;
+            return ruleEffectData != null
+                && (ruleEffectData.effectType == ERuleEffectType.FORBID_TARGET_FLOOR
+                    || ruleEffectData.effectType == ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR
+                    || ruleEffectData.effectType == ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR);
         }
 
         // 新增“拒绝类”的规则效果时，继续在 RuleMgr 提供纯业务判定接口，不要在这里直接写 UI 或流程表现。
@@ -125,7 +137,7 @@ namespace GameCore
         }
 
         public bool TryResolveGotoRuleSequence(List<long> ruleIdList, int selectedFloor, List<int> recentFloorList,
-            out GotoRuleResolutionResult resolutionResult)
+            int currentTotalSeconds, List<string> customerTagList, int sourceNeedFloor, out GotoRuleResolutionResult resolutionResult)
         {
             resolutionResult = new GotoRuleResolutionResult
             {
@@ -144,7 +156,7 @@ namespace GameCore
                 for (int ruleIndex = 0; ruleIndex < ruleIdList.Count; ruleIndex++)
                 {
                     RuleRefData ruleRefData = GetRuleRefData(ruleIdList[ruleIndex]);
-                    if (ruleRefData == null)
+                    if (!IsRuleActive(ruleRefData, currentTotalSeconds))
                         continue;
 
                     List<RuleEffectData> effectList = ruleRefData.effectList;
@@ -198,6 +210,9 @@ namespace GameCore
                                 resolutionResult.isBlocked = false;
                                 resolutionResult.lastEffectData = effectData;
                                 break;
+                            case ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR:
+                            case ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR:
+                                break;
                             default:
                                 Debug.LogError($"RuleMgr 顺序判断楼层规则失败：未支持的规则效果类型 {effectData.effectType}，ruleId={ruleRefData.id}");
                                 break;
@@ -209,7 +224,7 @@ namespace GameCore
             if (!resolutionResult.isBlocked
                 && !resolutionResult.comboMatched
                 && resolutionResult.finalFloor == selectedFloor
-                && IsComboOnlyTargetFloor(ruleIdList, selectedFloor))
+                && IsComboOnlyTargetFloor(ruleIdList, selectedFloor, currentTotalSeconds))
             {
                 resolutionResult.isBlocked = true;
                 resolutionResult.lastEffectData = new RuleEffectData
@@ -220,10 +235,63 @@ namespace GameCore
                 };
             }
 
+            if (!resolutionResult.isBlocked && sourceNeedFloor > 0 && ruleIdList != null && ruleIdList.Count > 0)
+            {
+                for (int ruleIndex = 0; ruleIndex < ruleIdList.Count; ruleIndex++)
+                {
+                    RuleRefData ruleRefData = GetRuleRefData(ruleIdList[ruleIndex]);
+                    if (!IsRuleActive(ruleRefData, currentTotalSeconds) || ruleRefData?.effectList == null)
+                        continue;
+
+                    for (int effectIndex = 0; effectIndex < ruleRefData.effectList.Count; effectIndex++)
+                    {
+                        RuleEffectData effectData = ruleRefData.effectList[effectIndex];
+                        if (effectData == null)
+                        {
+                            Debug.LogError($"RuleMgr 顺序判断住户规则失败：ruleId={ruleRefData.id} 的 effectList 第 {effectIndex} 项为空。");
+                            continue;
+                        }
+
+                        if (effectData.elevatorOperator != EElevatorOperator.GOTO)
+                            continue;
+
+                        switch (effectData.effectType)
+                        {
+                            case ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR:
+                                if (!IsCustomerTagMatched(effectData.customerTagList, customerTagList))
+                                    break;
+
+                                if (resolutionResult.finalFloor != effectData.param2)
+                                    break;
+
+                                resolutionResult.isBlocked = true;
+                                resolutionResult.lastEffectData = effectData;
+                                break;
+                            case ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR:
+                                if (effectData.param1 != sourceNeedFloor)
+                                    break;
+
+                                resolutionResult.lastEffectData = effectData;
+                                if (resolutionResult.finalFloor == effectData.param2)
+                                    break;
+
+                                resolutionResult.isBlocked = true;
+                                break;
+                        }
+
+                        if (resolutionResult.isBlocked)
+                            break;
+                    }
+
+                    if (resolutionResult.isBlocked)
+                        break;
+                }
+            }
+
             return !resolutionResult.isBlocked;
         }
 
-        public bool IsComboOnlyTargetFloor(List<long> ruleIdList, int targetFloor)
+        public bool IsComboOnlyTargetFloor(List<long> ruleIdList, int targetFloor, int currentTotalSeconds)
         {
             if (targetFloor <= 0 || ruleIdList == null || ruleIdList.Count == 0)
                 return false;
@@ -231,7 +299,7 @@ namespace GameCore
             for (int index = 0; index < ruleIdList.Count; index++)
             {
                 RuleRefData ruleRefData = GetRuleRefData(ruleIdList[index]);
-                if (ruleRefData == null || ruleRefData.effectList == null)
+                if (!IsRuleActive(ruleRefData, currentTotalSeconds) || ruleRefData?.effectList == null)
                     continue;
 
                 for (int effectIndex = 0; effectIndex < ruleRefData.effectList.Count; effectIndex++)
@@ -302,6 +370,8 @@ namespace GameCore
                             return effectData;
                         break;
                     case ERuleEffectType.COMBO_TARGET_FLOOR:
+                    case ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR:
+                    case ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR:
                         break;
                     default:
                         Debug.LogError($"RuleMgr 判断规则失败：未支持的规则效果类型 {effectData.effectType}，ruleId={ruleRefData.id}");
@@ -310,6 +380,54 @@ namespace GameCore
             }
 
             return null;
+        }
+
+        private static bool IsRuleActive(RuleRefData ruleRefData, int currentTotalSeconds)
+        {
+            if (ruleRefData == null)
+                return false;
+
+            if (currentTotalSeconds < 0)
+                return true;
+
+            bool hasStartTime = ruleRefData.activeStartTime != null;
+            bool hasEndTime = ruleRefData.activeEndTime != null;
+            if (!hasStartTime && !hasEndTime)
+                return true;
+
+            int startSeconds = hasStartTime ? ruleRefData.activeStartTime.TotalSeconds : 0;
+            int endSeconds = hasEndTime ? ruleRefData.activeEndTime.TotalSeconds : 24 * 3600;
+            if (!hasStartTime)
+                return currentTotalSeconds < endSeconds;
+
+            if (!hasEndTime)
+                return currentTotalSeconds >= startSeconds;
+
+            if (startSeconds <= endSeconds)
+                return currentTotalSeconds >= startSeconds && currentTotalSeconds < endSeconds;
+
+            return currentTotalSeconds >= startSeconds || currentTotalSeconds < endSeconds;
+        }
+
+        private static bool IsCustomerTagMatched(List<string> ruleTagList, List<string> customerTagList)
+        {
+            if (ruleTagList == null || ruleTagList.Count == 0 || customerTagList == null || customerTagList.Count == 0)
+                return false;
+
+            for (int ruleIndex = 0; ruleIndex < ruleTagList.Count; ruleIndex++)
+            {
+                string ruleTag = ruleTagList[ruleIndex];
+                if (string.IsNullOrEmpty(ruleTag))
+                    continue;
+
+                for (int customerIndex = 0; customerIndex < customerTagList.Count; customerIndex++)
+                {
+                    if (customerTagList[customerIndex] == ruleTag)
+                        return true;
+                }
+            }
+
+            return false;
         }
 
         private static bool IsComboFloorMatched(List<int> comboFloorList, List<int> recentFloorList)

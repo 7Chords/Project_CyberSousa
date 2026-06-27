@@ -43,8 +43,6 @@ namespace GameCore.UI
 
         private void RefreshRuleUi()
         {
-            EnsureNoticeBoardReferences();
-
             List<NoticeBoardItem> noticeBoardList = mono.noticeBoardList;
             if (noticeBoardList == null || noticeBoardList.Count == 0)
             {
@@ -61,18 +59,20 @@ namespace GameCore.UI
                 return;
             }
 
-            if (ruleCount > noticeBoardList.Count)
-                Debug.LogError($"Gameplay 告示板数量不足：需要 {ruleCount} 个，当前只有 {noticeBoardList.Count} 个。请重新生成 panel_gameplay_main Prefab。");
-
-            int visibleCount = Mathf.Min(ruleCount, noticeBoardList.Count);
-            for (int index = 0; index < visibleCount; index++)
+            int ruleIndexStart = 0;
+            int rulesPerBoard = Mathf.CeilToInt(ruleCount / (float)noticeBoardList.Count);
+            for (int index = 0; index < noticeBoardList.Count; index++)
             {
-                long ruleId = _currentRuleIdList[index];
-                SetNoticeBoardVisible(noticeBoardList, index, true, BuildRuleDisplayText(ruleId));
-            }
+                if (ruleIndexStart >= ruleCount)
+                {
+                    SetNoticeBoardVisible(noticeBoardList, index, false, null);
+                    continue;
+                }
 
-            for (int index = visibleCount; index < noticeBoardList.Count; index++)
-                SetNoticeBoardVisible(noticeBoardList, index, false, null);
+                int ruleIndexEnd = Mathf.Min(ruleIndexStart + rulesPerBoard, ruleCount);
+                SetNoticeBoardVisible(noticeBoardList, index, true, BuildRuleDisplayTextGroup(ruleIndexStart, ruleIndexEnd));
+                ruleIndexStart = ruleIndexEnd;
+            }
         }
 
 
@@ -96,6 +96,21 @@ namespace GameCore.UI
         }
 
 
+        private string BuildRuleDisplayTextGroup(int startIndex, int endIndex)
+        {
+            StringBuilder builder = new StringBuilder();
+            for (int index = startIndex; index < endIndex; index++)
+            {
+                if (builder.Length > 0)
+                    builder.AppendLine().AppendLine();
+
+                builder.Append(BuildRuleDisplayText(_currentRuleIdList[index]));
+            }
+
+            return builder.ToString();
+        }
+
+
         private static void SetNoticeBoardVisible(List<NoticeBoardItem> noticeBoardList, int index, bool visible, string text)
         {
             NoticeBoardItem noticeBoardItem = noticeBoardList[index];
@@ -106,77 +121,6 @@ namespace GameCore.UI
 
             if (visible && noticeBoardItem.text != null && text != null)
                 noticeBoardItem.text.text = text;
-        }
-
-
-        private void EnsureNoticeBoardReferences()
-        {
-            if (mono.noticeBoardList == null)
-                mono.noticeBoardList = new List<NoticeBoardItem>();
-
-            for (int index = 0; index < mono.noticeBoardList.Count; index++)
-            {
-                NoticeBoardItem noticeBoardItem = mono.noticeBoardList[index];
-                if (noticeBoardItem == null)
-                    continue;
-
-                if (noticeBoardItem.text == null && noticeBoardItem.root != null)
-                    noticeBoardItem.text = noticeBoardItem.root.GetComponentInChildren<Text>(true);
-            }
-
-            if (mono.noticeBoardList.Count > 0)
-                return;
-
-            Transform leftBand = FindChildTransformRecursive(mono.transform, "LeftBand");
-            if (leftBand == null)
-            {
-                Debug.LogError("Gameplay 未找到 LeftBand，无法自动收集告示板。");
-                return;
-            }
-
-            Transform noticeBoardRoot = leftBand.Find("NoticeBoardRoot");
-            if (noticeBoardRoot != null)
-                CollectNoticeBoardsFromTransform(noticeBoardRoot);
-            else
-                CollectNoticeBoardsFromTransform(leftBand);
-        }
-
-
-        private void CollectNoticeBoardsFromTransform(Transform parent)
-        {
-            for (int index = 0; index < parent.childCount; index++)
-            {
-                Transform child = parent.GetChild(index);
-                if (!child.name.StartsWith("NoticeBoard"))
-                    continue;
-
-                if (TryGetNoticeBoardItem(child, out NoticeBoardItem noticeBoardItem))
-                    mono.noticeBoardList.Add(noticeBoardItem);
-            }
-
-            mono.noticeBoardList.Sort((left, right) =>
-            {
-                string leftName = left.root != null ? left.root.name : string.Empty;
-                string rightName = right.root != null ? right.root.name : string.Empty;
-                return string.CompareOrdinal(leftName, rightName);
-            });
-        }
-
-
-        private static bool TryGetNoticeBoardItem(Transform boardRoot, out NoticeBoardItem noticeBoardItem)
-        {
-            noticeBoardItem = null;
-            if (boardRoot == null)
-                return false;
-
-            Transform textTransform = boardRoot.Find($"{boardRoot.name}_Text");
-            Text text = textTransform != null ? textTransform.GetComponent<Text>() : boardRoot.GetComponentInChildren<Text>(true);
-            noticeBoardItem = new NoticeBoardItem
-            {
-                root = boardRoot.gameObject,
-                text = text
-            };
-            return true;
         }
 
 

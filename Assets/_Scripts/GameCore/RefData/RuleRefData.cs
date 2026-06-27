@@ -9,6 +9,8 @@ namespace GameCore.RefData
         public string ruleName;
         public string ruleDesc;
         public List<RuleEffectData> effectList;
+        public TimeEffectData activeStartTime;
+        public TimeEffectData activeEndTime;
 
         protected override void _parseFromString()
         {
@@ -16,6 +18,8 @@ namespace GameCore.RefData
             ruleName = getString("ruleName");
             ruleDesc = getString("ruleDesc");
             effectList = getList<RuleEffectData>("effectList");
+            activeStartTime = getEffect<TimeEffectData>("activeStartTime");
+            activeEndTime = getEffect<TimeEffectData>("activeEndTime");
         }
 
         public static readonly string assetPath = "RefData/ExportTxt";

@@ -14,8 +14,6 @@ namespace GameCore.UI
             if (mono.txtCurrentFloor == null)
                 mono.txtCurrentFloor = FindChildText("CurrentFloorPanel_Text");
 
-            EnsureNoticeBoardReferences();
-
             if (mono.txtCustomerName == null)
                 mono.txtCustomerName = FindChildText("AnimalLabel");
 

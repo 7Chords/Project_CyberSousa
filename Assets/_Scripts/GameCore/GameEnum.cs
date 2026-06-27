@@ -31,6 +31,8 @@ namespace GameCore
         REDIRECT_TARGET_FLOOR,
         FORBID_REFUSE,
         COMBO_TARGET_FLOOR,
+        FORBID_CUSTOMER_TAG_TARGET_FLOOR,
+        REQUIRE_TRANSFER_TARGET_FLOOR,
     }
 
     public enum ECustomerType

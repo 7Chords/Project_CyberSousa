@@ -284,7 +284,8 @@ namespace GameCore.UI
                 return;
             }
 
-            if (TryResolveFloorOperation(_selectedFloor, true, out int finalFloor, out _lastRuleEffectData, out _lastJudgmentEffectData))
+            int finalFloor;
+            if (TryResolveFloorOperation(_selectedFloor, true, out finalFloor, out _lastRuleEffectData, out _lastJudgmentEffectData))
             {
                 _canCloseDoor = true;
                 ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
@@ -296,8 +297,11 @@ namespace GameCore.UI
 
             _canCloseDoor = false;
             ApplyGotoFailureFeedback();
-            _resolvedTargetFloor = 0;
+            int failedDepartureFloor = ResolveFailedCustomerDepartureFloor(_selectedFloor, finalFloor);
+            _resolvedTargetFloor = failedDepartureFloor;
+            ApplyGotoViolationDepartureFeedback(failedDepartureFloor);
             RefreshAllUi();
+            StartCustomerDepartureFlow(failedDepartureFloor, true);
         }
 
         private bool TryResolveFloorOperation(int selectedFloor, bool hasCustomer, out int finalFloor, out RuleEffectData ruleEffectData,
@@ -308,7 +312,13 @@ namespace GameCore.UI
             judgmentEffectData = null;
             _resolvedTargetFloor = 0;
 
-            if (!RuleMgr.instance.TryResolveGotoRuleSequence(_currentRuleIdList, selectedFloor, _recentFloorInputData.recentFloorList,
+            if (!RuleMgr.instance.TryResolveGotoRuleSequence(
+                    _currentRuleIdList,
+                    selectedFloor,
+                    _recentFloorInputData.recentFloorList,
+                    GameTimeMgr.instance.TotalSeconds,
+                    hasCustomer ? _currentCustomerRefData?.customerTagList : null,
+                    hasCustomer ? _currentNeedRefData?.needFloor ?? 0 : 0,
                     out GotoRuleResolutionResult resolutionResult))
             {
                 finalFloor = resolutionResult != null ? resolutionResult.finalFloor : selectedFloor;
@@ -324,6 +334,11 @@ namespace GameCore.UI
             {
                 _ruleFeedbackText = $"测试提示：规则生效，组合键 {string.Join(",", ruleEffectData.comboFloorList)} 对应 {finalFloor} 楼。";
                 SCDebugHelper.Log($"组合键命中：{string.Join(",", ruleEffectData.comboFloorList)} -> {finalFloor}");
+            }
+            else if (ruleEffectData != null && ruleEffectData.effectType == ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR)
+            {
+                _ruleFeedbackText = $"测试提示：规则生效，前往 {ruleEffectData.param1} 楼的住户需要改送 {ruleEffectData.param2} 楼。";
+                SCDebugHelper.Log($"楼层转移规则命中：需求 {ruleEffectData.param1} 楼，成功改送 {ruleEffectData.param2} 楼。");
             }
             else if (ruleEffectData != null && RuleMgr.instance.TryGetRedirectFloor(ruleEffectData, out int redirectFloor))
             {
@@ -350,6 +365,20 @@ namespace GameCore.UI
         {
             if (RuleMgr.instance.IsGotoBlocked(_lastRuleEffectData))
             {
+                if (_lastRuleEffectData != null && _lastRuleEffectData.effectType == ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR)
+                {
+                    _ruleFeedbackText = $"测试提示：规则生效，带 {string.Join(",", _lastRuleEffectData.customerTagList)} 标签的住户不能前往 {_lastRuleEffectData.param2} 楼。";
+                    SCDebugHelper.Log($"当前规则禁止带指定标签的住户前往 {_lastRuleEffectData.param2} 楼。");
+                    return;
+                }
+
+                if (_lastRuleEffectData != null && _lastRuleEffectData.effectType == ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR)
+                {
+                    _ruleFeedbackText = $"测试提示：规则生效，前往 {_lastRuleEffectData.param1} 楼的住户需要改送 {_lastRuleEffectData.param2} 楼。";
+                    SCDebugHelper.Log($"当前规则要求把前往 {_lastRuleEffectData.param1} 楼的住户改送到 {_lastRuleEffectData.param2} 楼。");
+                    return;
+                }
+
                 int blockedFloor = _lastRuleEffectData != null && _lastRuleEffectData.param1 > 0
                     ? _lastRuleEffectData.param1
                     : _selectedFloor;
@@ -368,7 +397,7 @@ namespace GameCore.UI
         // 规则管理器只给出业务判断结果，具体表现仍由面板自己决定。
         private bool TryResolveRefuseOperation(out RuleEffectData ruleEffectData, out JudgmentEffectData judgmentEffectData)
         {
-            ruleEffectData = RuleMgr.instance.EvaluateRuleList(_currentRuleIdList, EElevatorOperator.REFUSE, 0);
+            ruleEffectData = RuleMgr.instance.EvaluateRuleList(_currentRuleIdList, EElevatorOperator.REFUSE, 0, GameTimeMgr.instance.TotalSeconds);
             if (RuleMgr.instance.IsRefuseBlocked(ruleEffectData))
             {
                 judgmentEffectData = null;

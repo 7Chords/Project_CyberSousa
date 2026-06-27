@@ -8,6 +8,7 @@ namespace GameCore.RefData
         public long id;
         public string customerName;
         public List<string> customerInfoList;
+        public List<string> customerTagList;
         public List<NeedEffectData> needList;
 
         protected override void _parseFromString()
@@ -15,6 +16,7 @@ namespace GameCore.RefData
             id = getLong("id");
             customerName = getString("customerName");
             customerInfoList = getList<string>("customerInfoList");
+            customerTagList = getList<string>("customerTagList");
             needList = getList<NeedEffectData>("needList");
         }
 
