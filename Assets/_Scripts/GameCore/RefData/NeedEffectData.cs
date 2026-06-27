@@ -1,4 +1,5 @@
 using System;
+using GameCore;
 using SCFrame;
 
 namespace GameCore.RefData
@@ -7,6 +8,9 @@ namespace GameCore.RefData
     {
         public long levelId;
         public long needId;
+        public bool hasFavorCondition;
+        public ECompareOperator compareOperator;
+        public int favorThreshold;
 
         protected override void OnDeserialize(string _str)
         {
@@ -16,11 +20,20 @@ namespace GameCore.RefData
 
             levelId = long.Parse(strs[0]);
             needId = long.Parse(strs[1]);
+
+            if (strs.Length >= 4)
+            {
+                hasFavorCondition = true;
+                compareOperator = (ECompareOperator)Enum.Parse(typeof(ECompareOperator), strs[2]);
+                favorThreshold = int.Parse(strs[3]);
+            }
         }
 
         protected override string OnSerialise()
         {
-            return $"{levelId}:{needId}";
+            return hasFavorCondition
+                ? $"{levelId}:{needId}:{compareOperator}:{favorThreshold}"
+                : $"{levelId}:{needId}";
         }
     }
 }

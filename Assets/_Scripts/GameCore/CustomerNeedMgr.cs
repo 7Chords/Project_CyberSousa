@@ -56,6 +56,56 @@ namespace GameCore
             return null;
         }
 
+        public CustomerNeedRefData ResolveCustomerNeed(CustomerRefData customerRefData, long levelId, int favorValue)
+        {
+            if (customerRefData == null)
+            {
+                Debug.LogError("CustomerNeedMgr 解析住户需求失败：customerRefData 为空。");
+                return null;
+            }
+
+            if (customerRefData.needList == null || customerRefData.needList.Count == 0)
+            {
+                Debug.LogError($"CustomerNeedMgr 解析住户需求失败：customerId={customerRefData.id} 的 needList 为空。");
+                return null;
+            }
+
+            CustomerNeedRefData defaultNeedRefData = null;
+            for (int index = 0; index < customerRefData.needList.Count; index++)
+            {
+                NeedEffectData needEffectData = customerRefData.needList[index];
+                if (needEffectData == null)
+                {
+                    Debug.LogError($"CustomerNeedMgr 解析住户需求失败：customerId={customerRefData.id} 的 needList 第 {index} 项为空。");
+                    continue;
+                }
+
+                CustomerNeedRefData needRefData = GetNeedRefData(needEffectData.needId);
+                if (needRefData == null)
+                    continue;
+
+                if (levelId > 0 && needEffectData.levelId != levelId)
+                    continue;
+
+                if (needEffectData.hasFavorCondition)
+                {
+                    if (IsFavorMatched(needEffectData.compareOperator, favorValue, needEffectData.favorThreshold))
+                        return needRefData;
+
+                    continue;
+                }
+
+                if (defaultNeedRefData == null)
+                    defaultNeedRefData = needRefData;
+            }
+
+            if (defaultNeedRefData != null)
+                return defaultNeedRefData;
+
+            Debug.LogError($"CustomerNeedMgr 解析住户需求失败：customerId={customerRefData.id}，levelId={levelId}，favorValue={favorValue}");
+            return null;
+        }
+
         public bool CanSpawnCustomerNeed(CustomerNeedRefData needRefData, TimeEffectData needTime, int currentFloor)
         {
             if (needRefData == null)
@@ -87,11 +137,6 @@ namespace GameCore
                 default:
                     Debug.LogError($"CustomerNeedMgr 判断住户需求失败：未支持的操作类型 {actionType}，needId={needId}");
                     break;
-            }
-
-            if (result != null)
-            {
-                // TODO: 这里接真实的住户需求生效逻辑，例如好感度变化、状态更新和后续流程推进。
             }
 
             return result;
@@ -153,10 +198,18 @@ namespace GameCore
             if (needRefData == null)
                 return null;
 
+            return EvaluateDialogue(needRefData, affectValue);
+        }
+
+        public DialogueEffectData EvaluateDialogue(CustomerNeedRefData needRefData, int affectValue)
+        {
+            if (needRefData == null)
+                return null;
+
             List<DialogueEffectData> dialogueList = needRefData.dialogueList;
             if (dialogueList == null || dialogueList.Count == 0)
             {
-                Debug.LogError($"CustomerNeedMgr 判断需求对话失败：needId={needId} 的 dialogueList 为空。");
+                Debug.LogError($"CustomerNeedMgr 判断需求对话失败：needId={needRefData.id} 的 dialogueList 为空。");
                 return null;
             }
 
@@ -165,19 +218,27 @@ namespace GameCore
                 DialogueEffectData dialogueEffectData = dialogueList[index];
                 if (dialogueEffectData == null)
                 {
-                    Debug.LogError($"CustomerNeedMgr 判断需求对话失败：needId={needId} 的 dialogueList 第 {index} 项为空。");
+                    Debug.LogError($"CustomerNeedMgr 判断需求对话失败：needId={needRefData.id} 的 dialogueList 第 {index} 项为空。");
                     continue;
                 }
 
                 if (!IsDialogueMatched(dialogueEffectData, affectValue))
                     continue;
 
-                // TODO: 这里接真实的需求对话触发逻辑，例如打开对话、写入状态和推进后续流程。
                 return dialogueEffectData;
             }
 
-            Debug.LogError($"CustomerNeedMgr 未命中对话需求：needId={needId}，affectValue={affectValue}");
+            Debug.LogError($"CustomerNeedMgr 未命中好感对话条件：needId={needRefData.id}，affectValue={affectValue}");
             return null;
+        }
+
+        public long ResolveDialogueStartId(CustomerNeedRefData needRefData, int favorValue)
+        {
+            DialogueEffectData dialogueEffectData = EvaluateDialogue(needRefData, favorValue);
+            if (dialogueEffectData != null)
+                return dialogueEffectData.dialogueStartId;
+
+            return 0;
         }
 
         private JudgmentEffectData FindJudgmentByOperator(long needId, EElevatorOperator actionType)
@@ -211,14 +272,19 @@ namespace GameCore
 
         private bool IsDialogueMatched(DialogueEffectData dialogueEffectData, int affectValue)
         {
-            switch (dialogueEffectData.compareOperator)
+            return IsFavorMatched(dialogueEffectData.compareOperator, affectValue, dialogueEffectData.threshold);
+        }
+
+        private bool IsFavorMatched(ECompareOperator compareOperator, int favorValue, int threshold)
+        {
+            switch (compareOperator)
             {
                 case ECompareOperator.GREATER:
-                    return affectValue > dialogueEffectData.threshold;
+                    return favorValue > threshold;
                 case ECompareOperator.LESS:
-                    return affectValue < dialogueEffectData.threshold;
+                    return favorValue < threshold;
                 default:
-                    Debug.LogError($"CustomerNeedMgr 判断需求对话失败：未支持的比较符 {dialogueEffectData.compareOperator}");
+                    Debug.LogError($"CustomerNeedMgr 判断好感条件失败：未支持的比较符 {compareOperator}");
                     return false;
             }
         }
