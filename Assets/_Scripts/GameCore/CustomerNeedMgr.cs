@@ -60,13 +60,11 @@ namespace GameCore
         {
             if (customerRefData == null)
             {
-                Debug.LogError("CustomerNeedMgr 解析住户需求失败：customerRefData 为空。");
                 return null;
             }
 
             if (customerRefData.needList == null || customerRefData.needList.Count == 0)
             {
-                Debug.LogError($"CustomerNeedMgr 解析住户需求失败：customerId={customerRefData.id} 的 needList 为空。");
                 return null;
             }
 
@@ -76,7 +74,6 @@ namespace GameCore
                 NeedEffectData needEffectData = customerRefData.needList[index];
                 if (needEffectData == null)
                 {
-                    Debug.LogError($"CustomerNeedMgr 解析住户需求失败：customerId={customerRefData.id} 的 needList 第 {index} 项为空。");
                     continue;
                 }
 
@@ -102,7 +99,6 @@ namespace GameCore
             if (defaultNeedRefData != null)
                 return defaultNeedRefData;
 
-            Debug.LogError($"CustomerNeedMgr 解析住户需求失败：customerId={customerRefData.id}，levelId={levelId}，favorValue={favorValue}");
             return null;
         }
 

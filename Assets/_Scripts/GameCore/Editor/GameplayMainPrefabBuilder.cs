@@ -142,7 +142,7 @@ namespace GameCore.Editor
 
         private static void CreateTopCenterCurrentFloor(RectTransform rootRect, UIMonoGameplayMain mono)
         {
-            Text currentFloorText = CreateTextPanel("CurrentFloorPanel", rootRect, new Vector2(0.42f, 0.90f), new Vector2(0.58f, 0.97f), "当前楼层：1", 24, TextAnchor.MiddleCenter, FontStyle.Bold);
+            Text currentFloorText = CreateTextPanel("CurrentFloorPanel", rootRect, new Vector2(0.42f, 0.90f), new Vector2(0.58f, 0.97f), "1", 24, TextAnchor.MiddleCenter, FontStyle.Normal);
             mono.txtCurrentFloor = currentFloorText;
 
             CanvasGroup floorCanvasGroup = currentFloorText.gameObject.AddComponent<CanvasGroup>();
