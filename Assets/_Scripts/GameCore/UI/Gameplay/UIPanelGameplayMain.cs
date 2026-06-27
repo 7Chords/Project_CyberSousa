@@ -453,11 +453,11 @@ namespace GameCore.UI
             _currentNeedRefData = needRefData;
             _currentNeedTime = needTime;
 
-            long dialogueStartId = GetDialogueStartId(needRefData);
+            long dialogueStartId = GetDialogueStartId(customerRefData, needRefData);
             if (dialogueStartId > 0)
                 StartDialogue(dialogueStartId);
             else
-                Debug.LogError($"Gameplay 对话初始化失败：needId={needRefData.id} 未找到有效的开始对话 id。");
+                Debug.LogError($"Gameplay 对话初始化失败：customerId={customerRefData.id}，needId={needRefData.id} 未找到有效的开始对话 id。");
 
             ShowCurrentCustomer();
             RefreshAllUi();
@@ -593,31 +593,12 @@ namespace GameCore.UI
 
         private CustomerNeedRefData FindNeedRefDataForCustomer(CustomerRefData customerRefData)
         {
-            if (customerRefData == null || customerRefData.needList == null)
+            if (customerRefData == null)
                 return null;
 
-            CustomerNeedRefData fallbackNeedRefData = null;
-            for (int index = 0; index < customerRefData.needList.Count; index++)
-            {
-                NeedEffectData needEffectData = customerRefData.needList[index];
-                if (needEffectData == null)
-                {
-                    Debug.LogError($"Gameplay 住户需求解析失败：customerId={customerRefData.id} 的 needList 第 {index} 项为空。");
-                    continue;
-                }
-
-                CustomerNeedRefData needRefData = CustomerNeedMgr.instance.GetNeedRefData(needEffectData.needId);
-                if (needRefData == null)
-                    continue;
-
-                if (_currentLevelRefData != null && needEffectData.levelId == _currentLevelRefData.id)
-                    return needRefData;
-
-                if (fallbackNeedRefData == null)
-                    fallbackNeedRefData = needRefData;
-            }
-
-            return fallbackNeedRefData;
+            long levelId = _currentLevelRefData != null ? _currentLevelRefData.id : 0;
+            int favorValue = GamePlayerDataMgr.instance.GetNpcFavor(customerRefData.id);
+            return CustomerNeedMgr.instance.ResolveCustomerNeed(customerRefData, levelId, favorValue);
         }
 
         private CustomerRefData GetCustomerRefData(long customerId)
@@ -629,19 +610,13 @@ namespace GameCore.UI
             return null;
         }
 
-        private long GetDialogueStartId(CustomerNeedRefData needRefData)
+        private long GetDialogueStartId(CustomerRefData customerRefData, CustomerNeedRefData needRefData)
         {
-            if (needRefData == null || needRefData.dialogueList == null || needRefData.dialogueList.Count == 0)
+            if (customerRefData == null || needRefData == null)
                 return 0;
 
-            DialogueEffectData dialogueEffectData = needRefData.dialogueList[0];
-            if (dialogueEffectData == null)
-            {
-                Debug.LogError($"Gameplay 对话入口解析失败：needId={needRefData.id} 的第一条 dialogueList 为空。");
-                return 0;
-            }
-
-            return dialogueEffectData.dialogueStartId;
+            int favorValue = GamePlayerDataMgr.instance.GetNpcFavor(customerRefData.id);
+            return CustomerNeedMgr.instance.ResolveDialogueStartId(needRefData, favorValue);
         }
 
         private void StartDialogue(long dialogueStartId)
