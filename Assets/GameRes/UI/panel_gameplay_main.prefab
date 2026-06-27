@@ -55,7 +55,7 @@ CanvasGroup:
   m_Alpha: 1
   m_Interactable: 1
   m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
+  m_IgnoreParentGroups: 1
 --- !u!114 &114000000000101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80,6 +80,7 @@ MonoBehaviour:
   dialogueSection: {fileID: 8873971711127791423}
   dialogueLeftArea: {fileID: 5816753997432167119}
   dialogueRightArea: {fileID: 3619074151336158138}
+  dialogueAdvanceClickArea: {fileID: 0}
   imgDialoguePortrait: {fileID: 3248970197839663730}
   txtDialogueLeft: {fileID: 951942036859481113}
   txtDialogueRight: {fileID: 7986377590833606981}
@@ -681,8 +682,8 @@ MonoBehaviour:
   m_ChildAlignment: 4
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 80, y: 80}
-  m_Spacing: {x: 20, y: 20}
+  m_CellSize: {x: 75, y: 75}
+  m_Spacing: {x: 25, y: 25}
   m_Constraint: 0
   m_ConstraintCount: 2
 --- !u!1 &479392276723303640

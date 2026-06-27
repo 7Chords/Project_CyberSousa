@@ -159,6 +159,11 @@ namespace GameCore.Editor
             RectTransform dialogueSection = CreateContainer("DialogueSection", rootRect, new Vector2(0f, 0f), new Vector2(1f, 1f));
             mono.dialogueSection = dialogueSection.gameObject;
 
+            Image advanceClickArea = CreatePanel("DialogueAdvanceClickArea", dialogueSection, new Vector2(0.08f, 0.12f), new Vector2(0.92f, 0.98f), new Color(1f, 1f, 1f, 0f));
+            advanceClickArea.raycastTarget = false;
+            advanceClickArea.enabled = false;
+            mono.dialogueAdvanceClickArea = advanceClickArea;
+
             mono.txtDialogueLeft = CreateDialogueStrip("Dialogue01", dialogueSection, new Vector2(0.15f, 0.74f), new Vector2(0.38f, 0.84f), "对话1", out mono.dialogueLeftArea);
             mono.txtDialogueRight = CreateDialogueStrip("Dialogue02", dialogueSection, new Vector2(0.57f, 0.63f), new Vector2(0.83f, 0.73f), "对话2", out mono.dialogueRightArea);
             mono.imgDialoguePortrait = CreatePortraitImage("DialoguePortrait", dialogueSection, new Vector2(0.16f, 0.85f), new Vector2(0.37f, 0.99f));
