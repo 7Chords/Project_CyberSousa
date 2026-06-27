@@ -182,6 +182,19 @@ namespace GameCore.UI
                 if (btnSettingTransform != null)
                     mono.btnSetting = btnSettingTransform.GetComponent<Button>();
             }
+
+            if (mono.dialogueAdvanceClickArea == null)
+                mono.dialogueAdvanceClickArea = FindChildImage("DialogueAdvanceClickArea");
+        }
+
+        private void RefreshDialogueAdvanceClickArea()
+        {
+            if (mono.dialogueAdvanceClickArea == null)
+                return;
+
+            bool canAdvanceByScreenClick = _isDialogueRunning && CanAdvanceDialogueByClick();
+            mono.dialogueAdvanceClickArea.raycastTarget = canAdvanceByScreenClick;
+            mono.dialogueAdvanceClickArea.enabled = canAdvanceByScreenClick;
         }
 
         private void BuildLookupMaps()
@@ -370,8 +383,7 @@ namespace GameCore.UI
             mono.btnConfirm?.AddMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.AddMouseLeftClickDown(OnCloseDoorClicked);
             mono.btnSetting?.AddMouseLeftClickDown(OnSettingClicked);
-            mono.dialogueLeftArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
-            mono.dialogueRightArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
+            mono.dialogueAdvanceClickArea?.AddMouseLeftClickDown(OnDialogueAreaClicked);
         }
 
         private void UnbindButtons()
@@ -388,8 +400,7 @@ namespace GameCore.UI
             mono.btnConfirm?.RemoveMouseLeftClickDown(OnConfirmClicked);
             mono.btnCloseDoor?.RemoveMouseLeftClickDown(OnCloseDoorClicked);
             mono.btnSetting?.RemoveMouseLeftClickDown(OnSettingClicked);
-            mono.dialogueLeftArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
-            mono.dialogueRightArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
+            mono.dialogueAdvanceClickArea?.RemoveMouseLeftClickDown(OnDialogueAreaClicked);
         }
 
         private void TrySpawnNextPendingCustomer()
@@ -974,7 +985,7 @@ namespace GameCore.UI
 
             if (_isDialogueRunning)
             {
-                mono.txtBottomHint.text = "点击对话框继续推进对话。";
+                mono.txtBottomHint.text = "点击屏幕继续推进对话。";
                 return;
             }
 
@@ -1028,7 +1039,10 @@ namespace GameCore.UI
         private void RefreshDialogueUi()
         {
             if (mono.dialogueSection == null)
+            {
+                RefreshDialogueAdvanceClickArea();
                 return;
+            }
 
             bool hasCurrentDialogue = _isDialogueRunning && _currentDialogueRefData != null;
             bool showPortraitOnly = !hasCurrentDialogue
@@ -1044,6 +1058,7 @@ namespace GameCore.UI
                     ApplyDialoguePortrait(mono.imgDialoguePortrait, _activeDialoguePortraitResName);
                 }
 
+                RefreshDialogueAdvanceClickArea();
                 return;
             }
 
@@ -1056,16 +1071,17 @@ namespace GameCore.UI
 
             if (mono.dialogueLeftArea != null)
             {
-                mono.dialogueLeftArea.raycastTarget = !isPlayerDialogue && CanAdvanceDialogueByClick();
+                mono.dialogueLeftArea.raycastTarget = false;
                 mono.dialogueLeftArea.enabled = !string.IsNullOrEmpty(mono.txtDialogueLeft.text);
             }
 
             if (mono.dialogueRightArea != null)
             {
-                mono.dialogueRightArea.raycastTarget = isPlayerDialogue && CanAdvanceDialogueByClick();
+                mono.dialogueRightArea.raycastTarget = false;
                 mono.dialogueRightArea.enabled = !string.IsNullOrEmpty(mono.txtDialogueRight.text);
             }
 
+            RefreshDialogueAdvanceClickArea();
             RefreshDialogueOptionUi();
         }
 

@@ -34,6 +34,8 @@ namespace GameCore.UI
         public Image dialogueLeftArea;
         [Header("右侧对话条背景")]
         public Image dialogueRightArea;
+        [Header("对话推进全屏点击区域")]
+        public Image dialogueAdvanceClickArea;
         [Header("对话头像")]
         public Image imgDialoguePortrait;
         [Header("左侧对话文本")]
