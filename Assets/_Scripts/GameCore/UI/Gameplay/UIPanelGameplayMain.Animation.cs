@@ -132,7 +132,7 @@ namespace GameCore.UI
 
         private void AnimateFloorText(int floor)
         {
-            string text = $"当前楼层：{floor}";
+            string text = $"{floor}";
             if (mono.floorTextEffect != null)
             {
                 mono.floorTextEffect.PlayTextChange(text);
@@ -147,7 +147,7 @@ namespace GameCore.UI
         private void SetCurrentFloorDisplayInstant(int floor)
         {
             _currentFloor = floor;
-            string text = $"当前楼层：{floor}";
+            string text = $"{floor}";
             if (mono.floorTextEffect != null)
                 mono.floorTextEffect.SetTextInstant(text);
             else if (mono.txtCurrentFloor != null)
