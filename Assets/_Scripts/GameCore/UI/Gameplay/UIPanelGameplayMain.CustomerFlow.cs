@@ -47,6 +47,7 @@ namespace GameCore.UI
                     return;
                 }
 
+                TryAutoAdvanceToPendingNeedTime(pendingCustomerData.needTime);
                 SetCustomerHiddenInstant();
                 RefreshAllUi();
                 return;
@@ -54,6 +55,33 @@ namespace GameCore.UI
 
             _pendingCustomers.Dequeue();
             SpawnCustomer(customerRefData, needRefData, pendingCustomerData.needTime);
+        }
+
+
+        private void TryAutoAdvanceToPendingNeedTime(TimeEffectData needTime)
+        {
+            if (needTime == null || GameTimeMgr.instance.IsAdvancing)
+                return;
+
+            if (GameTimeMgr.instance.HasReachedNeedTime(needTime))
+                return;
+
+            int remainingSeconds = GameTimeMgr.instance.GetRemainingSecondsUntil(needTime);
+            if (remainingSeconds <= 0)
+                return;
+
+            GameTimeMgr.instance.PlayAdvanceToTime(needTime, CalculateIdleAdvanceDuration(remainingSeconds));
+        }
+
+
+        private float CalculateIdleAdvanceDuration(int remainingGameSeconds)
+        {
+            int travelSeconds = GameTimeMgr.instance.GetElevatorTravelSeconds();
+            if (travelSeconds <= 0)
+                return 1f;
+
+            float duration = remainingGameSeconds * (ElevatorTravelAnimDuration / travelSeconds);
+            return Mathf.Clamp(duration, 0.35f, 8f);
         }
 
 

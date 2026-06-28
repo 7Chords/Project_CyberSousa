@@ -20,6 +20,8 @@ namespace GameCore
 
         public int TotalSeconds => _totalSeconds;
 
+        public bool IsAdvancing => _advanceTween != null && _advanceTween.IsActive();
+
         public override void OnDiscard()
         {
             StopAdvanceTween();
@@ -123,6 +125,25 @@ namespace GameCore
 
             float duration = Mathf.Max(0.1f, realDurationSeconds);
             PlayAdvance(travelTime.TotalSeconds, duration);
+        }
+
+        public int GetRemainingSecondsUntil(TimeEffectData targetTime)
+        {
+            if (targetTime == null)
+                return 0;
+
+            int targetSeconds = NormalizeSeconds(targetTime.TotalSeconds);
+            int delta = targetSeconds - _totalSeconds;
+            return delta > 0 ? delta : 0;
+        }
+
+        public void PlayAdvanceToTime(TimeEffectData targetTime, float realDurationSeconds)
+        {
+            int remainingSeconds = GetRemainingSecondsUntil(targetTime);
+            if (remainingSeconds <= 0)
+                return;
+
+            PlayAdvance(remainingSeconds, Mathf.Max(0.1f, realDurationSeconds));
         }
 
         public void StopAdvanceTween()
