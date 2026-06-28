@@ -21,6 +21,7 @@ namespace GameCore.UI
 
         private void SetCurrentDialogue(long dialogueId)
         {
+            ClearPendingDialogueAdvanceAfterPlayerLine();
             if (!_dialogueMap.TryGetValue(dialogueId, out DialogueRefData dialogueRefData))
             {
                 Debug.LogError($"Gameplay 获取对话配置失败：未找到 dialogueId={dialogueId}");
@@ -123,6 +124,8 @@ namespace GameCore.UI
 
         private void EndDialogue()
         {
+            StopDialogueTypewriter();
+            ClearPendingDialogueAdvanceAfterPlayerLine();
             _isDialogueRunning = false;
             _currentDialogueRefData = null;
             ClearDialogueOptions();
@@ -144,6 +147,12 @@ namespace GameCore.UI
         private bool CanAdvanceDialogueByClick()
         {
             if (_currentDialogueRefData == null)
+                return false;
+
+            if (_awaitDialogueAdvanceAfterPlayerLine)
+                return !_isDialogueTypewriterPlaying;
+
+            if (_isDialogueTypewriterPlaying)
                 return false;
 
             if (_currentOptionDialogueList.Count > 0)
@@ -181,17 +190,25 @@ namespace GameCore.UI
 
             _currentAffectValue += optionDialogueRefData.affectValue;
             AddCurrentCustomerFavor(optionDialogueRefData.affectValue);
-            mono.txtDialogueLeft.text = string.Empty;
-            mono.txtDialogueRight.text = optionDialogueRefData.content;
-            RefreshDialoguePortrait(optionDialogueRefData);
-
+            ClearDialogueOptions();
+            _awaitDialogueAdvanceAfterPlayerLine = true;
             if (optionDialogueRefData.nextList == null || optionDialogueRefData.nextList.Count == 0 || optionDialogueRefData.nextList[0] == 0)
             {
-                EndDialogue();
-                return;
+                _pendingEndDialogueAfterPlayerLine = true;
+                _pendingDialogueIdAfterPlayerLine = 0;
+            }
+            else
+            {
+                _pendingEndDialogueAfterPlayerLine = false;
+                _pendingDialogueIdAfterPlayerLine = optionDialogueRefData.nextList[0];
             }
 
-            SetCurrentDialogue(optionDialogueRefData.nextList[0]);
+            StartDialogueTypewriter(mono.txtDialogueRight, optionDialogueRefData.content, optionDialogueRefData.id);
+            if (mono.txtDialogueLeft != null)
+                mono.txtDialogueLeft.text = string.Empty;
+            RefreshDialoguePortrait(optionDialogueRefData);
+            UpdateDialogueStripVisibility();
+            RefreshDialogueAdvanceClickArea();
         }
 
 

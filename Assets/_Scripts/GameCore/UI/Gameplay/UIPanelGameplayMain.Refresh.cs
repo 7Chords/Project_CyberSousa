@@ -263,7 +263,7 @@ namespace GameCore.UI
                 return;
             }
 
-            bool hasCurrentDialogue = _isDialogueRunning && _currentDialogueRefData != null;
+            bool hasCurrentDialogue = _isDialogueRunning && (_currentDialogueRefData != null || _awaitDialogueAdvanceAfterPlayerLine);
             bool showPortraitOnly = !hasCurrentDialogue
                 && _currentCustomerRefData != null
                 && IsValidPortraitResName(_activeDialoguePortraitResName);
@@ -281,24 +281,33 @@ namespace GameCore.UI
                 return;
             }
 
+            if (_awaitDialogueAdvanceAfterPlayerLine)
+            {
+                UpdateDialogueStripVisibility();
+                RefreshDialogueAdvanceClickArea();
+                RefreshDialogueOptionUi();
+                return;
+            }
+
+            if (_currentDialogueRefData == null)
+            {
+                RefreshDialogueAdvanceClickArea();
+                return;
+            }
+
             bool isPlayerDialogue = IsPlayerDialogue(_currentDialogueRefData);
             string currentContent = _currentDialogueRefData.content;
 
-            mono.txtDialogueLeft.text = isPlayerDialogue ? string.Empty : currentContent;
-            mono.txtDialogueRight.text = isPlayerDialogue ? currentContent : string.Empty;
+            PlayCurrentDialogueTypewriter(isPlayerDialogue, currentContent);
             RefreshDialoguePortrait(_currentDialogueRefData);
 
             if (mono.dialogueLeftArea != null)
-            {
                 mono.dialogueLeftArea.raycastTarget = false;
-                mono.dialogueLeftArea.enabled = !string.IsNullOrEmpty(mono.txtDialogueLeft.text);
-            }
 
             if (mono.dialogueRightArea != null)
-            {
                 mono.dialogueRightArea.raycastTarget = false;
-                mono.dialogueRightArea.enabled = !string.IsNullOrEmpty(mono.txtDialogueRight.text);
-            }
+
+            UpdateDialogueStripVisibility();
 
             RefreshDialogueAdvanceClickArea();
             RefreshDialogueOptionUi();
@@ -316,7 +325,7 @@ namespace GameCore.UI
                 return;
             }
 
-            bool showOptions = _currentOptionDialogueList.Count > 0;
+            bool showOptions = _currentOptionDialogueList.Count > 0 && !_isDialogueTypewriterPlaying;
             mono.dialogueOptionRoot.gameObject.SetActive(showOptions);
             if (!showOptions)
                 return;
@@ -354,6 +363,7 @@ namespace GameCore.UI
 
         private void HideDialogueTextAndOptions()
         {
+            StopDialogueTypewriter();
             mono.txtDialogueLeft.text = string.Empty;
             mono.txtDialogueRight.text = string.Empty;
 

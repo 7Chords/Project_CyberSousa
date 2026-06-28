@@ -78,6 +78,7 @@ namespace GameCore.UI
 
             GameTimeMgr.instance.OnTimeChanged -= OnGameTimeChanged;
             GameTimeMgr.instance.StopAdvanceTween();
+            _dialogueCoroutineContainer.KillAll();
             UnbindButtons();
         }
 
@@ -131,9 +132,10 @@ namespace GameCore.UI
             if (mono.dialogueAdvanceClickArea == null)
                 return;
 
-            bool canAdvanceByScreenClick = _isDialogueRunning && CanAdvanceDialogueByClick();
-            mono.dialogueAdvanceClickArea.raycastTarget = canAdvanceByScreenClick;
-            mono.dialogueAdvanceClickArea.enabled = canAdvanceByScreenClick;
+            bool canClickDialogue = _isDialogueRunning
+                && (_isDialogueTypewriterPlaying || CanAdvanceDialogueByClick() || _awaitDialogueAdvanceAfterPlayerLine);
+            mono.dialogueAdvanceClickArea.raycastTarget = canClickDialogue;
+            mono.dialogueAdvanceClickArea.enabled = canClickDialogue;
         }
 
         private class RecentFloorInputData

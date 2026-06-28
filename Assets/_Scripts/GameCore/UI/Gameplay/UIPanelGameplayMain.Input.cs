@@ -47,7 +47,19 @@ namespace GameCore.UI
 
         private void OnDialogueAreaClicked(PointerEventData eventData, object[] args)
         {
-            if (!_isDialogueRunning || _currentDialogueRefData == null)
+            if (!_isDialogueRunning)
+                return;
+
+            if (_awaitDialogueAdvanceAfterPlayerLine || _currentDialogueRefData != null)
+            {
+                if (TrySkipDialogueTypewriter())
+                    return;
+
+                if (TryAdvanceDialogueAfterPlayerLine())
+                    return;
+            }
+
+            if (_currentDialogueRefData == null)
                 return;
 
             if (!CanAdvanceDialogueByClick())
