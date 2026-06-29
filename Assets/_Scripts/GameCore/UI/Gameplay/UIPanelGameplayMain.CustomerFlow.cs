@@ -452,6 +452,9 @@ namespace GameCore.UI
                 targetFloor = _currentFloor > 0 ? _currentFloor : 1;
             }
 
+            if (_currentCustomerRefData != null)
+                GamePlayerDataMgr.instance.RecordCustomerDeliveredFloor(_currentCustomerRefData.id, targetFloor);
+
             _canCloseDoor = false;
             _isTransitionPlaying = true;
             RefreshAllUi();

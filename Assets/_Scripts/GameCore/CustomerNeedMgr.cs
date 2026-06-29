@@ -59,21 +59,17 @@ namespace GameCore
         public CustomerNeedRefData ResolveCustomerNeed(CustomerRefData customerRefData, long levelId, int favorValue)
         {
             if (customerRefData == null)
-            {
                 return null;
-            }
 
             if (customerRefData.needList == null || customerRefData.needList.Count == 0)
-            {
                 return null;
-            }
 
-            CustomerNeedRefData defaultNeedRefData = null;
             for (int index = 0; index < customerRefData.needList.Count; index++)
             {
                 NeedEffectData needEffectData = customerRefData.needList[index];
                 if (needEffectData == null)
                 {
+                    Debug.LogError($"CustomerNeedMgr 判断住户需求失败：customerId={customerRefData.id} 的 needList 第 {index} 项为空。");
                     continue;
                 }
 
@@ -84,21 +80,13 @@ namespace GameCore
                 if (levelId > 0 && needEffectData.levelId != levelId)
                     continue;
 
-                if (needEffectData.hasFavorCondition)
-                {
-                    if (IsFavorMatched(needEffectData.compareOperator, favorValue, needEffectData.favorThreshold))
-                        return needRefData;
-
+                if (!IsNeedMatched(customerRefData.id, needEffectData, favorValue))
                     continue;
-                }
 
-                if (defaultNeedRefData == null)
-                    defaultNeedRefData = needRefData;
+                return needRefData;
             }
 
-            if (defaultNeedRefData != null)
-                return defaultNeedRefData;
-
+            Debug.LogError($"CustomerNeedMgr 未命中住户需求条件：customerId={customerRefData.id}，levelId={levelId}，favorValue={favorValue}");
             return null;
         }
 
@@ -188,16 +176,16 @@ namespace GameCore
             return null;
         }
 
-        public DialogueEffectData EvaluateDialogue(long needId, int affectValue)
+        public DialogueEffectData EvaluateDialogue(long needId, int favorValue)
         {
             CustomerNeedRefData needRefData = GetNeedRefData(needId);
             if (needRefData == null)
                 return null;
 
-            return EvaluateDialogue(needRefData, affectValue);
+            return EvaluateDialogue(needRefData, favorValue);
         }
 
-        public DialogueEffectData EvaluateDialogue(CustomerNeedRefData needRefData, int affectValue)
+        public DialogueEffectData EvaluateDialogue(CustomerNeedRefData needRefData, int favorValue)
         {
             if (needRefData == null)
                 return null;
@@ -218,13 +206,13 @@ namespace GameCore
                     continue;
                 }
 
-                if (!IsDialogueMatched(dialogueEffectData, affectValue))
+                if (!IsDialogueMatched(needRefData.id, dialogueEffectData, favorValue))
                     continue;
 
                 return dialogueEffectData;
             }
 
-            Debug.LogError($"CustomerNeedMgr 未命中好感对话条件：needId={needRefData.id}，affectValue={affectValue}");
+            Debug.LogError($"CustomerNeedMgr 未命中需求对话条件：needId={needRefData.id}，favorValue={favorValue}");
             return null;
         }
 
@@ -266,21 +254,55 @@ namespace GameCore
             return null;
         }
 
-        private bool IsDialogueMatched(DialogueEffectData dialogueEffectData, int affectValue)
+        private bool IsNeedMatched(long customerId, NeedEffectData needEffectData, int favorValue)
         {
-            return IsFavorMatched(dialogueEffectData.compareOperator, affectValue, dialogueEffectData.threshold);
+            if (needEffectData == null)
+                return false;
+
+            if (!needEffectData.hasCondition)
+                return true;
+
+            return IsConditionMatched(
+                needEffectData.conditionType,
+                needEffectData.compareValue,
+                needEffectData.conditionCustomerId,
+                needEffectData.conditionFloor,
+                favorValue,
+                $"CustomerNeedMgr 判断住户需求条件失败：customerId={customerId}，needId={needEffectData.needId}");
         }
 
-        private bool IsFavorMatched(ECompareOperator compareOperator, int favorValue, int threshold)
+        private bool IsDialogueMatched(long needId, DialogueEffectData dialogueEffectData, int favorValue)
         {
-            switch (compareOperator)
+            if (dialogueEffectData == null)
+                return false;
+
+            return IsConditionMatched(
+                dialogueEffectData.conditionType,
+                dialogueEffectData.compareValue,
+                dialogueEffectData.conditionCustomerId,
+                dialogueEffectData.conditionFloor,
+                favorValue,
+                $"CustomerNeedMgr 判断需求对话条件失败：needId={needId}，dialogueStartId={dialogueEffectData.dialogueStartId}");
+        }
+
+        private bool IsConditionMatched(EConditionType conditionType, int compareValue, long conditionCustomerId, int conditionFloor, int favorValue, string logPrefix)
+        {
+            switch (conditionType)
             {
-                case ECompareOperator.GREATER:
-                    return favorValue > threshold;
-                case ECompareOperator.LESS:
-                    return favorValue < threshold;
+                case EConditionType.FAVOR_GREATER:
+                    return favorValue > compareValue;
+                case EConditionType.FAVOR_LESS:
+                    return favorValue < compareValue;
+                case EConditionType.DIALOGUE_SELECTED:
+                    return GamePlayerDataMgr.instance.HasSelectedDialogueOption(compareValue);
+                case EConditionType.DIALOGUE_NOT_SELECTED:
+                    return !GamePlayerDataMgr.instance.HasSelectedDialogueOption(compareValue);
+                case EConditionType.CUSTOMER_DELIVERED_TO_FLOOR:
+                    return GamePlayerDataMgr.instance.HasCustomerDeliveredToFloor(conditionCustomerId, conditionFloor);
+                case EConditionType.CUSTOMER_NOT_DELIVERED_TO_FLOOR:
+                    return !GamePlayerDataMgr.instance.HasCustomerDeliveredToFloor(conditionCustomerId, conditionFloor);
                 default:
-                    Debug.LogError($"CustomerNeedMgr 判断好感条件失败：未支持的比较符 {compareOperator}");
+                    Debug.LogError($"{logPrefix}：未支持的条件类型 {conditionType}");
                     return false;
             }
         }

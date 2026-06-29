@@ -17,6 +17,8 @@ namespace GameCore
         private bool _hasConfirmedFinalSpecialCustomer;
         private int _startDayIndex;
         private readonly Dictionary<long, int> _npcFavorDict = new Dictionary<long, int>();
+        private readonly HashSet<long> _selectedDialogueOptionIdSet = new HashSet<long>();
+        private readonly HashSet<long> _deliveredCustomerFloorKeySet = new HashSet<long>();
 
         public int performanceValue => _performanceValue;
         public bool hasConfirmedFinalSpecialCustomer => _hasConfirmedFinalSpecialCustomer;
@@ -34,6 +36,8 @@ namespace GameCore
             _hasConfirmedFinalSpecialCustomer = false;
             _startDayIndex = 0;
             _npcFavorDict.Clear();
+            _selectedDialogueOptionIdSet.Clear();
+            _deliveredCustomerFloorKeySet.Clear();
         }
 
         public void ResetRuntimeData()
@@ -42,6 +46,8 @@ namespace GameCore
             _hasConfirmedFinalSpecialCustomer = false;
             _startDayIndex = 0;
             _npcFavorDict.Clear();
+            _selectedDialogueOptionIdSet.Clear();
+            _deliveredCustomerFloorKeySet.Clear();
             Debug.Log($"[GamePlayerDataMgr] 绩效值已重置：{_performanceValue}");
         }
 
@@ -137,6 +143,8 @@ namespace GameCore
             _hasConfirmedFinalSpecialCustomer = saveData.hasConfirmedFinalSpecialCustomer;
             _startDayIndex = saveData.nextDayIndex;
             _npcFavorDict.Clear();
+            _selectedDialogueOptionIdSet.Clear();
+            _deliveredCustomerFloorKeySet.Clear();
 
             if (saveData.npcFavorList != null)
             {
@@ -149,6 +157,40 @@ namespace GameCore
                     _npcFavorDict[favorSaveData.npcId] = favorSaveData.favorValue;
                 }
             }
+
+            if (saveData.selectedDialogueOptionIdList != null)
+            {
+                for (int index = 0; index < saveData.selectedDialogueOptionIdList.Count; index++)
+                {
+                    long dialogueOptionId = saveData.selectedDialogueOptionIdList[index];
+                    if (dialogueOptionId <= 0)
+                    {
+                        Debug.LogError($"[GamePlayerDataMgr] 读取对话选项历史失败：无效的 dialogueId={dialogueOptionId}");
+                        continue;
+                    }
+
+                    _selectedDialogueOptionIdSet.Add(dialogueOptionId);
+                }
+            }
+
+            if (saveData.deliveredFloorList != null)
+            {
+                for (int index = 0; index < saveData.deliveredFloorList.Count; index++)
+                {
+                    DeliveredFloorSaveData deliveredFloorSaveData = saveData.deliveredFloorList[index];
+                    if (deliveredFloorSaveData == null)
+                        continue;
+
+                    if (deliveredFloorSaveData.customerId <= 0 || deliveredFloorSaveData.floor <= 0)
+                    {
+                        Debug.LogError(
+                            $"[GamePlayerDataMgr] 读取送达历史失败：customerId={deliveredFloorSaveData.customerId}，floor={deliveredFloorSaveData.floor}");
+                        continue;
+                    }
+
+                    _deliveredCustomerFloorKeySet.Add(BuildDeliveredFloorKey(deliveredFloorSaveData.customerId, deliveredFloorSaveData.floor));
+                }
+            }
         }
 
         public void SaveDailyProgress(int nextDayIndex)
@@ -159,7 +201,9 @@ namespace GameCore
                 nextDayIndex = _startDayIndex,
                 performanceValue = _performanceValue,
                 hasConfirmedFinalSpecialCustomer = _hasConfirmedFinalSpecialCustomer,
-                npcFavorList = new List<NpcFavorSaveData>()
+                npcFavorList = new List<NpcFavorSaveData>(),
+                selectedDialogueOptionIdList = new List<long>(),
+                deliveredFloorList = new List<DeliveredFloorSaveData>()
             };
 
             foreach (KeyValuePair<long, int> pair in _npcFavorDict)
@@ -171,11 +215,25 @@ namespace GameCore
                 });
             }
 
+            foreach (long dialogueOptionId in _selectedDialogueOptionIdSet)
+                saveData.selectedDialogueOptionIdList.Add(dialogueOptionId);
+
+            foreach (long deliveredFloorKey in _deliveredCustomerFloorKeySet)
+            {
+                SplitDeliveredFloorKey(deliveredFloorKey, out long customerId, out int floor);
+                saveData.deliveredFloorList.Add(new DeliveredFloorSaveData
+                {
+                    customerId = customerId,
+                    floor = floor
+                });
+            }
+
             string saveJson = JsonUtility.ToJson(saveData);
             PlayerPrefs.SetString(SaveDataPrefKey, saveJson);
             PlayerPrefs.Save();
 
-            Debug.Log($"[GamePlayerDataMgr] 每日存档完成：nextDayIndex={saveData.nextDayIndex}，绩效值={_performanceValue}，NPC好感度数量={saveData.npcFavorList.Count}");
+            Debug.Log(
+                $"[GamePlayerDataMgr] 每日存档完成：nextDayIndex={saveData.nextDayIndex}，绩效值={_performanceValue}，NPC好感度数量={saveData.npcFavorList.Count}，已选对话选项数量={saveData.selectedDialogueOptionIdList.Count}，送达记录数量={saveData.deliveredFloorList.Count}");
         }
 
         public void AddNpcFavor(long npcId, int value)
@@ -194,6 +252,53 @@ namespace GameCore
                 return favorValue;
 
             return 0;
+        }
+
+        public void RecordDialogueOptionSelection(long dialogueId)
+        {
+            if (dialogueId <= 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 记录对话选项失败：无效的 dialogueId={dialogueId}");
+                return;
+            }
+
+            if (_selectedDialogueOptionIdSet.Add(dialogueId))
+                Debug.Log($"[GamePlayerDataMgr] 已记录对话选项：dialogueId={dialogueId}");
+        }
+
+        public bool HasSelectedDialogueOption(long dialogueId)
+        {
+            if (dialogueId <= 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 查询对话选项失败：无效的 dialogueId={dialogueId}");
+                return false;
+            }
+
+            return _selectedDialogueOptionIdSet.Contains(dialogueId);
+        }
+
+        public void RecordCustomerDeliveredFloor(long customerId, int floor)
+        {
+            if (customerId <= 0 || floor <= 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 记录送达历史失败：customerId={customerId}，floor={floor}");
+                return;
+            }
+
+            long deliveredFloorKey = BuildDeliveredFloorKey(customerId, floor);
+            if (_deliveredCustomerFloorKeySet.Add(deliveredFloorKey))
+                Debug.Log($"[GamePlayerDataMgr] 已记录住户送达：customerId={customerId}，floor={floor}");
+        }
+
+        public bool HasCustomerDeliveredToFloor(long customerId, int floor)
+        {
+            if (customerId <= 0 || floor <= 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 查询送达历史失败：customerId={customerId}，floor={floor}");
+                return false;
+            }
+
+            return _deliveredCustomerFloorKeySet.Contains(BuildDeliveredFloorKey(customerId, floor));
         }
 
         public void AddPerformance(int value)
@@ -237,6 +342,8 @@ namespace GameCore
             public int performanceValue;
             public bool hasConfirmedFinalSpecialCustomer;
             public List<NpcFavorSaveData> npcFavorList;
+            public List<long> selectedDialogueOptionIdList;
+            public List<DeliveredFloorSaveData> deliveredFloorList;
         }
 
         [Serializable]
@@ -244,6 +351,24 @@ namespace GameCore
         {
             public long npcId;
             public int favorValue;
+        }
+
+        [Serializable]
+        private class DeliveredFloorSaveData
+        {
+            public long customerId;
+            public int floor;
+        }
+
+        private static long BuildDeliveredFloorKey(long customerId, int floor)
+        {
+            return (customerId << 32) ^ (uint)floor;
+        }
+
+        private static void SplitDeliveredFloorKey(long deliveredFloorKey, out long customerId, out int floor)
+        {
+            customerId = deliveredFloorKey >> 32;
+            floor = (int)(deliveredFloorKey & 0xffffffff);
         }
     }
 }

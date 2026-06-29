@@ -30,8 +30,8 @@ namespace GameCore.UI
             }
 
             _currentDialogueRefData = dialogueRefData;
-            _currentAffectValue += dialogueRefData.affectValue;
-            AddCurrentCustomerFavor(dialogueRefData.affectValue);
+            if (dialogueRefData.dialogueType != EDialogueType.SELECT)
+                ApplyDialogueFavorEffects(dialogueRefData);
 
             if (dialogueRefData.dialogueType == EDialogueType.SELECT)
             {
@@ -188,8 +188,8 @@ namespace GameCore.UI
                 return;
             }
 
-            _currentAffectValue += optionDialogueRefData.affectValue;
-            AddCurrentCustomerFavor(optionDialogueRefData.affectValue);
+            GamePlayerDataMgr.instance.RecordDialogueOptionSelection(optionDialogueRefData.id);
+            ApplyDialogueFavorEffects(optionDialogueRefData);
             ClearDialogueOptions();
             _awaitDialogueAdvanceAfterPlayerLine = true;
             if (optionDialogueRefData.nextList == null || optionDialogueRefData.nextList.Count == 0 || optionDialogueRefData.nextList[0] == 0)
@@ -208,6 +208,40 @@ namespace GameCore.UI
                 mono.txtDialogueLeft.text = string.Empty;
             UpdateDialogueStripVisibility();
             RefreshDialogueAdvanceClickArea();
+        }
+
+        private void ApplyDialogueFavorEffects(DialogueRefData dialogueRefData)
+        {
+            if (dialogueRefData == null)
+                return;
+
+            _currentAffectValue += dialogueRefData.affectValue;
+            AddCurrentCustomerFavor(dialogueRefData.affectValue);
+
+            List<NpcFavorEffectData> extraFavorEffectList = dialogueRefData.extraFavorEffectList;
+            if (extraFavorEffectList == null || extraFavorEffectList.Count == 0)
+                return;
+
+            for (int index = 0; index < extraFavorEffectList.Count; index++)
+            {
+                NpcFavorEffectData extraFavorEffectData = extraFavorEffectList[index];
+                if (extraFavorEffectData == null)
+                {
+                    Debug.LogError($"Gameplay 对话额外好感配置为空：dialogueId={dialogueRefData.id}，index={index}");
+                    continue;
+                }
+
+                if (extraFavorEffectData.npcId <= 0)
+                {
+                    Debug.LogError($"Gameplay 对话额外好感配置无效：dialogueId={dialogueRefData.id}，npcId={extraFavorEffectData.npcId}");
+                    continue;
+                }
+
+                if (extraFavorEffectData.favorValue == 0)
+                    continue;
+
+                GamePlayerDataMgr.instance.AddNpcFavor(extraFavorEffectData.npcId, extraFavorEffectData.favorValue);
+            }
         }
 
 

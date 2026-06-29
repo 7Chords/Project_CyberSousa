@@ -17,6 +17,19 @@ namespace GameCore
     {
         GREATER,
         LESS,
+        SELECTED,
+        NOT_SELECTED,
+    }
+
+    public enum EConditionType
+    {
+        NONE,
+        FAVOR_GREATER,
+        FAVOR_LESS,
+        DIALOGUE_SELECTED,
+        DIALOGUE_NOT_SELECTED,
+        CUSTOMER_DELIVERED_TO_FLOOR,
+        CUSTOMER_NOT_DELIVERED_TO_FLOOR,
     }
     public enum EElevatorOperator
     {
