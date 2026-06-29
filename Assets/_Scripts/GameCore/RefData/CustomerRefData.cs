@@ -10,6 +10,8 @@ namespace GameCore.RefData
         public List<string> customerInfoList;
         public List<string> customerTagList;
         public List<NeedEffectData> needList;
+        public string portraitFrontResName;
+        public string portraitBackResName;
 
         protected override void _parseFromString()
         {
@@ -18,6 +20,8 @@ namespace GameCore.RefData
             customerInfoList = getList<string>("customerInfoList");
             customerTagList = getList<string>("customerTagList");
             needList = getList<NeedEffectData>("needList");
+            portraitFrontResName = getString("portraitFrontResName");
+            portraitBackResName = getString("portraitBackResName");
         }
 
         public static readonly string assetPath = "RefData/ExportTxt";

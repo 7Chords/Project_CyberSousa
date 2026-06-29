@@ -33,6 +33,7 @@ namespace GameCore.UI
             if (_currentCustomerRefData == null)
                 return;
 
+            ResetCustomerPortraitTransform();
             mono.customerMoveScaleEffect?.SetOriginInstant();
             Tween tween = mono.customerFadeEffect?.PlayFadeIn();
             if (tween == null && mono.customerCanvasGroup != null)
@@ -54,6 +55,7 @@ namespace GameCore.UI
 
         private void SetCustomerHiddenInstant()
         {
+            ResetCustomerPortraitTransform();
             mono.customerMoveScaleEffect?.SetOriginInstant();
             mono.customerFadeEffect?.SetVisibleInstant(false);
             if (mono.customerCanvasGroup != null)
@@ -65,11 +67,14 @@ namespace GameCore.UI
         {
             mono.customerMoveScaleEffect?.SetOriginInstant();
             mono.customerFadeEffect?.SetVisibleInstant(true);
-            Tween moveTween = mono.customerMoveScaleEffect?.PlayEnter();
-            Tween fadeTween = mono.customerFadeEffect?.PlayFadeOut();
+            if (mono.customerCanvasGroup != null)
+                mono.customerCanvasGroup.alpha = 1f;
 
-            if (moveTween == null && fadeTween == null)
+            Tween moveTween = mono.customerMoveScaleEffect?.PlayEnter();
+            Tween flipTween = CreateCustomerPortraitFlipToBackTween();
+            if (moveTween == null && flipTween == null)
             {
+                SwitchCustomerPortraitToBack();
                 onComplete?.Invoke();
                 return;
             }
@@ -77,10 +82,55 @@ namespace GameCore.UI
             Sequence sequence = DOTween.Sequence();
             if (moveTween != null)
                 sequence.Join(moveTween);
-            if (fadeTween != null)
-                sequence.Join(fadeTween);
+            if (flipTween != null)
+                sequence.Join(flipTween);
             if (onComplete != null)
                 sequence.OnComplete(onComplete);
+        }
+
+
+        private Tween CreateCustomerPortraitFlipToBackTween()
+        {
+            if (mono.imgDialoguePortrait == null || !mono.imgDialoguePortrait.enabled)
+            {
+                SwitchCustomerPortraitToBack();
+                return null;
+            }
+
+            if (_currentCustomerRefData == null
+                || !IsValidPortraitResName(_currentCustomerRefData.portraitBackResName))
+            {
+                SwitchCustomerPortraitToBack();
+                return null;
+            }
+
+            RectTransform portraitRect = mono.imgDialoguePortrait.rectTransform;
+            portraitRect.DOKill();
+            portraitRect.localRotation = Quaternion.identity;
+
+            Sequence sequence = DOTween.Sequence();
+            sequence.Append(
+                portraitRect
+                    .DOLocalRotate(new Vector3(0f, 90f, 0f), CustomerPortraitFlipHalfDuration)
+                    .SetEase(Ease.InQuad)
+                    .SetUpdate(true));
+            sequence.AppendCallback(SwitchCustomerPortraitToBack);
+            sequence.Append(
+                portraitRect
+                    .DOLocalRotate(Vector3.zero, CustomerPortraitFlipHalfDuration)
+                    .SetEase(Ease.OutQuad)
+                    .SetUpdate(true));
+            return sequence;
+        }
+
+
+        private void ResetCustomerPortraitTransform()
+        {
+            if (mono.imgDialoguePortrait == null)
+                return;
+
+            mono.imgDialoguePortrait.rectTransform.DOKill();
+            mono.imgDialoguePortrait.rectTransform.localRotation = Quaternion.identity;
         }
 
 

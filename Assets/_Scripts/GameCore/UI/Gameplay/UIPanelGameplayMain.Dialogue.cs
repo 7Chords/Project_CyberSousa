@@ -206,7 +206,6 @@ namespace GameCore.UI
             StartDialogueTypewriter(mono.txtDialogueRight, optionDialogueRefData.content, optionDialogueRefData.id);
             if (mono.txtDialogueLeft != null)
                 mono.txtDialogueLeft.text = string.Empty;
-            RefreshDialoguePortrait(optionDialogueRefData);
             UpdateDialogueStripVisibility();
             RefreshDialogueAdvanceClickArea();
         }
@@ -349,23 +348,47 @@ namespace GameCore.UI
         }
 
 
-        private void RefreshDialoguePortrait(DialogueRefData dialogueRefData)
+        private void RefreshCustomerPortrait()
         {
-            if (dialogueRefData == null)
+            ApplyCustomerPortrait(mono.imgDialoguePortrait, ResolveCustomerPortraitResName(_useCustomerBackPortrait));
+        }
+
+
+        private void SwitchCustomerPortraitToBack()
+        {
+            if (_currentCustomerRefData == null)
                 return;
 
-            ApplyDialoguePortrait(mono.imgDialoguePortrait, dialogueRefData.portraitResName);
+            _useCustomerBackPortrait = true;
+            RefreshCustomerPortrait();
+        }
+
+
+        private string ResolveCustomerPortraitResName(bool useBack)
+        {
+            if (_currentCustomerRefData == null)
+                return null;
+
+            if (useBack && IsValidPortraitResName(_currentCustomerRefData.portraitBackResName))
+                return _currentCustomerRefData.portraitBackResName;
+
+            if (IsValidPortraitResName(_currentCustomerRefData.portraitFrontResName))
+                return _currentCustomerRefData.portraitFrontResName;
+
+            return null;
         }
 
 
         private void ClearDialoguePortraits()
         {
-            _activeDialoguePortraitResName = null;
-            ApplyDialoguePortrait(mono.imgDialoguePortrait, null);
+            _useCustomerBackPortrait = false;
+            _activePortraitResName = null;
+            ResetCustomerPortraitTransform();
+            ApplyCustomerPortrait(mono.imgDialoguePortrait, null);
         }
 
 
-        private void ApplyDialoguePortrait(Image image, string portraitResName)
+        private void ApplyCustomerPortrait(Image image, string portraitResName)
         {
             if (image == null)
                 return;
@@ -385,7 +408,7 @@ namespace GameCore.UI
                 return;
             }
 
-            _activeDialoguePortraitResName = portraitResName;
+            _activePortraitResName = portraitResName;
             image.sprite = sprite;
             image.preserveAspect = true;
             image.enabled = true;
@@ -406,7 +429,7 @@ namespace GameCore.UI
             Sprite sprite = ResourcesHelper.LoadAsset<Sprite>(portraitResName);
             if (sprite == null)
             {
-                Debug.LogError($"Gameplay 加载对话立绘失败：portraitResName={portraitResName}");
+                Debug.LogError($"Gameplay 加载住户立绘失败：portraitResName={portraitResName}");
                 return null;
             }
 

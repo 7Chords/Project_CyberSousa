@@ -1,4 +1,4 @@
-id	customerEffectList	ruleIdList
+﻿id	customerEffectList	ruleIdList
 ~id	~住户效果列表（住户类型:住户池id:时:分:秒)	~规则id列表
 	~SPECIAL=取池内第一个；RANDOM=池内随机一个；时间决定本次出场轴，需求由住户状态筛选	
 1001	SPECIAL:1001:8:15:0;SPECIAL:1002:8:40:0;SPECIAL:1003:9:5:0	1001;1008;1009;1010;1011

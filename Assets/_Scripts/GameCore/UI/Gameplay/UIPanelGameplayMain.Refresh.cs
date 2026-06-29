@@ -266,7 +266,7 @@ namespace GameCore.UI
             bool hasCurrentDialogue = _isDialogueRunning && (_currentDialogueRefData != null || _awaitDialogueAdvanceAfterPlayerLine);
             bool showPortraitOnly = !hasCurrentDialogue
                 && _currentCustomerRefData != null
-                && IsValidPortraitResName(_activeDialoguePortraitResName);
+                && ResolveCustomerPortraitResName(_useCustomerBackPortrait) != null;
 
             mono.dialogueSection.SetActive(hasCurrentDialogue || showPortraitOnly);
             if (!hasCurrentDialogue)
@@ -274,7 +274,7 @@ namespace GameCore.UI
                 if (showPortraitOnly)
                 {
                     HideDialogueTextAndOptions();
-                    ApplyDialoguePortrait(mono.imgDialoguePortrait, _activeDialoguePortraitResName);
+                    RefreshCustomerPortrait();
                 }
 
                 RefreshDialogueAdvanceClickArea();
@@ -299,7 +299,7 @@ namespace GameCore.UI
             string currentContent = _currentDialogueRefData.content;
 
             PlayCurrentDialogueTypewriter(isPlayerDialogue, currentContent);
-            RefreshDialoguePortrait(_currentDialogueRefData);
+            RefreshCustomerPortrait();
 
             if (mono.dialogueLeftArea != null)
                 mono.dialogueLeftArea.raycastTarget = false;

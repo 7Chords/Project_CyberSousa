@@ -19,6 +19,7 @@ namespace GameCore.UI
         private const string SettlementNodeName = "UINodeSettlement";
         private const string EndingNodeName = "UINodeEnding";
         private const float ElevatorTravelAnimDuration = 0.90f;
+        private const float CustomerPortraitFlipHalfDuration = 0.18f;
 
         private readonly Dictionary<long, DialogueRefData> _dialogueMap = new Dictionary<long, DialogueRefData>();
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
@@ -53,7 +54,8 @@ namespace GameCore.UI
         private bool _hasRunEnded;
         private string _serviceFeedbackText;
         private string _ruleFeedbackText;
-        private string _activeDialoguePortraitResName;
+        private string _activePortraitResName;
+        private bool _useCustomerBackPortrait;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)

@@ -8,7 +8,6 @@ namespace GameCore.RefData
     {
         public long id;
         public string name;
-        public string portraitResName;
         public string content;
         public EDialogueType dialogueType;
         public EDialogueFlagType flagType;
@@ -19,7 +18,6 @@ namespace GameCore.RefData
         {
             id = getLong("id");
             name = getString("name");
-            portraitResName = getString("portraitResName");
             content = getString("content");
             dialogueType = (EDialogueType)getEnum("dialogueType", typeof(EDialogueType));
             flagType = (EDialogueFlagType)getEnum("flagType", typeof(EDialogueFlagType));
