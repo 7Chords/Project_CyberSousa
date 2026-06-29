@@ -3,7 +3,7 @@ guid: e1b9073e6bdd74776ae9b811dcbdac32
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
-  serializedVersion: 13
+  serializedVersion: 12
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -147,7 +147,28 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: "xuanxiang-\u65E0\u661F_0"
+      rect:
+        serializedVersion: 2
+        x: 3
+        y: 8
+        width: 1517
+        height: 215
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 54, y: 74, z: 89, w: 70}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a0ffa39bb3b584a5a85db87c06f1d446
+      internalID: 1826731331
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -158,7 +179,8 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "xuanxiang-\u65E0\u661F_0": 1826731331
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
