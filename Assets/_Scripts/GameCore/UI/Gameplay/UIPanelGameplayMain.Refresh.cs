@@ -348,16 +348,6 @@ namespace GameCore.UI
                 optionItem.SetContent(optionDialogueRefData.content);
                 BindDialogueOptionItem(optionItem, index);
             }
-
-            if (mono.dialogueOptionRoot != null)
-                LayoutRebuilder.ForceRebuildLayoutImmediate(mono.dialogueOptionRoot);
-
-            for (int index = 0; index < _currentOptionDialogueList.Count; index++)
-            {
-                UIMonoDialogueOption optionItem = _dialogueOptionItemPool[index];
-                if (optionItem != null && optionItem.gameObject.activeSelf)
-                    optionItem.RefreshBackgroundPixelsPerUnitMultiplier();
-            }
         }
 
 
