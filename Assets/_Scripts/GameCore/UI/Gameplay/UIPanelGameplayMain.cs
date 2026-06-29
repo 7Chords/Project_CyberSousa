@@ -56,6 +56,7 @@ namespace GameCore.UI
         private string _ruleFeedbackText;
         private string _activePortraitResName;
         private bool _useCustomerBackPortrait;
+        private Transform _customerLayerHomeParent;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)

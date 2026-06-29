@@ -33,6 +33,7 @@ namespace GameCore.UI
             if (_currentCustomerRefData == null)
                 return;
 
+            BringCustomerLayerToFront();
             ResetCustomerPortraitTransform();
             mono.customerMoveScaleEffect?.SetOriginInstant();
             Tween tween = mono.customerFadeEffect?.PlayFadeIn();
@@ -56,6 +57,7 @@ namespace GameCore.UI
         private void SetCustomerHiddenInstant()
         {
             ResetCustomerPortraitTransform();
+            RestoreCustomerLayerHomeParent();
             mono.customerMoveScaleEffect?.SetOriginInstant();
             mono.customerFadeEffect?.SetVisibleInstant(false);
             if (mono.customerCanvasGroup != null)
@@ -65,6 +67,7 @@ namespace GameCore.UI
 
         private void PlayCustomerBoardElevator(TweenCallback onComplete = null)
         {
+            BringCustomerLayerToFront();
             mono.customerMoveScaleEffect?.SetOriginInstant();
             mono.customerFadeEffect?.SetVisibleInstant(true);
             if (mono.customerCanvasGroup != null)
@@ -131,6 +134,37 @@ namespace GameCore.UI
 
             mono.imgDialoguePortrait.rectTransform.DOKill();
             mono.imgDialoguePortrait.rectTransform.localRotation = Quaternion.identity;
+        }
+
+
+        private void BringCustomerLayerToFront()
+        {
+            if (mono.customerCanvasGroup == null)
+                return;
+
+            Transform customerTransform = mono.customerCanvasGroup.transform;
+            if (_customerLayerHomeParent == null)
+                _customerLayerHomeParent = customerTransform.parent;
+
+            Transform frontParent = FindChildTransformRecursive(mono.transform, "CenterBand");
+            if (frontParent == null)
+                frontParent = mono.transform;
+
+            if (customerTransform.parent != frontParent)
+                customerTransform.SetParent(frontParent, true);
+
+            customerTransform.SetAsLastSibling();
+        }
+
+
+        private void RestoreCustomerLayerHomeParent()
+        {
+            if (mono.customerCanvasGroup == null || _customerLayerHomeParent == null)
+                return;
+
+            Transform customerTransform = mono.customerCanvasGroup.transform;
+            if (customerTransform.parent != _customerLayerHomeParent)
+                customerTransform.SetParent(_customerLayerHomeParent, true);
         }
 
 
