@@ -10,7 +10,6 @@ namespace GameCore.RefData
         public List<DialogueEffectData> dialogueList;
         public TimeEffectData timeEffect;
         public int needFloor;
-        public TimeEffectData needTime;
 
         protected override void _parseFromString()
         {
@@ -19,7 +18,6 @@ namespace GameCore.RefData
             dialogueList = getList<DialogueEffectData>("dialogueList");
             timeEffect = getEffect<TimeEffectData>("timeEffect");
             needFloor = getInt("needFloor");
-            needTime = getEffect<TimeEffectData>("needTime");
         }
 
         public static readonly string assetPath = "RefData/ExportTxt";
