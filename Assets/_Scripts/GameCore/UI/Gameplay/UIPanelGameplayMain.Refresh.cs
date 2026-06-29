@@ -348,6 +348,9 @@ namespace GameCore.UI
                 optionItem.SetContent(optionDialogueRefData.content);
                 BindDialogueOptionItem(optionItem, index);
             }
+
+            RebuildDialogueOptionLayoutsImmediate();
+            ScheduleDialogueOptionLayoutRebuildNextFrame();
         }
 
 

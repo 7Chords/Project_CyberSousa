@@ -238,6 +238,25 @@ namespace GameCore.UI
             }
 
             _dialogueOptionPrefabReady = true;
+            WarmupDialogueOptionPool();
+        }
+
+
+        private void WarmupDialogueOptionPool(int count = 2)
+        {
+            if (_dialogueOptionItemPrefab == null || mono.dialogueOptionRoot == null)
+                return;
+
+            if (_dialogueOptionItemPool.Count >= count)
+                return;
+
+            bool rootWasActive = mono.dialogueOptionRoot.gameObject.activeSelf;
+            mono.dialogueOptionRoot.gameObject.SetActive(true);
+            while (_dialogueOptionItemPool.Count < count)
+                GetOrCreateDialogueOptionItem(_dialogueOptionItemPool.Count);
+
+            HideAllDialogueOptionItems();
+            mono.dialogueOptionRoot.gameObject.SetActive(rootWasActive);
         }
 
 
@@ -259,11 +278,40 @@ namespace GameCore.UI
                 }
 
                 optionItem.EnsureReferences();
-                optionItem.gameObject.SetActive(false);
                 _dialogueOptionItemPool.Add(optionItem);
             }
 
             return _dialogueOptionItemPool[index];
+        }
+
+
+        private void RebuildDialogueOptionLayoutsImmediate()
+        {
+            if (mono.dialogueOptionRoot == null)
+                return;
+
+            for (int index = 0; index < _dialogueOptionItemPool.Count; index++)
+            {
+                UIMonoDialogueOption optionItem = _dialogueOptionItemPool[index];
+                if (optionItem != null && optionItem.gameObject.activeSelf)
+                    optionItem.RefreshLayout();
+            }
+
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(mono.dialogueOptionRoot);
+        }
+
+
+        private void ScheduleDialogueOptionLayoutRebuildNextFrame()
+        {
+            _dialogueCoroutineContainer.RunExclusive(RebuildDialogueOptionLayoutNextFrame(), "dialogue_option_layout");
+        }
+
+
+        private System.Collections.IEnumerator RebuildDialogueOptionLayoutNextFrame()
+        {
+            yield return null;
+            RebuildDialogueOptionLayoutsImmediate();
         }
 
 

@@ -27,6 +27,26 @@ namespace GameCore.UI
             EnsureReferences();
             if (txtContent != null)
                 txtContent.text = content ?? string.Empty;
+
+            RefreshLayout();
+        }
+
+        public void RefreshLayout()
+        {
+            EnsureReferences();
+            if (txtContent != null)
+            {
+                txtContent.SetAllDirty();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(txtContent.rectTransform);
+
+                RectTransform textLayoutRoot = txtContent.transform.parent as RectTransform;
+                if (textLayoutRoot != null)
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(textLayoutRoot);
+            }
+
+            RectTransform rootRect = transform as RectTransform;
+            if (rootRect != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
         }
     }
 }
