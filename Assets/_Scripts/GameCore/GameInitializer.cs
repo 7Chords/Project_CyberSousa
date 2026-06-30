@@ -17,7 +17,19 @@ namespace GameCore
 
         private void OnDestroy()
         {
+            SaveCurrentProgressIfNeeded();
             Discard();
+        }
+
+        private void OnApplicationQuit()
+        {
+            SaveCurrentProgressIfNeeded();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            if (pauseStatus)
+                SaveCurrentProgressIfNeeded();
         }
 
         public override void OnInitialize()
@@ -61,6 +73,11 @@ namespace GameCore
         private void startGame()
         {
             GameFlowController.instance.EnterMainMenu();
+        }
+
+        private static void SaveCurrentProgressIfNeeded()
+        {
+            UIPanelGameplayMain.SaveCurrentDayProgressIfActive();
         }
     }
 }
