@@ -23,7 +23,7 @@
 1021	那拉	哎，那就好办了	STANDARD	NONE	1022	0	*
 1022	那拉	别紧张！我可不是那种会欺负新朋友的守法好喵。	STANDARD	NONE	1023	0	*
 1023	那拉	我懂我懂。我报楼数，你按按钮，然后你拿工资，我假装这是我的选择，非常顺利的一场交流。	STANDARD	NONE	1024	0	*
-1024	那拉	那我们开始吧！我要去四楼!	STANDARD	NONE	1025	0	*
+1024	那拉	那我们开始吧！我要去八楼!	STANDARD	NONE	1025	0	*
 1025	那拉	诶，你怎么不按？	STANDARD	NONE	1026;1027	0	*
 1026	玩家	指出楼层错误	SELECT	NONE	1028	0	*
 1027	玩家	沉默	SELECT	NONE	1032	0	*
@@ -33,7 +33,7 @@
 1031	那拉	虽然表说我该回六楼，之前的按键员都很有人情味，或者很困，总之他们会让我上去。	STANDARD	END	0	0	*
 1032	那拉	...	STANDARD	NONE	1033	0	*
 1033	那拉	喂，不要不理我，这是你的心理战术？	STANDARD	NONE	1034	0	*
-1034	那拉	四楼。真的。我有很重要的事。	STANDARD	NONE	1035	0	*
+1034	那拉	八楼。真的。我有很重要的事。	STANDARD	NONE	1035	0	*
 1035	那拉	好吧，也没那么重要。就是去找一棵树吵架。	STANDARD	NONE	1036	0	*
 1036	那拉	不对，不是吵架，是对她未经许可发表本人命运预测这件事进行售后咨询。	STANDARD	END	0	0	*
 1037	柏南	八楼。	STANDARD	BEGIN	1038	0	*
@@ -334,7 +334,7 @@
 1332	考考	晚上好。	STANDARD	BEGIN	1333	0	*
 1333	考考	我要去七层。	STANDARD	END	0	0	*
 1334	考考	晚上好。	STANDARD	BEGIN	1335	0	*
-1335	考考	我要去x层。	STANDARD	NONE	1336	0	*
+1335	考考	我要去七层。	STANDARD	NONE	1336	0	*
 1336	考考	哎，其实昨天店里吵了一架。	STANDARD	NONE	1337	0	*
 1337	考考	老板说，剩下的面包只能留给第二天早班的人。	STANDARD	NONE	1338	0	*
 1338	考考	另一个人说，面包应该给更需要的人。	STANDARD	NONE	1339	0	*
@@ -425,17 +425,17 @@
 1423	阿莉	也不问大象愿不愿意。	STANDARD	NONE	1424	0	*
 1424	阿莉	脑筋急转弯真坏。	STANDARD	END	0	0	*
 1425	考考	晚上好。	STANDARD	BEGIN	1426	0	*
-1426	考考	我要去x层（那拉层）。	STANDARD	NONE	1427	0	*
+1426	考考	我要去七层。	STANDARD	NONE	1427	0	*
 1427	考考	今天的按键员看着很精神呢。	STANDARD	END	0	0	*
 1428	考考	晚上好。	STANDARD	BEGIN	1429	0	*
-1429	考考	我要去x层（那拉层）。	STANDARD	NONE	1430	0	*
+1429	考考	我要去七层。	STANDARD	NONE	1430	0	*
 1430	考考	本来想用员工价把今天的面包买下。	STANDARD	NONE	1431	0	*
 1431	考考	但是老板听说我是要给一个无家可归的猫。	STANDARD	NONE	1432	0	*
 1432	考考	又同意我把面包带走了。	STANDARD	NONE	1433	0	*
 1433	考考	嗯，今天除了面包，其实兜里还有一些别的。	STANDARD	NONE	1434	0	*
 1434	考考	这些东西对我，只是身外之物了。	STANDARD	NONE	1435;1436	0	*
-1435	玩家	你是要去找那拉吗？。	SELECT	NONE	1437	0	*
-1436	玩家	发生什么了？	SELECT	NONE	1449	0	*
+1435	玩家	你为什么对那拉这么好？	SELECT	NONE	1437	0	*
+1436	玩家	好吧，但是发生什么了？	SELECT	NONE	1449	0	*
 1437	考考	嗯...我想把这些东西给她。	STANDARD	NONE	1438	0	*
 1438	考考	你想问我为什么对她这么好吧？	STANDARD	NONE	1439	0	*
 1439	考考	所有人都说我人好。	STANDARD	NONE	1440	0	*
@@ -672,3 +672,6 @@
 1670	阿莉	藏到今天。	STANDARD	NONE	1671	0	*
 1671	阿莉	明天或许还要再把这个故事讲一遍给管理员吧。	STANDARD	NONE	1672	0	*
 1672	阿莉	如果能获得同情的话。	STANDARD	END	0	0	*
+1673	考考	晚上好。	STANDARD	BEGIN	1674	0	*
+1674	考考	今天也辛苦啦。	STANDARD	NONE	1675	0	*
+1675	考考	送我上七楼吧。	STANDARD	END	0	0	*

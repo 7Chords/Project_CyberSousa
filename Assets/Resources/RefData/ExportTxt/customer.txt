@@ -1,9 +1,9 @@
 ﻿id	customerName	customerInfoList	customerTagList	needList	portraitFrontResName	portraitBackResName
 ~id	~住户名	~信息列表	~住户标签列表	~需求列表（旧格式：levelId:needId[:GREATER/LESS/SELECTED/NOT_SELECTED:值]；送达条件格式：levelId:needId:CUSTOMER_DELIVERED_TO_FLOOR/CUSTOMER_NOT_DELIVERED_TO_FLOOR:住户id:楼层；从左到右先命中先生效）	~正面立绘资源名	~背面立绘资源名
 				~GREATER=当前住户好感度大于值；LESS=当前住户好感度小于值；SELECTED=玩家历史上选中过该对话选项id；NOT_SELECTED=玩家历史上未选中过该对话选项id；CUSTOMER_DELIVERED_TO_FLOOR=指定住户历史上实际被送到过该楼层；CUSTOMER_NOT_DELIVERED_TO_FLOOR=指定住户历史上从未实际被送到过该楼层。		
-1001	阿莉	白鼬外形，可带翅膀，身上有修理通风管留下的脏污，背着工具箱	WEASEL	1001:2005;1004:2020;1005:2029:GREATER:120;1005:2028:LESS:121	01-1	01-2
-1002	考考	温柔，穿围裙，围裙上有口袋	APRON	1001:2001;1002:2006;1004:2017:DIALOGUE_SELECTED:1246;1004:2016:DIALOGUE_NOT_SELECTED:1246;1005:2022:DIALOGUE_SELECTED:1246;1005:2021:DIALOGUE_NOT_SELECTED:1246	02-1	02-2
-1003	那拉	外形狡黠，带雷霆镜框或外星人帽子等夸张装饰	TRICKSTER	1001:2002;1003:2013;1005:2025:DIALOGUE_SELECTED:1246;1005:2024:DIALOGUE_NOT_SELECTED:1246	03-1	03-2
+1001	阿莉	白鼬外形，可带翅膀，身上有修理通风管留下的脏污，背着工具箱	WEASEL	1001:2005;1004:2020;1005:2028	01-1	01-2
+1002	考考	温柔，穿围裙，围裙上有口袋	APRON	1001:2001;1002:2006;1004:2016;1005:2021	02-1	02-2
+1003	那拉	外形狡黠，带雷霆镜框或外星人帽子等夸张装饰	TRICKSTER	1001:2002;1003:2013;1005:2024	03-1	03-2
 1004	来福	有蓬松尾巴，笑容热情，背鼓棒包;团结者与开心果	*	1002:2008;1003:2014;1005:2026	04-1	04-2
 1005	柏南	树形外貌，带女巫帽等女巫象征;浑水摸鱼的搅局者	*	1001:2003;1003:2011;1004:2018	05-1	05-2
 1006	小维	外层有贝壳，机械轮式底座贴着展览标签;沉默的实干者	*	1001:2004;1002:2007;1003:2012;1005:2027	06-1	06-2
