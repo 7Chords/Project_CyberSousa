@@ -226,10 +226,13 @@ namespace GameCore.UI
             int fromFloor = _currentFloor;
             if (fromFloor != targetFloor)
             {
+                _isFloorDisplayAnimating = true;
                 GameTimeMgr.instance.PlayElevatorTravelAdvance(ElevatorTravelAnimDuration);
                 Tween floorTween = AnimateFloorTextSequence(fromFloor, targetFloor, ElevatorTravelAnimDuration);
                 if (floorTween != null)
                     sequence.Join(floorTween);
+                else
+                    _isFloorDisplayAnimating = false;
 
                 Tween shakeTween = mono.elevatorView?.PlayTravelShake();
                 if (shakeTween != null)
@@ -239,8 +242,8 @@ namespace GameCore.UI
             sequence.AppendInterval(0.08f);
             sequence.AppendCallback(() =>
             {
-                _currentFloor = targetFloor;
-                RefreshFloorUi();
+                _isFloorDisplayAnimating = false;
+                SetCurrentFloorDisplayInstant(targetFloor);
                 onComplete?.Invoke();
             });
         }
@@ -253,6 +256,8 @@ namespace GameCore.UI
 
             if (fromFloor == toFloor || mono.txtCurrentFloor == null)
                 return null;
+
+            mono.txtCurrentFloor.text = $"{fromFloor}";
 
             int direction = fromFloor < toFloor ? 1 : -1;
             int stepCount = Mathf.Abs(toFloor - fromFloor);

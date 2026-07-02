@@ -136,12 +136,14 @@ namespace GameCore.UI
             ClearCurrentCustomerState();
             if (_pendingCustomers.Count == 0)
             {
+                _isTransitionPlaying = false;
                 ShowDayCompleteState();
                 return;
             }
 
             if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData, out TimeEffectData nextNeedTime))
             {
+                _isTransitionPlaying = false;
                 ShowDayCompleteState();
                 return;
             }
@@ -474,8 +476,6 @@ namespace GameCore.UI
                             CloseElevatorDoor(() =>
                             {
                                 FinishCurrentCustomerService();
-                                _isTransitionPlaying = false;
-                                RefreshAllUi();
                             });
                         };
 

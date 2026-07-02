@@ -76,6 +76,8 @@ namespace GameCore.UI
                 return null;
             }
 
+            SetTextInstant($"{fromFloor}");
+
             int direction = fromFloor < toFloor ? 1 : -1;
             int stepCount = Mathf.Abs(toFloor - fromFloor);
             float stepDuration = totalDuration / stepCount;

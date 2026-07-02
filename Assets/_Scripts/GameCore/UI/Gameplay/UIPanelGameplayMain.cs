@@ -50,6 +50,7 @@ namespace GameCore.UI
         private bool _canCloseDoor;
         private bool _isSettlementShowing;
         private bool _isTransitionPlaying;
+        private bool _isFloorDisplayAnimating;
         private bool _isCustomerInfoVisible;
         private bool _hasInitializedRuntime;
         private bool _hasRunEnded;

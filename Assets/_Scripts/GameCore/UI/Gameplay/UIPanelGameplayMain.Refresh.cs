@@ -24,7 +24,12 @@ namespace GameCore.UI
 
         private void RefreshFloorUi()
         {
-            if (mono.txtCurrentFloor != null)
+            if (_isFloorDisplayAnimating)
+                return;
+
+            if (mono.floorTextEffect != null)
+                mono.floorTextEffect.SetTextInstant($"{_currentFloor}");
+            else if (mono.txtCurrentFloor != null)
                 mono.txtCurrentFloor.text = $"{_currentFloor}";
 
             if (mono.txtTime != null)
