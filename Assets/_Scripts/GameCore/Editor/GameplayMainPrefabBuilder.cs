@@ -98,6 +98,7 @@ namespace GameCore.Editor
         private static void CreateRightColumn(RectTransform rightBand, UIMonoGameplayMain mono)
         {
             mono.txtTime = CreateTextPanel("TimePanel", rightBand, new Vector2(0.15f, 0.87f), new Vector2(0.92f, 0.95f), "10 : 29（时间）", 28, TextAnchor.MiddleCenter, FontStyle.Bold);
+            mono.txtPerformance = CreateTextPanel("PerformancePanel", rightBand, new Vector2(0.15f, 0.81f), new Vector2(0.92f, 0.86f), "绩效值：100/100", 22, TextAnchor.MiddleCenter, FontStyle.Bold);
             mono.txtAnimalInfo = CreateTextPanel("AnimalInfoPanel", rightBand, new Vector2(0.15f, 0.68f), new Vector2(0.92f, 0.80f), "动物扫脸信息", 30, TextAnchor.MiddleCenter, FontStyle.Bold);
 
             RectTransform animalChoiceSection = CreateContainer("AnimalChoiceSection", rightBand, new Vector2(0.18f, 0.26f), new Vector2(0.92f, 0.64f));

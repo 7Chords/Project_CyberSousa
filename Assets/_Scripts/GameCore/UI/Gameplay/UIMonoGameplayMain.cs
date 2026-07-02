@@ -11,6 +11,7 @@ namespace GameCore.UI
         public Text txtDialogueLeft;
         public Text txtDialogueRight;
         public Text txtTime;
+        public Text txtPerformance;
         public Text txtAnimalInfo;
         public Text txtBottomHint;
         public Button btnOption1;

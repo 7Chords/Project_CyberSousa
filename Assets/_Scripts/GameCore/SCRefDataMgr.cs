@@ -10,10 +10,26 @@ namespace GameCore
     {
 
         public SCRefDataList<ItemRefData> itemRefList;
+        public SCRefDataList<GameplayConfigRefData> gameplayConfigRefList;
+
+        public GameplayConfigRefData gameplayConfig
+        {
+            get
+            {
+                if (gameplayConfigRefList == null || gameplayConfigRefList.refDataList == null || gameplayConfigRefList.refDataList.Count <= 0)
+                    return null;
+
+                return gameplayConfigRefList.refDataList[0];
+            }
+        }
+
         public override void OnInitialize()
         {
             itemRefList = new SCRefDataList<ItemRefData>(ItemRefData.assetPath, ItemRefData.sheetName);
             itemRefList.readFromTxt();
+
+            gameplayConfigRefList = new SCRefDataList<GameplayConfigRefData>(GameplayConfigRefData.assetPath, GameplayConfigRefData.sheetName);
+            gameplayConfigRefList.readFromTxt();
         }
     }
 }
