@@ -54,7 +54,10 @@ namespace GameCore.UI
             }
 
             _pendingCustomers.Dequeue();
-            SpawnCustomer(customerRefData, needRefData, pendingCustomerData.needTime);
+            EnsureElevatorDoorOpenForCustomer(() =>
+            {
+                SpawnCustomer(customerRefData, needRefData, pendingCustomerData.needTime);
+            });
         }
 
 

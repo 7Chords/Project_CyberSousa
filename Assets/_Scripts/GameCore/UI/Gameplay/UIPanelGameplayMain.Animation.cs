@@ -14,6 +14,18 @@ namespace GameCore.UI
         }
 
 
+        private void EnsureElevatorDoorOpenForCustomer(TweenCallback onComplete = null)
+        {
+            if (mono.elevatorView != null && mono.elevatorView.IsDoorOpen())
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            OpenElevatorDoor(onComplete);
+        }
+
+
         public void CloseElevatorDoor(TweenCallback onComplete = null)
         {
             Tween tween = mono.elevatorView?.PlayClose(onComplete);

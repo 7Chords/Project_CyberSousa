@@ -36,6 +36,8 @@ namespace GameCore.UI
             cachePositions();
         }
 
+        public bool IsOpen => _isOpen;
+
         public void SetClosedInstant()
         {
             _isOpen = false;

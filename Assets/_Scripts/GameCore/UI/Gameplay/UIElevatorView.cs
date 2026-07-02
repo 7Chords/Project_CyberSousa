@@ -61,6 +61,24 @@ namespace GameCore.UI
             doorEffect?.SetClosedInstant();
         }
 
+        public bool IsDoorOpen()
+        {
+            EnsureReferences();
+            return doorEffect != null && doorEffect.IsOpen;
+        }
+
+        public void EnsureDoorOpen(TweenCallback onComplete = null)
+        {
+            EnsureReferences();
+            if (doorEffect != null && doorEffect.IsOpen)
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            PlayOpen(onComplete);
+        }
+
         public Tween PlayTravelShake()
         {
             EnsureReferences();
