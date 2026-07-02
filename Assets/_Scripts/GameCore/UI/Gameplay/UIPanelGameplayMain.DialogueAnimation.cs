@@ -2,6 +2,7 @@ using System.Collections;
 using DG.Tweening;
 using SCFrame;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace GameCore.UI
 {
@@ -10,7 +11,7 @@ namespace GameCore.UI
         private const string DialogueOptionPresentationCoroutineName = "dialogue_option_presentation";
         private const float CustomerDialogueScaleDuration = 0.28f;
         private const float CustomerDialogueStartScale = 0.72f;
-        private const float PlayerDialogueMoveDuration = 0.5f;
+        private const float PlayerDialogueMoveDuration = 0.30f;
         private const float PlayerDialogueEnterOffsetY = -48f;
         private const float DialogueOptionEnterDuration = 0.24f;
         private const float DialogueOptionEnterStagger = 0.08f;
@@ -18,11 +19,13 @@ namespace GameCore.UI
 
         private readonly TweenContainer _dialogueAnimTweenContainer = new TweenContainer();
         private bool _hasCustomerDialogueStripShown;
-        private long _lastPlayerDialogueAnimLineId;
+        private bool _hasPlayerDialogueStripShown;
         private long _lastOptionEnterAnimSourceLineId;
-        private bool _dialogueStripOriginCached;
+        private bool _customerDialogueOriginCached;
         private Vector3 _customerDialogueOriginScale = Vector3.one;
         private Vector2 _playerDialogueOriginPos;
+        private bool _playerDialogueOriginReady;
+        private CanvasGroup _playerDialogueCanvasGroup;
 
         private void PlayCustomerDialogueEnterAnimation()
         {
@@ -30,7 +33,7 @@ namespace GameCore.UI
                 return;
 
             _hasCustomerDialogueStripShown = true;
-            CacheDialogueStripOrigins();
+            CacheCustomerDialogueOrigin();
 
             RectTransform rectTransform = mono.dialogueLeftArea.rectTransform;
             rectTransform.DOKill();
@@ -45,21 +48,63 @@ namespace GameCore.UI
 
         private void PlayPlayerDialogueEnterAnimation(long lineId)
         {
-            if (lineId <= 0 || lineId == _lastPlayerDialogueAnimLineId || mono.dialogueRightArea == null)
+            if (lineId <= 0 || mono.dialogueRightArea == null || _hasPlayerDialogueStripShown)
                 return;
 
-            _lastPlayerDialogueAnimLineId = lineId;
-            CacheDialogueStripOrigins();
+            _hasPlayerDialogueStripShown = true;
 
             RectTransform rectTransform = mono.dialogueRightArea.rectTransform;
             rectTransform.DOKill();
             mono.dialogueRightArea.enabled = true;
+            RefreshPlayerDialogueRestPosition();
+
+            CanvasGroup canvasGroup = EnsurePlayerDialogueCanvasGroup();
+            canvasGroup.DOKill();
+            canvasGroup.alpha = 0f;
             rectTransform.anchoredPosition = _playerDialogueOriginPos + new Vector2(0f, PlayerDialogueEnterOffsetY);
-            Tween tween = rectTransform
+
+            Sequence sequence = DOTween.Sequence().SetUpdate(true);
+            sequence.Join(rectTransform
                 .DOAnchorPos(_playerDialogueOriginPos, PlayerDialogueMoveDuration)
-                .SetEase(Ease.OutCubic)
-                .SetUpdate(true);
-            _dialogueAnimTweenContainer.RegDoTween(tween);
+                .SetEase(Ease.OutCubic));
+            sequence.Join(canvasGroup
+                .DOFade(1f, PlayerDialogueMoveDuration)
+                .SetEase(Ease.OutCubic));
+            _dialogueAnimTweenContainer.RegDoTween(sequence);
+        }
+
+        private CanvasGroup EnsurePlayerDialogueCanvasGroup()
+        {
+            if (_playerDialogueCanvasGroup != null)
+                return _playerDialogueCanvasGroup;
+
+            if (mono.dialogueRightArea == null)
+                return null;
+
+            _playerDialogueCanvasGroup = mono.dialogueRightArea.GetComponent<CanvasGroup>();
+            if (_playerDialogueCanvasGroup == null)
+                _playerDialogueCanvasGroup = mono.dialogueRightArea.gameObject.AddComponent<CanvasGroup>();
+
+            return _playerDialogueCanvasGroup;
+        }
+
+        private void RefreshPlayerDialogueRestPosition()
+        {
+            if (mono.dialogueRightArea == null)
+                return;
+
+            RectTransform rectTransform = mono.dialogueRightArea.rectTransform;
+            Canvas.ForceUpdateCanvases();
+            if (mono.dialogueSection != null)
+            {
+                RectTransform dialogueSectionRect = mono.dialogueSection.transform as RectTransform;
+                if (dialogueSectionRect != null)
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(dialogueSectionRect);
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
+            _playerDialogueOriginPos = rectTransform.anchoredPosition;
+            _playerDialogueOriginReady = true;
         }
 
         private void ScheduleDialogueOptionPresentation(long sourceLineId)
@@ -117,23 +162,36 @@ namespace GameCore.UI
             }
         }
 
-        private void CacheDialogueStripOrigins()
+        private void CacheCustomerDialogueOrigin()
         {
-            if (_dialogueStripOriginCached)
+            if (_customerDialogueOriginCached || mono.dialogueLeftArea == null)
                 return;
 
-            if (mono.dialogueLeftArea != null)
-                _customerDialogueOriginScale = mono.dialogueLeftArea.rectTransform.localScale;
+            _customerDialogueOriginScale = mono.dialogueLeftArea.rectTransform.localScale;
+            _customerDialogueOriginCached = true;
+        }
 
-            if (mono.dialogueRightArea != null)
-                _playerDialogueOriginPos = mono.dialogueRightArea.rectTransform.anchoredPosition;
+        private void ResetPlayerDialogueStripInstant()
+        {
+            if (mono.dialogueRightArea == null)
+                return;
 
-            _dialogueStripOriginCached = true;
+            RectTransform rectTransform = mono.dialogueRightArea.rectTransform;
+            rectTransform.DOKill();
+            if (_playerDialogueOriginReady)
+                rectTransform.anchoredPosition = _playerDialogueOriginPos;
+
+            CanvasGroup canvasGroup = _playerDialogueCanvasGroup;
+            if (canvasGroup != null)
+            {
+                canvasGroup.DOKill();
+                canvasGroup.alpha = 1f;
+            }
         }
 
         private void ResetDialogueStripTransforms()
         {
-            CacheDialogueStripOrigins();
+            CacheCustomerDialogueOrigin();
             if (mono.dialogueLeftArea != null)
             {
                 RectTransform rectTransform = mono.dialogueLeftArea.rectTransform;
@@ -141,12 +199,7 @@ namespace GameCore.UI
                 rectTransform.localScale = _customerDialogueOriginScale;
             }
 
-            if (mono.dialogueRightArea != null)
-            {
-                RectTransform rectTransform = mono.dialogueRightArea.rectTransform;
-                rectTransform.DOKill();
-                rectTransform.anchoredPosition = _playerDialogueOriginPos;
-            }
+            ResetPlayerDialogueStripInstant();
         }
 
         private void ResetDialogueOptionItemPresentStates()
@@ -175,7 +228,8 @@ namespace GameCore.UI
             _dialogueAnimTweenContainer.KillAllDoTween();
             _dialogueCoroutineContainer.Kill(DialogueOptionPresentationCoroutineName);
             _hasCustomerDialogueStripShown = false;
-            _lastPlayerDialogueAnimLineId = 0;
+            _hasPlayerDialogueStripShown = false;
+            _playerDialogueOriginReady = false;
             _lastOptionEnterAnimSourceLineId = 0;
             ResetDialogueStripTransforms();
             ResetDialogueOptionItemPresentStates();

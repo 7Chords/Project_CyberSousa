@@ -159,6 +159,11 @@ namespace GameCore.UI
                 bool hasRightContent = !string.IsNullOrEmpty(mono.txtDialogueRight?.text)
                     || (_isDialogueTypewriterPlaying && _activeDialogueTypewriterText == mono.txtDialogueRight);
                 mono.dialogueRightArea.enabled = hasRightContent;
+                if (!hasRightContent)
+                {
+                    _hasPlayerDialogueStripShown = false;
+                    ResetPlayerDialogueStripInstant();
+                }
             }
         }
 
