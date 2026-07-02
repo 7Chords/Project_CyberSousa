@@ -134,6 +134,7 @@ namespace GameCore.UI
             // TODO: 这里可以接 CustomerNeedMgr.EvaluateDialogue，根据当前好感度触发额外需求对话。
 
             RefreshAllUi();
+            TryStartFirstCustomerGuide();
         }
 
 

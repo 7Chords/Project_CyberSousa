@@ -62,6 +62,7 @@ namespace GameCore.UI
         private int _perfectOperationBonus = DefaultPerfectOperationBonus;
         private bool _hasConfirmedCurrentCustomer;
         private bool _hasCurrentOperationProblem;
+        private bool _hasPlayedFirstCustomerGuide;
         private string _serviceFeedbackText;
         private string _ruleFeedbackText;
         private string _activePortraitResName;

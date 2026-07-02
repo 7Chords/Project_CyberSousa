@@ -77,6 +77,13 @@ namespace GameCore.UI
 
         private void OnNumberButtonClicked(PointerEventData eventData, object[] args)
         {
+            Button clickedButton = ResolveClickedButton(eventData);
+            if (IsBlockedByGuide(clickedButton?.transform as RectTransform))
+            {
+                SCDebugHelper.Log("请先按照当前引导操作。");
+                return;
+            }
+
             if (_isDialogueRunning)
             {
                 SCDebugHelper.Log("当前对话未结束，暂时不能选楼层。");
@@ -89,7 +96,6 @@ namespace GameCore.UI
                 return;
             }
 
-            Button clickedButton = ResolveClickedButton(eventData);
             if (clickedButton == null)
             {
                 Debug.LogError("Gameplay 选楼失败：未获取到点击的楼层按钮。");
@@ -102,11 +108,18 @@ namespace GameCore.UI
             _ruleFeedbackText = null;
             SCDebugHelper.Log($"点击动物编号按钮：{clickedButton.name}，当前选择楼层={_selectedFloor}");
             RefreshAllUi();
+            AdvanceGuideAfterFloorSelected(_selectedFloor);
         }
 
 
         private void OnConfirmClicked(PointerEventData eventData, object[] args)
         {
+            if (IsBlockedByGuide(mono.btnConfirm?.transform as RectTransform))
+            {
+                SCDebugHelper.Log("请先按照当前引导操作。");
+                return;
+            }
+
             if (_isDialogueRunning)
             {
                 SCDebugHelper.Log("当前对话未结束，无法确认。");
@@ -138,11 +151,18 @@ namespace GameCore.UI
                 GamePlayerDataMgr.instance.MarkFinalSpecialCustomerConfirmed();
 
             RefreshAllUi();
+            AdvanceGuideAfterConfirm();
         }
 
 
         private void OnSettingClicked(PointerEventData eventData, object[] args)
         {
+            if (_guideStep != GameplayGuideStep.None && _guideStep != GameplayGuideStep.Finished)
+            {
+                SCDebugHelper.Log("当前引导未完成，暂时不能打开设置。");
+                return;
+            }
+
             UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, true));
         }
 
@@ -229,6 +249,12 @@ namespace GameCore.UI
 
         private void OnRejectClicked(PointerEventData eventData, object[] args)
         {
+            if (_guideStep != GameplayGuideStep.None && _guideStep != GameplayGuideStep.Finished)
+            {
+                SCDebugHelper.Log("当前引导未完成，暂时不能拒绝。");
+                return;
+            }
+
             if (_isDialogueRunning)
             {
                 SCDebugHelper.Log("当前对话未结束，暂时不能拒绝。");
@@ -269,6 +295,12 @@ namespace GameCore.UI
 
         private void OnCloseDoorClicked(PointerEventData eventData, object[] args)
         {
+            if (IsBlockedByGuide(mono.btnCloseDoor?.transform as RectTransform))
+            {
+                SCDebugHelper.Log("请先按照当前引导操作。");
+                return;
+            }
+
             if (_isDialogueRunning)
             {
                 SCDebugHelper.Log("当前对话未结束，暂时不能关门。");
@@ -304,6 +336,7 @@ namespace GameCore.UI
             if (_canCloseDoor)
             {
                 int targetFloor = ResolveCustomerDepartureFloor();
+                AdvanceGuideAfterCloseDoor();
                 StartCustomerDepartureFlow(targetFloor, false);
                 return;
             }
@@ -327,6 +360,7 @@ namespace GameCore.UI
                 ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
                 SCDebugHelper.Log($"已关门前往 {finalFloor} 楼，影响值={_lastJudgmentEffectData.affectValue}");
                 RefreshAllUi();
+                AdvanceGuideAfterCloseDoor();
                 StartCustomerDepartureFlow(finalFloor, true);
                 return;
             }
