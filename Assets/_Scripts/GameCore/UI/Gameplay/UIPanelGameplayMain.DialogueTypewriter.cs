@@ -62,6 +62,7 @@ namespace GameCore.UI
                     yield break;
 
                 targetText.text = fullText.Substring(0, charCount);
+                PlayDialogueTextTickAnimation(targetText, fullText[charCount - 1]);
                 UpdateDialogueStripVisibility();
                 yield return new WaitForSecondsRealtime(DialogueTypewriterCharInterval);
             }
@@ -82,16 +83,21 @@ namespace GameCore.UI
         {
             _dialogueCoroutineContainer.Kill(DialogueTypewriterCoroutineName);
             if (_activeDialogueTypewriterText != null)
+            {
+                KillDialogueTextAnimation(_activeDialogueTypewriterText);
                 _activeDialogueTypewriterText.text = _activeDialogueTypewriterFullText ?? string.Empty;
+            }
 
             FinishDialogueTypewriter();
         }
 
         private void FinishDialogueTypewriter()
         {
+            Text completeText = _activeDialogueTypewriterText;
             _isDialogueTypewriterPlaying = false;
             _activeDialogueTypewriterText = null;
             _activeDialogueTypewriterFullText = null;
+            PlayDialogueTextCompleteAnimation(completeText);
             UpdateDialogueStripVisibility();
             RefreshDialogueAdvanceClickArea();
             RefreshDialogueOptionUi();
@@ -129,6 +135,10 @@ namespace GameCore.UI
             _activeDialogueTypewriterText = null;
             _activeDialogueTypewriterFullText = null;
             _dialogueTypewriterLineId = 0;
+            if (mono.txtDialogueLeft != null)
+                KillDialogueTextAnimation(mono.txtDialogueLeft);
+            if (mono.txtDialogueRight != null)
+                KillDialogueTextAnimation(mono.txtDialogueRight);
         }
 
         private void StopDialogueTypewriter()

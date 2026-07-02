@@ -41,6 +41,8 @@ namespace GameCore.UI
 
             if (travelShakeEffect == null)
                 travelShakeEffect = GetComponent<UITravelShakeEffect>();
+
+            travelShakeEffect?.SetShakeRoot(elevatorRoot);
         }
 
         public Tween PlayOpen(TweenCallback onComplete = null)
@@ -81,8 +83,13 @@ namespace GameCore.UI
 
         public Tween PlayTravelShake()
         {
+            return PlayTravelShake(-1f);
+        }
+
+        public Tween PlayTravelShake(float travelDuration)
+        {
             EnsureReferences();
-            return travelShakeEffect?.Play();
+            return travelDuration > 0f ? travelShakeEffect?.Play(travelDuration) : travelShakeEffect?.Play();
         }
     }
 }

@@ -16,6 +16,10 @@ namespace GameCore.UI
         private const float DialogueOptionEnterDuration = 0.24f;
         private const float DialogueOptionEnterStagger = 0.08f;
         private const float DialogueOptionEnterOffsetX = 72f;
+        private const float DialogueTextTickDuration = 0.10f;
+        private const float DialogueTextTickOffsetY = 4f;
+        private const float DialogueTextPunctuationPunch = 1.035f;
+        private const float DialogueTextCompleteDuration = 0.16f;
 
         private readonly TweenContainer _dialogueAnimTweenContainer = new TweenContainer();
         private bool _hasCustomerDialogueStripShown;
@@ -26,6 +30,12 @@ namespace GameCore.UI
         private Vector2 _playerDialogueOriginPos;
         private bool _playerDialogueOriginReady;
         private CanvasGroup _playerDialogueCanvasGroup;
+        private bool _leftDialogueTextOriginReady;
+        private bool _rightDialogueTextOriginReady;
+        private Vector2 _leftDialogueTextOriginPos;
+        private Vector2 _rightDialogueTextOriginPos;
+        private Vector3 _leftDialogueTextOriginScale = Vector3.one;
+        private Vector3 _rightDialogueTextOriginScale = Vector3.one;
 
         private void PlayCustomerDialogueEnterAnimation()
         {
@@ -162,6 +172,147 @@ namespace GameCore.UI
             }
         }
 
+        private void PlayDialogueTextTickAnimation(Text targetText, char typedChar)
+        {
+            if (targetText == null || char.IsWhiteSpace(typedChar))
+                return;
+
+            RectTransform rectTransform = targetText.rectTransform;
+            if (rectTransform == null)
+                return;
+
+            CacheDialogueTextOrigin(targetText);
+            ResetDialogueTextTransform(targetText);
+
+            bool isPunctuation = IsDialoguePunctuation(typedChar);
+            rectTransform.DOKill();
+            Sequence sequence = DOTween.Sequence().SetUpdate(true);
+            sequence.Append(rectTransform
+                .DOAnchorPos(GetDialogueTextOriginPos(targetText) + Vector2.up * DialogueTextTickOffsetY, DialogueTextTickDuration * 0.45f)
+                .SetEase(Ease.OutQuad));
+            sequence.Append(rectTransform
+                .DOAnchorPos(GetDialogueTextOriginPos(targetText), DialogueTextTickDuration * 0.55f)
+                .SetEase(Ease.OutCubic));
+            if (isPunctuation)
+            {
+                sequence.Join(rectTransform
+                    .DOPunchScale(Vector3.one * (DialogueTextPunctuationPunch - 1f), DialogueTextTickDuration * 1.35f, 4, 0.45f)
+                    .SetEase(Ease.OutQuad));
+            }
+
+            sequence.OnKill(() => ResetDialogueTextTransform(targetText));
+            _dialogueAnimTweenContainer.RegDoTween(sequence);
+        }
+
+        private void PlayDialogueTextCompleteAnimation(Text targetText)
+        {
+            if (targetText == null || string.IsNullOrEmpty(targetText.text))
+                return;
+
+            RectTransform rectTransform = targetText.rectTransform;
+            if (rectTransform == null)
+                return;
+
+            CacheDialogueTextOrigin(targetText);
+            ResetDialogueTextTransform(targetText);
+
+            rectTransform.DOKill();
+            Sequence sequence = DOTween.Sequence().SetUpdate(true);
+            sequence.Append(rectTransform
+                .DOPunchScale(Vector3.one * 0.025f, DialogueTextCompleteDuration, 5, 0.35f)
+                .SetEase(Ease.OutQuad));
+            sequence.OnKill(() => ResetDialogueTextTransform(targetText));
+            _dialogueAnimTweenContainer.RegDoTween(sequence);
+        }
+
+        private void KillDialogueTextAnimation(Text targetText)
+        {
+            if (targetText == null)
+                return;
+
+            RectTransform rectTransform = targetText.rectTransform;
+            if (rectTransform == null)
+                return;
+
+            rectTransform.DOKill();
+            ResetDialogueTextTransform(targetText);
+        }
+
+        private void CacheDialogueTextOrigin(Text targetText)
+        {
+            if (targetText == null)
+                return;
+
+            RectTransform rectTransform = targetText.rectTransform;
+            if (rectTransform == null)
+                return;
+
+            if (targetText == mono.txtDialogueLeft)
+            {
+                if (_leftDialogueTextOriginReady)
+                    return;
+
+                _leftDialogueTextOriginPos = rectTransform.anchoredPosition;
+                _leftDialogueTextOriginScale = rectTransform.localScale;
+                _leftDialogueTextOriginReady = true;
+                return;
+            }
+
+            if (targetText == mono.txtDialogueRight)
+            {
+                if (_rightDialogueTextOriginReady)
+                    return;
+
+                _rightDialogueTextOriginPos = rectTransform.anchoredPosition;
+                _rightDialogueTextOriginScale = rectTransform.localScale;
+                _rightDialogueTextOriginReady = true;
+            }
+        }
+
+        private Vector2 GetDialogueTextOriginPos(Text targetText)
+        {
+            if (targetText == mono.txtDialogueLeft && _leftDialogueTextOriginReady)
+                return _leftDialogueTextOriginPos;
+            if (targetText == mono.txtDialogueRight && _rightDialogueTextOriginReady)
+                return _rightDialogueTextOriginPos;
+            return targetText.rectTransform.anchoredPosition;
+        }
+
+        private Vector3 GetDialogueTextOriginScale(Text targetText)
+        {
+            if (targetText == mono.txtDialogueLeft && _leftDialogueTextOriginReady)
+                return _leftDialogueTextOriginScale;
+            if (targetText == mono.txtDialogueRight && _rightDialogueTextOriginReady)
+                return _rightDialogueTextOriginScale;
+            return targetText.rectTransform.localScale;
+        }
+
+        private void ResetDialogueTextTransform(Text targetText)
+        {
+            if (targetText == null)
+                return;
+
+            RectTransform rectTransform = targetText.rectTransform;
+            if (rectTransform == null)
+                return;
+
+            rectTransform.anchoredPosition = GetDialogueTextOriginPos(targetText);
+            rectTransform.localScale = GetDialogueTextOriginScale(targetText);
+        }
+
+        private static bool IsDialoguePunctuation(char typedChar)
+        {
+            return typedChar == '，'
+                || typedChar == '。'
+                || typedChar == '！'
+                || typedChar == '？'
+                || typedChar == ','
+                || typedChar == '.'
+                || typedChar == '!'
+                || typedChar == '?'
+                || typedChar == '…';
+        }
+
         private void CacheCustomerDialogueOrigin()
         {
             if (_customerDialogueOriginCached || mono.dialogueLeftArea == null)
@@ -232,6 +383,12 @@ namespace GameCore.UI
             _playerDialogueOriginReady = false;
             _lastOptionEnterAnimSourceLineId = 0;
             ResetDialogueStripTransforms();
+            if (mono.txtDialogueLeft != null)
+                ResetDialogueTextTransform(mono.txtDialogueLeft);
+            if (mono.txtDialogueRight != null)
+                ResetDialogueTextTransform(mono.txtDialogueRight);
+            _leftDialogueTextOriginReady = false;
+            _rightDialogueTextOriginReady = false;
             ResetDialogueOptionItemPresentStates();
         }
     }

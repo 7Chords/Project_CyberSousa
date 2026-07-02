@@ -13,11 +13,15 @@ namespace GameCore.UI
         [SerializeField] private RectTransform leftDoor;
         [SerializeField] private RectTransform rightDoor;
         [SerializeField] private float doorTravelDistance = 110f;
+        [SerializeField] private Vector2 closeFramePunch = new Vector2(7f, 0f);
+        [SerializeField] private Vector2 openFramePunch = new Vector2(0f, 4f);
+        [SerializeField] private float framePunchDuration = 0.14f;
 
         private Vector2 _leftClosedPos;
         private Vector2 _rightClosedPos;
         private Vector2 _leftOpenPos;
         private Vector2 _rightOpenPos;
+        private Vector2 _rootOriginPos;
         private bool _cacheReady;
         private bool _isOpen;
 
@@ -105,6 +109,8 @@ namespace GameCore.UI
             _rightClosedPos = rightDoor.anchoredPosition;
             _leftOpenPos = _leftClosedPos + Vector2.left * doorTravelDistance;
             _rightOpenPos = _rightClosedPos + Vector2.right * doorTravelDistance;
+            if (TargetRect != null)
+                _rootOriginPos = TargetRect.anchoredPosition;
             _cacheReady = true;
         }
 
@@ -117,9 +123,20 @@ namespace GameCore.UI
                 return null;
 
             KillAllTweens();
+            if (TargetRect != null)
+                TargetRect.anchoredPosition = _rootOriginPos;
+
             Sequence sequence = DOTween.Sequence().SetEase(ease);
             sequence.Join(leftDoor.DOAnchorPos(leftTarget, duration).SetEase(ease));
             sequence.Join(rightDoor.DOAnchorPos(rightTarget, duration).SetEase(ease));
+            Vector2 punch = _isOpen ? openFramePunch : closeFramePunch;
+            if (TargetRect != null && punch.sqrMagnitude > 0.01f && framePunchDuration > 0f)
+                sequence.Append(TargetRect.DOPunchAnchorPos(punch, framePunchDuration, 5, 0.45f).SetEase(Ease.OutQuad));
+            sequence.OnKill(() =>
+            {
+                if (TargetRect != null)
+                    TargetRect.anchoredPosition = _rootOriginPos;
+            });
             if (onComplete != null)
                 sequence.OnComplete(onComplete);
             return RegTween(sequence);

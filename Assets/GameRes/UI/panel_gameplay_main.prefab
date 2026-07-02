@@ -3355,6 +3355,9 @@ MonoBehaviour:
   leftDoor: {fileID: 2892354050271438489}
   rightDoor: {fileID: 6994137974480087714}
   doorTravelDistance: 450
+  closeFramePunch: {x: 7, y: 0}
+  openFramePunch: {x: 0, y: 4}
+  framePunchDuration: 0.14
 --- !u!114 &5843388949479056425
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3371,11 +3374,15 @@ MonoBehaviour:
   duration: 0.55
   ease: 6
   useUnscaledTime: 1
+  shakeRoot: {fileID: 0}
   punchStrength: {x: 18, y: 8}
   vibrato: 12
   elasticity: 0.7
   rotationPunch: {x: 0, y: 0, z: 3}
   rotationVibrato: 10
+  cabinShakeMultiplier: 0.45
+  travelScaleMultiplier: 1.015
+  arrivePunchScale: 0.025
 --- !u!114 &114777000000777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4527,7 +4534,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -358.2, y: 285.8}
+  m_AnchoredPosition: {x: -285, y: 29}
   m_SizeDelta: {x: 478.1737, y: 300.6718}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2335477481767301689

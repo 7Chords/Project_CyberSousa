@@ -234,7 +234,7 @@ namespace GameCore.UI
                 else
                     _isFloorDisplayAnimating = false;
 
-                Tween shakeTween = mono.elevatorView?.PlayTravelShake();
+                Tween shakeTween = mono.elevatorView?.PlayTravelShake(ElevatorTravelAnimDuration);
                 if (shakeTween != null)
                     sequence.Join(shakeTween);
             }
