@@ -315,7 +315,7 @@ MonoBehaviour:
   useUnscaledTime: 1
   enableHoverScale: 1
   hoverScale: 1.08
-  enablePressScale: 1
+  enablePressScale: 0
   pressScale: 0.95
 --- !u!114 &6182637299241744406
 MonoBehaviour:

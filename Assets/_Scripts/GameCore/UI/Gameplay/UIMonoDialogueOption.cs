@@ -48,5 +48,15 @@ namespace GameCore.UI
             if (rootRect != null)
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rootRect);
         }
+
+        public RectTransform AnimRoot => transform as RectTransform;
+
+        public CanvasGroup EnsureCanvasGroup()
+        {
+            CanvasGroup canvasGroup = GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+                canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            return canvasGroup;
+        }
     }
 }

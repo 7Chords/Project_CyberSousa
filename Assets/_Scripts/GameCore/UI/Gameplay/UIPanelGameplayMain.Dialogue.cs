@@ -124,8 +124,7 @@ namespace GameCore.UI
 
         private void EndDialogue()
         {
-            StopDialogueTypewriter();
-            ClearPendingDialogueAdvanceAfterPlayerLine();
+            StopDialoguePresentation();
             _isDialogueRunning = false;
             _currentDialogueRefData = null;
             ClearDialogueOptions();
@@ -203,6 +202,7 @@ namespace GameCore.UI
                 _pendingDialogueIdAfterPlayerLine = optionDialogueRefData.nextList[0];
             }
 
+            PlayPlayerDialogueEnterAnimation(optionDialogueRefData.id);
             StartDialogueTypewriter(mono.txtDialogueRight, optionDialogueRefData.content, optionDialogueRefData.id);
             if (mono.txtDialogueLeft != null)
                 mono.txtDialogueLeft.text = string.Empty;
@@ -332,19 +332,6 @@ namespace GameCore.UI
 
             Canvas.ForceUpdateCanvases();
             LayoutRebuilder.ForceRebuildLayoutImmediate(mono.dialogueOptionRoot);
-        }
-
-
-        private void ScheduleDialogueOptionLayoutRebuildNextFrame()
-        {
-            _dialogueCoroutineContainer.RunExclusive(RebuildDialogueOptionLayoutNextFrame(), "dialogue_option_layout");
-        }
-
-
-        private System.Collections.IEnumerator RebuildDialogueOptionLayoutNextFrame()
-        {
-            yield return null;
-            RebuildDialogueOptionLayoutsImmediate();
         }
 
 

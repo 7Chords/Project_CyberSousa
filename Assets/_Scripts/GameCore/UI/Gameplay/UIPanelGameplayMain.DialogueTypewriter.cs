@@ -137,6 +137,12 @@ namespace GameCore.UI
             ClearPendingDialogueAdvanceAfterPlayerLine();
         }
 
+        private void StopDialoguePresentation()
+        {
+            StopDialogueTypewriter();
+            ResetDialogueUiAnimations();
+        }
+
         private void UpdateDialogueStripVisibility()
         {
             if (mono.dialogueLeftArea != null)
@@ -144,6 +150,8 @@ namespace GameCore.UI
                 bool hasLeftContent = !string.IsNullOrEmpty(mono.txtDialogueLeft?.text)
                     || (_isDialogueTypewriterPlaying && _activeDialogueTypewriterText == mono.txtDialogueLeft);
                 mono.dialogueLeftArea.enabled = hasLeftContent;
+                if (!hasLeftContent)
+                    _hasCustomerDialogueStripShown = false;
             }
 
             if (mono.dialogueRightArea != null)
@@ -164,6 +172,11 @@ namespace GameCore.UI
             long lineId = _currentDialogueRefData != null ? _currentDialogueRefData.id : 0;
             if (_dialogueTypewriterLineId == lineId && (_isDialogueTypewriterPlaying || IsDialogueTypewriterComplete(targetText, currentContent)))
                 return;
+
+            if (isPlayerDialogue)
+                PlayPlayerDialogueEnterAnimation(lineId);
+            else
+                PlayCustomerDialogueEnterAnimation();
 
             StartDialogueTypewriter(targetText, currentContent, lineId);
         }

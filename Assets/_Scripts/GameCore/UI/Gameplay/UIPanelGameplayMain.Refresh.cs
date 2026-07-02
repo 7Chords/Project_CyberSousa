@@ -335,13 +335,14 @@ namespace GameCore.UI
             }
 
             RebuildDialogueOptionLayoutsImmediate();
-            ScheduleDialogueOptionLayoutRebuildNextFrame();
+            long optionSourceLineId = _currentDialogueRefData != null ? _currentDialogueRefData.id : _dialogueTypewriterLineId;
+            ScheduleDialogueOptionPresentation(optionSourceLineId);
         }
 
 
         private void HideDialogueTextAndOptions()
         {
-            StopDialogueTypewriter();
+            StopDialoguePresentation();
             mono.txtDialogueLeft.text = string.Empty;
             mono.txtDialogueRight.text = string.Empty;
 

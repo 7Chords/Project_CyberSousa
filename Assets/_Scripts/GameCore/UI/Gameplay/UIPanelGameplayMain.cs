@@ -83,6 +83,7 @@ namespace GameCore.UI
             GameTimeMgr.instance.OnTimeChanged -= OnGameTimeChanged;
             GameTimeMgr.instance.StopAdvanceTween();
             _dialogueCoroutineContainer.KillAll();
+            _dialogueAnimTweenContainer.KillAllDoTween();
             UnbindButtons();
         }
 
