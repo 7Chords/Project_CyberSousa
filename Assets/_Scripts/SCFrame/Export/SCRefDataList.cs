@@ -63,11 +63,14 @@ namespace SCFrame
             string keyLine = lineArray[0];
             for (int i = 1; i < lineArray.Length; i++)
             {
-                string line = lineArray[i];
+                string line = lineArray[i].TrimEnd('\r', '\n', ' ', '\t');
                 if (string.IsNullOrEmpty(line) || SCRefDataCore.isMemoRow(line))
-                {
                     continue;
-                }
+
+                string firstCell = line.Split('\t')[0]?.Trim();
+                if (string.IsNullOrEmpty(firstCell))
+                    continue;
+
                 T dataCore = new T();
                 dataCore.singleParseFormTxt(keyLine, line);
                 _m_refDataList.Add(dataCore);

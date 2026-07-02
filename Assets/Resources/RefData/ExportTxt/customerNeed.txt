@@ -1,4 +1,4 @@
-id	judgmentList	dialogueList	timeEffect	needFloor
+﻿id	judgmentList	dialogueList	timeEffect	needFloor
 ~id	~判断结果列表（操作符:楼层:好感度)	~对话列表（条件:参数:对话开始id）	~处理需求消耗时间（时:分:秒）	~需求处理楼层
 	~GOTO=前往这些楼层时触发；REFUSE=拒绝后触发；DEFAULT=前面都没命中后的默认效果。	~支持 GREATER/LESS/SELECTED/NOT_SELECTED/CUSTOMER_DELIVERED_TO_FLOOR/CUSTOMER_NOT_DELIVERED_TO_FLOOR；GREATER/LESS 填好感度；SELECTED/NOT_SELECTED 填对话选项id；CUSTOMER_DELIVERED_TO_FLOOR/CUSTOMER_NOT_DELIVERED_TO_FLOOR 格式为 住户id:楼层:对话开始id；从左到右先命中先生效。		
 2001	GOTO:7:45;REFUSE:0:-20;DEFAULT:0:-10	GREATER:-999999:1001	0:12:00	1
@@ -32,3 +32,4 @@ id	judgmentList	dialogueList	timeEffect	needFloor
 2029	GOTO:9:45;REFUSE:0:-20;DEFAULT:0:-10	GREATER:-999999:1566	0:12:00	1
 2030	GOTO:9:60;REFUSE:0:-20;DEFAULT:0:-10	GREATER:-999999:1592	0:12:00	1
 2031	GOTO:9:-30;REFUSE:0:-20;DEFAULT:0:-10	GREATER:-999999:1642	0:12:00	1
+				

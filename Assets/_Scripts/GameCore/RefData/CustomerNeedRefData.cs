@@ -17,7 +17,7 @@ namespace GameCore.RefData
             judgmentList = getList<JudgmentEffectData>("judgmentList");
             dialogueList = getList<DialogueEffectData>("dialogueList");
             timeEffect = getEffect<TimeEffectData>("timeEffect");
-            needFloor = getInt("needFloor");
+            needFloor = getInt("needFloor", true);
         }
 
         public static readonly string assetPath = "RefData/ExportTxt";

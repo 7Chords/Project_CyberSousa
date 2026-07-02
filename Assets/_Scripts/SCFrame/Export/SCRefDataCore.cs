@@ -195,12 +195,13 @@ namespace SCFrame
             return result;
         }
 
-        protected int getInt(string _name)
+        protected int getInt(string _name, bool _canNull = false)
         {
             string tempValue = getString(_name);
-            if (string.IsNullOrEmpty(tempValue))
+            if (string.IsNullOrEmpty(tempValue) || tempValue == EXCEL_EMPTY_FLAG)
             {
-                Debug.LogError($"{_m_assetPath},{_m_sheetName} 中字段{_name}为空");
+                if (!_canNull)
+                    Debug.LogError($"{_m_assetPath},{_m_sheetName} 中字段{_name}为空");
                 return 0;
             }
             if (!int.TryParse(tempValue, out int result))
