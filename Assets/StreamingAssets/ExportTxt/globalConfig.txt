@@ -1,4 +1,6 @@
-key	value
+﻿key	value
 ~key	~配置值
 dayStartTime	8:00:00
 elevatorTravelTime	0:05:00
+	
+	

@@ -1,4 +1,4 @@
-id	name	content	dialogueType	flagType	nextList	affectValue	extraFavorEffectList
+﻿id	name	content	dialogueType	flagType	nextList	affectValue	extraFavorEffectList
 ~id	~名字	~内容	~对话类型（STANDARD/SELECT)	~对话标志位（BEGIN/NONE/END)	~下一句对话列表	~好感度影响值	~额外住户好感影响（住户id:好感值）
 1001	考考	晚上好……你是新来的按键员吗？	STANDARD	BEGIN	1002	0	*
 1002	考考	第一天就是夜班啊。辛苦了。	STANDARD	NONE	1003	0	*

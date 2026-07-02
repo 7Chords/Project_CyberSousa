@@ -6,8 +6,8 @@
 1004	考考	这些还可以吃，只是明天不能再摆出来了。	STANDARD	NONE	1005	0	*
 1005	考考	我平时会带回去分给大家，或者喂楼下的猫。	STANDARD	NONE	1006	0	*
 1006	考考	你要尝尝吗？	STANDARD	NONE	1007;1008	0	*
-1007	玩家	谢谢你	SELECT	NONE	1009	0	*
-1008	玩家	工作期间不能收东西（考考好感-，触发不了第二天考考对话）	SELECT	NONE	1015	0	*
+1007	玩家	谢谢你。	SELECT	NONE	1009	0	*
+1008	玩家	工作期间不能收东西。	SELECT	NONE	1015	0	*
 1009	考考	不客气。	STANDARD	NONE	1010	0	*
 1010	考考	夜班的话，还是吃一点比较好。	STANDARD	NONE	1011	0	*
 1011	考考	啊，对了，我是不是应该报楼层了。	STANDARD	NONE	1012	0	*
@@ -51,7 +51,7 @@
 1049	柏南	必然的命运，有时候就是这样。	STANDARD	END	0	0	*
 1050	小维	二楼。	STANDARD	BEGIN	1051	0	*
 1051	小维	不要一直看我。	STANDARD	NONE	1052;1053	0	*
-1052	玩家	师傅您是做什么工作的？（触发不了第二天小维选项）	SELECT	NONE	1054	0	*
+1052	玩家	师傅您是做什么工作的？	SELECT	NONE	1054	0	*
 1053	玩家	玛格丽特·伽拉忒...	SELECT	NONE	1059	0	*
 1054	小维	下班之后我不想回答这个。	STANDARD	NONE	1055	0	*
 1055	小维	如果规定要说，水族馆活体展览物。	STANDARD	NONE	1056	0	*
@@ -80,7 +80,7 @@
 1078	考考	这样不太好。	STANDARD	NONE	1079	0	*
 1079	考考	但是和她说，她会说我多管闲事。	STANDARD	NONE	1080	0	*
 1080	考考	不过她说的时候一般在嚼东西，所以我就当她没有反对。	STANDARD	NONE	1081;1082	0	*
-1081	玩家	我会转交给她。（那拉好感+，触发第三天那拉对话）	SELECT	NONE	1083	0	*
+1081	玩家	我会转交给她。	SELECT	NONE	1083	0	*
 1082	玩家	我不能替住户传东西。	SELECT	NONE	1087	0	*
 1083	考考	谢谢你。	STANDARD	NONE	1084	0	*
 1084	考考	如果她问是谁给的，你就说……	STANDARD	NONE	1085	0	*
@@ -449,7 +449,7 @@
 1447	考考	但是我现在，只能看着她离开。	STANDARD	NONE	1448	0	*
 1448	考考	只能让她路上别饿。	STANDARD	END	0	0	*
 1449	考考	......	STANDARD	NONE	1450	0	*
-1450	考考	没什么，可能只是我想多了。9：10（小淼目前在四楼）	STANDARD	NONE	1451	0	*
+1450	考考	没什么，可能只是我想多了。	STANDARD	NONE	1451	0	*
 1451	小淼	我今天不知道该去哪一层了。	STANDARD	NONE	1452	0	*
 1452	小淼	如果按故事，我应该回房间。	STANDARD	NONE	1453	0	*
 1453	小淼	可是我画到这里，	STANDARD	NONE	1454	0	*
@@ -458,7 +458,7 @@
 1456	小淼	嗯，不只是画。	STANDARD	NONE	1457	0	*
 1457	小淼	带我去一楼吧。	STANDARD	NONE	1458	0	*
 1458	小淼	或者……	STANDARD	NONE	1459	0	*
-1459	小淼	就当作我没有来。9:20（那拉目前在六层）	STANDARD	END	0	0	*
+1459	小淼	就当作我没有来。	STANDARD	END	0	0	*
 1460	那拉	一楼。	STANDARD	BEGIN	1461	0	*
 1461	那拉	不用查档案。	STANDARD	NONE	1462	0	*
 1462	那拉	我现在要出门。	STANDARD	END	0	0	*

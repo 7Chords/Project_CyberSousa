@@ -1,12 +1,12 @@
 ﻿id	ruleName	ruleDesc	effectList	activeStartTime	activeEndTime
 ~id	~规则名	~规则描述	~效果列表（操作符:规则效果枚举:param1:param2；组合规则格式为操作符:规则效果枚举:楼层1,楼层2:目标楼层；标签禁行格式为操作符:规则效果枚举:标签1,标签2:目标楼层；楼层转移格式为操作符:规则效果枚举:原始需求楼层:改送楼层）	~生效开始时间	~生效结束时间
 			~GOTO:FORBID_TARGET_FLOOR:9:0=禁止前往9楼；GOTO:REDIRECT_TARGET_FLOOR:2:4=将2楼按钮改到4楼；REFUSE:FORBID_REFUSE:0:0=本规则下禁止拒绝；GOTO:COMBO_TARGET_FLOOR:5,6:11=组合键5,6对应11楼；GOTO:FORBID_CUSTOMER_TAG_TARGET_FLOOR:APRON:4=带围裙标签住户不能前往4楼；GOTO:REQUIRE_TRANSFER_TARGET_FLOOR:4:10=原始需求4楼的住户必须手动送去10楼。	~为空或*表示全天生效；时间限定是规则级字段，不是 effect 枚举。	~区间按[start,end)处理，含开始不含结束。
-1001	坏掉的九楼	九楼就是坏了	GOTO:FORBID_TARGET_FLOOR:9:0		
-1002	二楼改去四楼	如果选择二楼，会被改派到四楼	GOTO:REDIRECT_TARGET_FLOOR:2:4		
-1003	拒载投诉	本关不允许直接拒绝乘客	REFUSE:FORBID_REFUSE:0:0		
-1004	五楼临时封锁	五楼正在演练，禁止前往五楼	GOTO:FORBID_TARGET_FLOOR:5:0		
-1005	七楼改去一楼	选择七楼时会被安保改派到一楼	GOTO:REDIRECT_TARGET_FLOOR:7:1		
-1006	十楼贵宾通道	十楼暂时只允许指定乘客通行，普通调度禁止直达	GOTO:FORBID_TARGET_FLOOR:10:0		
+1001	坏掉的九楼	九楼就是坏了	GOTO:FORBID_TARGET_FLOOR:9:0	*	*
+1002	二楼改去四楼	如果选择二楼，会被改派到四楼	GOTO:REDIRECT_TARGET_FLOOR:2:4	*	*
+1003	拒载投诉	本关不允许直接拒绝乘客	REFUSE:FORBID_REFUSE:0:0	*	*
+1004	五楼临时封锁	五楼正在演练，禁止前往五楼	GOTO:FORBID_TARGET_FLOOR:5:0	*	*
+1005	七楼改去一楼	选择七楼时会被安保改派到一楼	GOTO:REDIRECT_TARGET_FLOOR:7:1	*	*
+1006	十楼贵宾通道	十楼暂时只允许指定乘客通行，普通调度禁止直达	GOTO:FORBID_TARGET_FLOOR:10:0	*	*
 1007	五六组合去十一楼	5和6组合键会把楼层改派到11楼	GOTO:COMBO_TARGET_FLOOR:5,6:11	*	*
 1008	二三组合去九楼	2和3组合键会把楼层改派到9楼	GOTO:COMBO_TARGET_FLOOR:2,3:9	*	*
 1009	围裙住户禁去四楼	带围裙标签的住户不能前往四楼	GOTO:FORBID_CUSTOMER_TAG_TARGET_FLOOR:APRON:4	*	*
