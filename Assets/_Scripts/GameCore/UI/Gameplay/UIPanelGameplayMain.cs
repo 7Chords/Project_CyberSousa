@@ -20,6 +20,9 @@ namespace GameCore.UI
         private const string EndingNodeName = "UINodeEnding";
         private const float ElevatorTravelAnimDuration = 0.90f;
         private const float CustomerPortraitFlipHalfDuration = 0.18f;
+        private const int DefaultMaxPerformance = 100;
+        private const int DefaultMissingConfirmPenalty = 10;
+        private const int DefaultPerfectOperationBonus = 12;
 
         private readonly Dictionary<long, DialogueRefData> _dialogueMap = new Dictionary<long, DialogueRefData>();
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
@@ -54,6 +57,11 @@ namespace GameCore.UI
         private bool _isCustomerInfoVisible;
         private bool _hasInitializedRuntime;
         private bool _hasRunEnded;
+        private int _maxPerformance = DefaultMaxPerformance;
+        private int _missingConfirmPenalty = DefaultMissingConfirmPenalty;
+        private int _perfectOperationBonus = DefaultPerfectOperationBonus;
+        private bool _hasConfirmedCurrentCustomer;
+        private bool _hasCurrentOperationProblem;
         private string _serviceFeedbackText;
         private string _ruleFeedbackText;
         private string _activePortraitResName;
@@ -70,6 +78,7 @@ namespace GameCore.UI
             _activePanel = this;
             GameTimeMgr.instance.OnTimeChanged += OnGameTimeChanged;
             InitializeRuntimeData();
+            ApplyGameplayConfig();
             RefreshAllUi();
         }
 
@@ -111,6 +120,7 @@ namespace GameCore.UI
 
             GameTimeMgr.instance.OnTimeChanged -= OnGameTimeChanged;
             GameTimeMgr.instance.OnTimeChanged += OnGameTimeChanged;
+            ApplyGameplayConfig();
             BindButtons();
             RefreshAllUi();
         }
@@ -142,6 +152,63 @@ namespace GameCore.UI
                 && (_isDialogueTypewriterPlaying || CanAdvanceDialogueByClick() || _awaitDialogueAdvanceAfterPlayerLine);
             mono.dialogueAdvanceClickArea.raycastTarget = canClickDialogue;
             mono.dialogueAdvanceClickArea.enabled = canClickDialogue;
+        }
+
+        private void ApplyGameplayConfig()
+        {
+            GameplayConfigRefData config = SCRefDataMgr.instance.gameplayConfig;
+            if (config == null)
+            {
+                SCDebugHelper.Log("未读取到 gameplay_config 配置，使用默认绩效配置。");
+                _maxPerformance = DefaultMaxPerformance;
+                _missingConfirmPenalty = DefaultMissingConfirmPenalty;
+                _perfectOperationBonus = DefaultPerfectOperationBonus;
+                return;
+            }
+
+            _maxPerformance = Mathf.Max(1, config.maxPerformance);
+            _missingConfirmPenalty = Mathf.Max(0, config.missingConfirmPenalty);
+            _perfectOperationBonus = Mathf.Max(0, config.perfectOperationBonus);
+        }
+
+        private void MarkCurrentCustomerOperationProblem(string reason)
+        {
+            _hasCurrentOperationProblem = true;
+            if (!string.IsNullOrEmpty(reason))
+                SCDebugHelper.Log(reason);
+        }
+
+        private void SettleCurrentCustomerPerformance(string settleSource)
+        {
+            if (_currentCustomerRefData == null)
+                return;
+
+            if (!_hasConfirmedCurrentCustomer)
+            {
+                if (_missingConfirmPenalty > 0)
+                {
+                    GamePlayerDataMgr.instance.DeductPerformance(_missingConfirmPenalty);
+                    SCDebugHelper.Log(
+                        $"当前住户未确认，绩效值 -{_missingConfirmPenalty}。source={settleSource}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。");
+                }
+
+                return;
+            }
+
+            if (_hasCurrentOperationProblem)
+                return;
+
+            int currentPerformance = GamePlayerDataMgr.instance.performanceValue;
+            int actualBonus = Mathf.Min(_perfectOperationBonus, Mathf.Max(0, _maxPerformance - currentPerformance));
+            if (actualBonus <= 0)
+            {
+                SCDebugHelper.Log($"当前住户已确认，但绩效值已达上限 {_maxPerformance}。");
+                return;
+            }
+
+            GamePlayerDataMgr.instance.AddPerformance(actualBonus);
+            SCDebugHelper.Log(
+                $"当前住户处理确认完成，绩效值 +{actualBonus}。source={settleSource}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。");
         }
 
         private class RecentFloorInputData

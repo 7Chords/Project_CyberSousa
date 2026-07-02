@@ -48,6 +48,7 @@ namespace GameCore.UI
         public Text txtTime;
         [Header("时钟文本")]
         public Text txtClockTime;
+        public Text txtPerformance;
         [Header("告示板列表")]
         public List<NoticeBoardItem> noticeBoardList = new List<NoticeBoardItem>();
         [Header("住户名称文本")]

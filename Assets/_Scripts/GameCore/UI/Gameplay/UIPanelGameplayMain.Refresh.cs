@@ -13,6 +13,7 @@ namespace GameCore.UI
         private void RefreshAllUi()
         {
             RefreshFloorUi();
+            RefreshPerformanceUi();
             RefreshRuleUi();
             RefreshCustomerUi();
             RefreshBottomHintUi();
@@ -43,6 +44,13 @@ namespace GameCore.UI
         {
             if (mono.txtClockTime != null)
                 mono.txtClockTime.text = GameTimeMgr.instance.GetDisplayText();
+        }
+
+        private void RefreshPerformanceUi()
+        {
+            EnsurePerformanceText();
+            if (mono.txtPerformance != null)
+                mono.txtPerformance.text = $"绩效值：{GamePlayerDataMgr.instance.performanceValue}/{_maxPerformance}";
         }
 
 
@@ -378,7 +386,7 @@ namespace GameCore.UI
                 mono.btnReject.interactable = canOperateElevator && hasCustomer;
 
             if (mono.btnConfirm != null)
-                mono.btnConfirm.interactable = canOperateElevator && IsFinalDayLastSpecialCustomer() && !GamePlayerDataMgr.instance.hasConfirmedFinalSpecialCustomer;
+                mono.btnConfirm.interactable = canOperateElevator && hasCustomer && !_hasConfirmedCurrentCustomer;
 
             if (mono.btnCloseDoor != null)
                 mono.btnCloseDoor.interactable = canOperateElevator && (hasCustomer || _selectedFloor > 0);

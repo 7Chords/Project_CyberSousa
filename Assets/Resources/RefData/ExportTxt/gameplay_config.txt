@@ -1,0 +1,2 @@
+maxPerformance	missingConfirmPenalty	perfectOperationBonus
+100	10	12

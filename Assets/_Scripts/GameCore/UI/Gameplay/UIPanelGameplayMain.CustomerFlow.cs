@@ -96,6 +96,8 @@ namespace GameCore.UI
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
+            _hasConfirmedCurrentCustomer = false;
+            _hasCurrentOperationProblem = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
             _serviceFeedbackText = null;
@@ -133,6 +135,7 @@ namespace GameCore.UI
 
         private void FinishCurrentCustomerService()
         {
+            SettleCurrentCustomerPerformance("FinishCurrentCustomerService");
             ClearCurrentCustomerState();
             if (_pendingCustomers.Count == 0)
             {
@@ -167,6 +170,8 @@ namespace GameCore.UI
             _currentAffectValue = 0;
             _isDialogueRunning = false;
             _canCloseDoor = false;
+            _hasConfirmedCurrentCustomer = false;
+            _hasCurrentOperationProblem = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
             _serviceFeedbackText = null;
@@ -224,6 +229,7 @@ namespace GameCore.UI
             {
                 HideCurrentCustomer(() =>
                 {
+                    SettleCurrentCustomerPerformance("StartRejectAndPickupNextFlow");
                     ClearCurrentCustomerState();
                     if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData nextNeedRefData, out TimeEffectData nextNeedTime))
                     {
@@ -297,6 +303,7 @@ namespace GameCore.UI
 
             if (judgmentEffectData.affectValue < 0)
             {
+                MarkCurrentCustomerOperationProblem("服务结果错误，本轮不计入绩效奖励。");
                 GamePlayerDataMgr.instance.DeductPerformance(-judgmentEffectData.affectValue);
                 _serviceFeedbackText =
                     $"处理错误：绩效值 -{-judgmentEffectData.affectValue}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
@@ -309,6 +316,7 @@ namespace GameCore.UI
 
         private void ApplyGotoViolationDepartureFeedback(int departureFloor)
         {
+            MarkCurrentCustomerOperationProblem("违反规则，本轮不计入绩效奖励。");
             GamePlayerDataMgr.instance.DeductPerformance(1);
             _serviceFeedbackText = $"违反规则，绩效-1，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
 

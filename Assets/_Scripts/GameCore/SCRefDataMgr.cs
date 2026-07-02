@@ -15,7 +15,18 @@ namespace GameCore
         public SCRefDataList<CustomerNeedRefData> customerNeedRefList;
         public SCRefDataList<DialogueRefData> dialogueRefList;
         public SCRefDataList<RuleRefData> ruleRefList;
+        public SCRefDataList<GameplayConfigRefData> gameplayConfigRefList;
         public GlobalConfigRefData globalConfigRefData;
+        public GameplayConfigRefData gameplayConfig
+        {
+            get
+            {
+                if (gameplayConfigRefList == null || gameplayConfigRefList.refDataList == null || gameplayConfigRefList.refDataList.Count <= 0)
+                    return null;
+
+                return gameplayConfigRefList.refDataList[0];
+            }
+        }
 
         public override void OnInitialize()
         {
@@ -39,6 +50,9 @@ namespace GameCore
 
             ruleRefList = new SCRefDataList<RuleRefData>(RuleRefData.assetPath, RuleRefData.sheetName);
             ruleRefList.readFromTxt();
+
+            gameplayConfigRefList = new SCRefDataList<GameplayConfigRefData>(GameplayConfigRefData.assetPath, GameplayConfigRefData.sheetName);
+            gameplayConfigRefList.readFromTxt();
         }
     }
 }

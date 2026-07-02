@@ -107,13 +107,36 @@ namespace GameCore.UI
 
         private void OnConfirmClicked(PointerEventData eventData, object[] args)
         {
-            if (!IsFinalDayLastSpecialCustomer())
+            if (_isDialogueRunning)
             {
-                SCDebugHelper.Log("当前不是最终特殊住户确认节点。");
+                SCDebugHelper.Log("当前对话未结束，无法确认。");
                 return;
             }
 
-            GamePlayerDataMgr.instance.MarkFinalSpecialCustomerConfirmed();
+            if (_isTransitionPlaying)
+            {
+                SCDebugHelper.Log("当前正在楼层移动，暂时无法确认。");
+                return;
+            }
+
+            if (_currentCustomerRefData == null)
+            {
+                SCDebugHelper.Log("当前没有可确认的住户。");
+                return;
+            }
+
+            if (_hasConfirmedCurrentCustomer)
+            {
+                SCDebugHelper.Log("当前住户已经确认过了。");
+                return;
+            }
+
+            _hasConfirmedCurrentCustomer = true;
+            SCDebugHelper.Log("已确认当前住户。");
+
+            if (IsFinalDayLastSpecialCustomer() && !GamePlayerDataMgr.instance.hasConfirmedFinalSpecialCustomer)
+                GamePlayerDataMgr.instance.MarkFinalSpecialCustomerConfirmed();
+
             RefreshAllUi();
         }
 
@@ -237,6 +260,7 @@ namespace GameCore.UI
             }
 
             _ruleFeedbackText = null;
+            MarkCurrentCustomerOperationProblem("已拒绝当前住户，本轮不计入绩效奖励。");
             ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
             StartRejectAndPickupNextFlow();
