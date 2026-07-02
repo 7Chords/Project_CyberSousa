@@ -100,6 +100,7 @@ namespace GameCore.UI
             _lastRuleEffectData = null;
             _serviceFeedbackText = null;
             _ruleFeedbackText = null;
+            _isCustomerInfoVisible = false;
             _currentCustomerRefData = customerRefData;
             _currentNeedRefData = needRefData;
             _currentNeedTime = needTime;
@@ -152,6 +153,7 @@ namespace GameCore.UI
         private void ClearCurrentCustomerState()
         {
             ClearDialoguePortraits();
+            _isCustomerInfoVisible = false;
             _currentCustomerRefData = null;
             _currentNeedRefData = null;
             _currentNeedTime = null;

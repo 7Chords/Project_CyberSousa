@@ -40,17 +40,34 @@ namespace GameCore.UI
         }
 
 
-        private void ShowCurrentCustomer()
+        private void ShowCurrentCustomer(TweenCallback onFullyDisplayed = null)
         {
             if (_currentCustomerRefData == null)
                 return;
 
+            _isCustomerInfoVisible = false;
             BringCustomerLayerToFront();
             ResetCustomerPortraitTransform();
             mono.customerMoveScaleEffect?.SetOriginInstant();
-            Tween tween = mono.customerFadeEffect?.PlayFadeIn();
-            if (tween == null && mono.customerCanvasGroup != null)
-                mono.customerCanvasGroup.alpha = 1f;
+
+            Tween fadeTween = mono.customerFadeEffect?.PlayFadeIn();
+            if (fadeTween == null)
+            {
+                if (mono.customerCanvasGroup != null)
+                    mono.customerCanvasGroup.alpha = 1f;
+                CompleteCustomerEnterDisplay(onFullyDisplayed);
+                return;
+            }
+
+            fadeTween.OnComplete(() => CompleteCustomerEnterDisplay(onFullyDisplayed));
+        }
+
+
+        private void CompleteCustomerEnterDisplay(TweenCallback onFullyDisplayed = null)
+        {
+            _isCustomerInfoVisible = true;
+            RefreshCustomerUi();
+            onFullyDisplayed?.Invoke();
         }
 
 

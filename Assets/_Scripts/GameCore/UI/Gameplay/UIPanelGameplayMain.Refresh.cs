@@ -126,23 +126,8 @@ namespace GameCore.UI
 
         private void RefreshCustomerUi()
         {
-            if (_currentCustomerRefData == null)
-            {
-                if (_pendingCustomers.Count > 0)
-                {
-                    CustomerRefData pendingCustomer = GetCustomerRefData(_pendingCustomers.Peek().customerId);
-                    if (pendingCustomer != null)
-                    {
-                        if (mono.txtCustomerName != null)
-                            mono.txtCustomerName.text = pendingCustomer.customerName;
-
-                        if (mono.txtAnimalInfo != null)
-                            mono.txtAnimalInfo.text = BuildCustomerInfoText(pendingCustomer);
-                    }
-                }
-
+            if (_currentCustomerRefData == null || !_isCustomerInfoVisible)
                 return;
-            }
 
             if (mono.txtCustomerName != null)
                 mono.txtCustomerName.text = _currentCustomerRefData.customerName;
@@ -155,7 +140,7 @@ namespace GameCore.UI
         private string BuildCustomerInfoText(CustomerRefData customerRefData)
         {
             if (customerRefData == null)
-                return "动物扫脸信息";
+                return string.Empty;
 
             if (customerRefData.customerInfoList == null || customerRefData.customerInfoList.Count == 0)
                 return customerRefData.customerName;

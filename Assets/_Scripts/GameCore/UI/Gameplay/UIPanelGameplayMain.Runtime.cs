@@ -262,6 +262,7 @@ namespace GameCore.UI
             _canCloseDoor = false;
             _isSettlementShowing = false;
             _isTransitionPlaying = false;
+            _isCustomerInfoVisible = false;
             _hasRunEnded = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
