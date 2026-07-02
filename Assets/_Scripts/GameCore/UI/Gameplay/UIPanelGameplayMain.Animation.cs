@@ -227,7 +227,10 @@ namespace GameCore.UI
             if (fromFloor != targetFloor)
             {
                 GameTimeMgr.instance.PlayElevatorTravelAdvance(ElevatorTravelAnimDuration);
-                sequence.AppendCallback(() => AnimateFloorText(targetFloor));
+                Tween floorTween = AnimateFloorTextSequence(fromFloor, targetFloor, ElevatorTravelAnimDuration);
+                if (floorTween != null)
+                    sequence.Join(floorTween);
+
                 Tween shakeTween = mono.elevatorView?.PlayTravelShake();
                 if (shakeTween != null)
                     sequence.Join(shakeTween);
@@ -243,17 +246,27 @@ namespace GameCore.UI
         }
 
 
-        private void AnimateFloorText(int floor)
+        private Tween AnimateFloorTextSequence(int fromFloor, int toFloor, float totalDuration)
         {
-            string text = $"{floor}";
             if (mono.floorTextEffect != null)
+                return mono.floorTextEffect.PlayFloorCountSequence(fromFloor, toFloor, totalDuration);
+
+            if (fromFloor == toFloor || mono.txtCurrentFloor == null)
+                return null;
+
+            int direction = fromFloor < toFloor ? 1 : -1;
+            int stepCount = Mathf.Abs(toFloor - fromFloor);
+            float stepDuration = totalDuration / stepCount;
+
+            Sequence sequence = DOTween.Sequence();
+            for (int stepIndex = 0; stepIndex < stepCount; stepIndex++)
             {
-                mono.floorTextEffect.PlayTextChange(text);
-                return;
+                int nextFloor = fromFloor + direction * (stepIndex + 1);
+                sequence.AppendCallback(() => mono.txtCurrentFloor.text = $"{nextFloor}");
+                sequence.AppendInterval(stepDuration);
             }
 
-            if (mono.txtCurrentFloor != null)
-                mono.txtCurrentFloor.text = text;
+            return sequence;
         }
 
 

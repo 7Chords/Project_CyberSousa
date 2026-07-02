@@ -54,11 +54,53 @@ namespace GameCore.UI
 
         public Tween PlayTextChange(string content, TweenCallback onComplete = null)
         {
+            KillAllTweens();
+            Tween tween = CreateTextChangeTween(content, duration, onComplete);
+            return tween != null ? RegTween(tween) : null;
+        }
+
+
+        public Tween PlayFloorCountSequence(int fromFloor, int toFloor, float totalDuration, TweenCallback onComplete = null)
+        {
+            KillAllTweens();
+            if (targetText == null || TargetRect == null || targetCanvasGroup == null)
+            {
+                onComplete?.Invoke();
+                return null;
+            }
+
+            if (fromFloor == toFloor)
+            {
+                SetTextInstant($"{fromFloor}");
+                onComplete?.Invoke();
+                return null;
+            }
+
+            int direction = fromFloor < toFloor ? 1 : -1;
+            int stepCount = Mathf.Abs(toFloor - fromFloor);
+            float stepDuration = totalDuration / stepCount;
+
+            Sequence sequence = DOTween.Sequence();
+            for (int stepIndex = 0; stepIndex < stepCount; stepIndex++)
+            {
+                int nextFloor = fromFloor + direction * (stepIndex + 1);
+                Tween stepTween = CreateTextChangeTween($"{nextFloor}", stepDuration);
+                if (stepTween != null)
+                    sequence.Append(stepTween);
+            }
+
+            if (onComplete != null)
+                sequence.OnComplete(onComplete);
+            return RegTween(sequence);
+        }
+
+
+        private Tween CreateTextChangeTween(string content, float tweenDuration, TweenCallback onComplete = null)
+        {
             if (targetText == null || TargetRect == null || targetCanvasGroup == null)
                 return null;
 
-            KillAllTweens();
-            float halfDuration = Mathf.Max(0.05f, duration * 0.5f);
+            float halfDuration = Mathf.Max(0.02f, tweenDuration * 0.5f);
             Vector2 upPos = _originAnchoredPos + Vector2.up * moveDistance;
             Vector2 downPos = _originAnchoredPos + Vector2.down * moveDistance;
 
@@ -75,7 +117,7 @@ namespace GameCore.UI
             sequence.Join(targetCanvasGroup.DOFade(1f, halfDuration).SetEase(ease));
             if (onComplete != null)
                 sequence.OnComplete(onComplete);
-            return RegTween(sequence);
+            return sequence;
         }
 
         protected override void RegisterEvents()
