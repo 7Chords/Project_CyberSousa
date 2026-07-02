@@ -32,12 +32,11 @@ RectTransform:
   m_Children:
   - {fileID: 7966264485953536018}
   m_Father: {fileID: 3796481174713181925}
-  m_RootOrder: -2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 187, y: 0}
-  m_SizeDelta: {x: 0, y: 112.08}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 187, y: -48.0825}
+  m_SizeDelta: {x: 374, y: 96.165}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2894032781277204079
 MonoBehaviour:
@@ -110,12 +109,11 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8351764442068506983}
-  m_RootOrder: -2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 112.08}
+  m_SizeDelta: {x: 0, y: 96.165}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7824580179065791639
 CanvasRenderer:
@@ -175,6 +173,7 @@ GameObject:
   - component: {fileID: 5453588801321539780}
   - component: {fileID: 6182637299241744406}
   - component: {fileID: 5458440696692667108}
+  - component: {fileID: 9114699855941162210}
   m_Layer: 0
   m_Name: item_dialogue_option
   m_TagString: Untagged
@@ -196,12 +195,11 @@ RectTransform:
   m_Children:
   - {fileID: 8351764442068506983}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 112.0836}
+  m_SizeDelta: {x: 0, y: 96.1647}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5510673004592966077
 CanvasRenderer:
@@ -359,3 +357,22 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &9114699855941162210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9051606500828721456}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 5

@@ -447,6 +447,7 @@ GameObject:
   - component: {fileID: 4362800492601265902}
   - component: {fileID: 5842439112157931609}
   - component: {fileID: 7371580580365417606}
+  - component: {fileID: 6981611583812466068}
   m_Layer: 0
   m_Name: AnimalChoice12
   m_TagString: Untagged
@@ -603,6 +604,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &6981611583812466068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193374963196786446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &232616813902501866
 GameObject:
   m_ObjectHideFlags: 0
@@ -1117,6 +1137,7 @@ GameObject:
   - component: {fileID: 4193477948047830352}
   - component: {fileID: 5789097658243796398}
   - component: {fileID: 3462037439233619910}
+  - component: {fileID: 5486610662838314972}
   m_Layer: 0
   m_Name: ActionReject
   m_TagString: Untagged
@@ -1246,6 +1267,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &5486610662838314972
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948038669740563436}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &1026502532188074076
 GameObject:
   m_ObjectHideFlags: 0
@@ -1337,6 +1377,7 @@ GameObject:
   - component: {fileID: 7399963544309272235}
   - component: {fileID: 926831476253282562}
   - component: {fileID: 2325211628901846818}
+  - component: {fileID: 1132128575560734147}
   m_Layer: 0
   m_Name: AnimalChoice9
   m_TagString: Untagged
@@ -1493,6 +1534,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &1132128575560734147
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1118085445582321433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &1190308860166966715
 GameObject:
   m_ObjectHideFlags: 0
@@ -1582,6 +1642,7 @@ GameObject:
   - component: {fileID: 6018762724187071327}
   - component: {fileID: 1689697697007555243}
   - component: {fileID: 5373435312298801441}
+  - component: {fileID: 7186993958059829377}
   m_Layer: 0
   m_Name: ActionCloseDoor
   m_TagString: Untagged
@@ -1711,6 +1772,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &7186993958059829377
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1435040143978045570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &1796829008087687970
 GameObject:
   m_ObjectHideFlags: 0
@@ -1726,6 +1806,7 @@ GameObject:
   - component: {fileID: 4566675369246974078}
   - component: {fileID: 2759742974606114590}
   - component: {fileID: 879016375893817918}
+  - component: {fileID: 6870104409433429663}
   m_Layer: 0
   m_Name: AnimalChoice10
   m_TagString: Untagged
@@ -1882,6 +1963,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &6870104409433429663
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1796829008087687970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &1805397862467031052
 GameObject:
   m_ObjectHideFlags: 0
@@ -2081,6 +2181,7 @@ GameObject:
   - component: {fileID: 3811920144734166401}
   - component: {fileID: 3535607014860069016}
   - component: {fileID: 3095983249279630507}
+  - component: {fileID: 1113056913429979303}
   m_Layer: 0
   m_Name: NoticeBoard01
   m_TagString: Untagged
@@ -2164,8 +2265,27 @@ MonoBehaviour:
   useUnscaledTime: 1
   enableHoverScale: 1
   hoverScale: 1.08
-  enablePressScale: 1
+  enablePressScale: 0
   pressScale: 0.95
+--- !u!114 &1113056913429979303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2545525862121388563}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 5
 --- !u!1 &2969223206910449701
 GameObject:
   m_ObjectHideFlags: 0
@@ -2260,6 +2380,7 @@ GameObject:
   - component: {fileID: 2325092144257680305}
   - component: {fileID: 1306337909029343882}
   - component: {fileID: 5623570332854351247}
+  - component: {fileID: 130451571636161207}
   m_Layer: 0
   m_Name: AnimalChoice7
   m_TagString: Untagged
@@ -2416,6 +2537,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &130451571636161207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3218747282137126419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &3522895223116383795
 GameObject:
   m_ObjectHideFlags: 0
@@ -2479,6 +2619,7 @@ GameObject:
   - component: {fileID: 4525577289482224613}
   - component: {fileID: 3445321525461284412}
   - component: {fileID: 7892408629603640285}
+  - component: {fileID: 3268312405376865213}
   m_Layer: 0
   m_Name: AnimalChoice4
   m_TagString: Untagged
@@ -2635,6 +2776,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &3268312405376865213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737346530895244952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &3910668922726196379
 GameObject:
   m_ObjectHideFlags: 0
@@ -2950,6 +3110,7 @@ GameObject:
   - component: {fileID: 7198975895481965455}
   - component: {fileID: 3134192665501394426}
   - component: {fileID: 4917614901033137547}
+  - component: {fileID: 1438049468543797048}
   m_Layer: 0
   m_Name: AnimalChoice1
   m_TagString: Untagged
@@ -3106,6 +3267,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &1438049468543797048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5123649609676846726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &5169783470991680969
 GameObject:
   m_ObjectHideFlags: 0
@@ -3197,6 +3377,7 @@ GameObject:
   - component: {fileID: 8097445215825319531}
   - component: {fileID: 4993980222658212971}
   - component: {fileID: 5876806472184117454}
+  - component: {fileID: 7524163863386861273}
   m_Layer: 0
   m_Name: AnimalChoice3
   m_TagString: Untagged
@@ -3353,6 +3534,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &7524163863386861273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5248591239560199531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &5289592910548686566
 GameObject:
   m_ObjectHideFlags: 0
@@ -3460,6 +3660,7 @@ GameObject:
   - component: {fileID: 3780044826126553991}
   - component: {fileID: 1021292942125837036}
   - component: {fileID: 4307151890539417963}
+  - component: {fileID: 547574335102001612}
   m_Layer: 0
   m_Name: AnimalChoice11
   m_TagString: Untagged
@@ -3616,6 +3817,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &547574335102001612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5321426384867545340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &5388909667392708702
 GameObject:
   m_ObjectHideFlags: 0
@@ -3710,6 +3930,7 @@ GameObject:
   - component: {fileID: 2197956043434299000}
   - component: {fileID: 2167697467476296743}
   - component: {fileID: 7899843031913122763}
+  - component: {fileID: 4070871045953359097}
   m_Layer: 0
   m_Name: AnimalChoice2
   m_TagString: Untagged
@@ -3866,6 +4087,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &4070871045953359097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6179648966220272636}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &6240149121920659169
 GameObject:
   m_ObjectHideFlags: 0
@@ -4192,6 +4432,7 @@ GameObject:
   - component: {fileID: 553374683748577484}
   - component: {fileID: 363256619014696270}
   - component: {fileID: 5826507215136179361}
+  - component: {fileID: 1023957009309712615}
   m_Layer: 0
   m_Name: ActionConfirm
   m_TagString: Untagged
@@ -4321,6 +4562,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &1023957009309712615
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6609822858563651168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &6862763856475477203
 GameObject:
   m_ObjectHideFlags: 0
@@ -4458,6 +4718,7 @@ GameObject:
   - component: {fileID: 4814789315236271442}
   - component: {fileID: 4983453137353107365}
   - component: {fileID: 3827234324662204030}
+  - component: {fileID: 2200054784108209211}
   m_Layer: 0
   m_Name: AnimalChoice8
   m_TagString: Untagged
@@ -4614,6 +4875,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &2200054784108209211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7206934329474968310}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &7237711630085322390
 GameObject:
   m_ObjectHideFlags: 0
@@ -4720,6 +5000,7 @@ GameObject:
   - component: {fileID: 7383091036009049850}
   - component: {fileID: 7272121038931478713}
   - component: {fileID: 4575258616492201729}
+  - component: {fileID: 6176135381729905432}
   m_Layer: 0
   m_Name: AnimalChoice6
   m_TagString: Untagged
@@ -4876,6 +5157,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &6176135381729905432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7540843098008338045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &7552357495181149657
 GameObject:
   m_ObjectHideFlags: 0
@@ -4950,6 +5250,7 @@ GameObject:
   - component: {fileID: 5520369148319853078}
   - component: {fileID: 6674074472998187908}
   - component: {fileID: 6990015201613562720}
+  - component: {fileID: 6492641706304898815}
   m_Layer: 0
   m_Name: NoticeBoard02
   m_TagString: Untagged
@@ -5033,8 +5334,27 @@ MonoBehaviour:
   useUnscaledTime: 1
   enableHoverScale: 1
   hoverScale: 1.08
-  enablePressScale: 1
+  enablePressScale: 0
   pressScale: 0.95
+--- !u!114 &6492641706304898815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7619306836174455345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 5
 --- !u!1 &7934384082414930982
 GameObject:
   m_ObjectHideFlags: 0
@@ -5115,6 +5435,7 @@ GameObject:
   - component: {fileID: 553566330453183611}
   - component: {fileID: 3797888971631540784}
   - component: {fileID: 3710705796075581008}
+  - component: {fileID: 4607889139077856050}
   m_Layer: 0
   m_Name: AnimalChoice5
   m_TagString: Untagged
@@ -5271,6 +5592,25 @@ MonoBehaviour:
   hoverScale: 1.08
   enablePressScale: 1
   pressScale: 0.95
+--- !u!114 &4607889139077856050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8249014884970223365}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac02fdda00c16524d84712c3bfc086fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 0}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  targetGraphic: {fileID: 0}
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 3
 --- !u!1 &8400957821852864987
 GameObject:
   m_ObjectHideFlags: 0
