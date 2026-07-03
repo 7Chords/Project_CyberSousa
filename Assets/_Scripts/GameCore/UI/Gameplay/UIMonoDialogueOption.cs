@@ -26,7 +26,7 @@ namespace GameCore.UI
         {
             EnsureReferences();
             if (txtContent != null)
-                txtContent.text = content ?? string.Empty;
+                txtContent.text = DialogueTextFormatter.PreventLineStartPunctuation(content);
 
             RefreshLayout();
         }

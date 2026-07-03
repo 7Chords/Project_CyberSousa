@@ -12,6 +12,7 @@ namespace GameCore.UI
 
         private readonly CoroutineContainer _dialogueCoroutineContainer = new CoroutineContainer();
         private Text _activeDialogueTypewriterText;
+        private string _activeDialogueTypewriterRawText;
         private string _activeDialogueTypewriterFullText;
         private long _dialogueTypewriterLineId;
         private bool _isDialogueTypewriterPlaying;
@@ -37,7 +38,8 @@ namespace GameCore.UI
             }
 
             _activeDialogueTypewriterText = targetText;
-            _activeDialogueTypewriterFullText = fullText;
+            _activeDialogueTypewriterRawText = fullText;
+            _activeDialogueTypewriterFullText = DialogueTextFormatter.PreventLineStartPunctuation(fullText);
             _isDialogueTypewriterPlaying = true;
             targetText.text = string.Empty;
             UpdateDialogueStripVisibility();
@@ -49,20 +51,20 @@ namespace GameCore.UI
         private IEnumerator DialogueTypewriterRoutine()
         {
             Text targetText = _activeDialogueTypewriterText;
-            string fullText = _activeDialogueTypewriterFullText;
-            if (targetText == null || string.IsNullOrEmpty(fullText))
+            string rawText = _activeDialogueTypewriterRawText;
+            if (targetText == null || string.IsNullOrEmpty(rawText))
             {
                 FinishDialogueTypewriter();
                 yield break;
             }
 
-            for (int charCount = 1; charCount <= fullText.Length; charCount++)
+            for (int charCount = 1; charCount <= rawText.Length; charCount++)
             {
                 if (targetText == null)
                     yield break;
 
-                targetText.text = fullText.Substring(0, charCount);
-                PlayDialogueTextTickAnimation(targetText, fullText[charCount - 1]);
+                targetText.text = DialogueTextFormatter.PreventLineStartPunctuation(rawText.Substring(0, charCount));
+                PlayDialogueTextTickAnimation(targetText, rawText[charCount - 1]);
                 UpdateDialogueStripVisibility();
                 yield return new WaitForSecondsRealtime(DialogueTypewriterCharInterval);
             }
@@ -96,6 +98,7 @@ namespace GameCore.UI
             Text completeText = _activeDialogueTypewriterText;
             _isDialogueTypewriterPlaying = false;
             _activeDialogueTypewriterText = null;
+            _activeDialogueTypewriterRawText = null;
             _activeDialogueTypewriterFullText = null;
             PlayDialogueTextCompleteAnimation(completeText);
             UpdateDialogueStripVisibility();
@@ -133,6 +136,7 @@ namespace GameCore.UI
             _dialogueCoroutineContainer.Kill(DialogueTypewriterCoroutineName);
             _isDialogueTypewriterPlaying = false;
             _activeDialogueTypewriterText = null;
+            _activeDialogueTypewriterRawText = null;
             _activeDialogueTypewriterFullText = null;
             _dialogueTypewriterLineId = 0;
             if (mono.txtDialogueLeft != null)
@@ -198,7 +202,7 @@ namespace GameCore.UI
 
         private bool IsDialogueTypewriterComplete(Text targetText, string fullText)
         {
-            return targetText != null && targetText.text == fullText;
+            return targetText != null && targetText.text == DialogueTextFormatter.PreventLineStartPunctuation(fullText);
         }
     }
 }
