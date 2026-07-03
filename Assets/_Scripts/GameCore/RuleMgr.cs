@@ -82,10 +82,7 @@ namespace GameCore
         public RuleEffectData EvaluateRuleList(List<long> ruleIdList, EElevatorOperator actionType, int targetFloor, int currentTotalSeconds)
         {
             if (ruleIdList == null || ruleIdList.Count == 0)
-            {
-                Debug.LogError("RuleMgr 批量判断规则失败：ruleIdList 为空。");
                 return null;
-            }
 
             for (int index = 0; index < ruleIdList.Count; index++)
             {
