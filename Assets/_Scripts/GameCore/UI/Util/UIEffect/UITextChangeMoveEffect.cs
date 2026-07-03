@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using SCFrame;
 using UnityEngine;
@@ -55,12 +56,12 @@ namespace GameCore.UI
         public Tween PlayTextChange(string content, TweenCallback onComplete = null)
         {
             KillAllTweens();
-            Tween tween = CreateTextChangeTween(content, duration, onComplete);
+            Tween tween = CreateTextChangeTween(content, duration, null, onComplete);
             return tween != null ? RegTween(tween) : null;
         }
 
 
-        public Tween PlayFloorCountSequence(int fromFloor, int toFloor, float totalDuration, TweenCallback onComplete = null)
+        public Tween PlayFloorCountSequence(int fromFloor, int toFloor, float totalDuration, Action<int> onFloorChanged = null, TweenCallback onComplete = null)
         {
             KillAllTweens();
             if (targetText == null || TargetRect == null || targetCanvasGroup == null)
@@ -72,11 +73,13 @@ namespace GameCore.UI
             if (fromFloor == toFloor)
             {
                 SetTextInstant($"{fromFloor}");
+                onFloorChanged?.Invoke(fromFloor);
                 onComplete?.Invoke();
                 return null;
             }
 
             SetTextInstant($"{fromFloor}");
+            onFloorChanged?.Invoke(fromFloor);
 
             int direction = fromFloor < toFloor ? 1 : -1;
             int stepCount = Mathf.Abs(toFloor - fromFloor);
@@ -86,7 +89,7 @@ namespace GameCore.UI
             for (int stepIndex = 0; stepIndex < stepCount; stepIndex++)
             {
                 int nextFloor = fromFloor + direction * (stepIndex + 1);
-                Tween stepTween = CreateTextChangeTween($"{nextFloor}", stepDuration);
+                Tween stepTween = CreateTextChangeTween($"{nextFloor}", stepDuration, () => onFloorChanged?.Invoke(nextFloor));
                 if (stepTween != null)
                     sequence.Append(stepTween);
             }
@@ -97,7 +100,7 @@ namespace GameCore.UI
         }
 
 
-        private Tween CreateTextChangeTween(string content, float tweenDuration, TweenCallback onComplete = null)
+        private Tween CreateTextChangeTween(string content, float tweenDuration, TweenCallback onContentApplied = null, TweenCallback onComplete = null)
         {
             if (targetText == null || TargetRect == null || targetCanvasGroup == null)
                 return null;
@@ -114,6 +117,7 @@ namespace GameCore.UI
                 targetText.text = content;
                 TargetRect.anchoredPosition = downPos;
                 targetCanvasGroup.alpha = 0f;
+                onContentApplied?.Invoke();
             });
             sequence.Append(TargetRect.DOAnchorPos(_originAnchoredPos, halfDuration).SetEase(ease));
             sequence.Join(targetCanvasGroup.DOFade(1f, halfDuration).SetEase(ease));

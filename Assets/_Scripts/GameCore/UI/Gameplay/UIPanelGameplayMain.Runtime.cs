@@ -29,6 +29,12 @@ namespace GameCore.UI
             if (mono.imgCustomerPortrait == null)
                 mono.imgCustomerPortrait = FindChildImage("CustomerPortrait");
 
+            if (mono.imgFloorSceneBackground == null)
+                mono.imgFloorSceneBackground = FindChildImage("AnimalView");
+
+            if (mono.imgFloorSceneBackgroundOverlay == null)
+                mono.imgFloorSceneBackgroundOverlay = FindChildImage("FloorSceneBackgroundOverlay");
+
             if (mono.elevatorView == null)
             {
                 Transform elevatorRoot = FindChildTransformRecursive(mono.transform, "ElevatorRoot");

@@ -69,6 +69,9 @@ namespace GameCore.UI
         private bool _useCustomerBackPortrait;
         private Transform _customerLayerHomeParent;
         private readonly Dictionary<string, Sprite> _portraitSpriteCache = new Dictionary<string, Sprite>();
+        private readonly Dictionary<string, Sprite> _floorSceneSpriteCache = new Dictionary<string, Sprite>();
+        private int _displayedFloorSceneBackgroundFloor;
+        private Tween _floorSceneBackgroundTween;
 
         public UIPanelGameplayMain(UIMonoGameplayMain _mono, SCUIShowType _showType) : base(_mono, _showType)
         {
@@ -95,6 +98,7 @@ namespace GameCore.UI
             GameTimeMgr.instance.StopAdvanceTween();
             _dialogueCoroutineContainer.KillAll();
             _dialogueAnimTweenContainer.KillAllDoTween();
+            KillFloorSceneBackgroundTween();
             UnbindButtons();
         }
 

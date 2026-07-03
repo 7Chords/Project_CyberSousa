@@ -118,6 +118,19 @@ namespace GameCore.Editor
         {
             Image animalPanel = CreatePanel("AnimalView", centerBand, new Vector2(0.04f, 0.02f), new Vector2(0.96f, 0.98f), new Color(0.80f, 0.80f, 0.80f, 0.92f));
             animalPanel.gameObject.AddComponent<RectMask2D>();
+            _currentMono.imgFloorSceneBackground = animalPanel;
+
+            Image floorSceneOverlay = CreatePanel(
+                "FloorSceneBackgroundOverlay",
+                animalPanel.rectTransform,
+                new Vector2(0f, 0f),
+                new Vector2(1f, 1f),
+                new Color(1f, 1f, 1f, 0f));
+            floorSceneOverlay.raycastTarget = false;
+            floorSceneOverlay.preserveAspect = false;
+            floorSceneOverlay.enabled = false;
+            _currentMono.imgFloorSceneBackgroundOverlay = floorSceneOverlay;
+            floorSceneOverlay.rectTransform.SetAsFirstSibling();
 
             CreateElevatorView(animalPanel.rectTransform);
 

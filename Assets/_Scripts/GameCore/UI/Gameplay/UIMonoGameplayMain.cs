@@ -30,6 +30,28 @@ namespace GameCore.UI
         public UIRuntimeMoveScaleEffect customerMoveScaleEffect;
         [Header("楼层文字切换动效")]
         public UITextChangeMoveEffect floorTextEffect;
+        [Header("楼层场景背景")]
+        public Image imgFloorSceneBackground;
+        [Header("楼层场景背景叠层（用于渐变切换）")]
+        public Image imgFloorSceneBackgroundOverlay;
+        [Header("楼层场景背景渐变时长")]
+        public float floorSceneBackgroundFadeDuration = 0.35f;
+        [Header("楼层场景背景资源名（1-12楼）")]
+        public List<string> floorSceneBackgroundResNames = new List<string>
+        {
+            "spr_scene_1",
+            "spr_scene_2",
+            "spr_scene_3",
+            "spr_scene_4",
+            "spr_scene_5",
+            "spr_scene_6",
+            "spr_scene_7",
+            "spr_scene_8",
+            "spr_scene_9",
+            "spr_scene_10",
+            "spr_scene_11",
+            "spr_scene_12",
+        };
         [Header("对话区域根节点")]
         public GameObject dialogueSection;
         [Header("左侧对话条背景")]
@@ -73,5 +95,22 @@ namespace GameCore.UI
         public Button btnSetting;
         [Header("楼层数字按键列表")]
         public List<Button> numberButtons = new List<Button>();
+
+
+        public string GetFloorSceneBackgroundResName(int floor)
+        {
+            if (floor < 1)
+                return null;
+
+            if (floorSceneBackgroundResNames == null || floorSceneBackgroundResNames.Count == 0)
+                return $"spr_scene_{floor}";
+
+            int index = floor - 1;
+            if (index >= floorSceneBackgroundResNames.Count)
+                return null;
+
+            string resName = floorSceneBackgroundResNames[index];
+            return string.IsNullOrEmpty(resName) ? null : resName;
+        }
     }
 }
