@@ -142,6 +142,17 @@ namespace GameCore.Editor
         {
             mono.txtTime = CreateTextPanel("TimePanel", rightBand, new Vector2(0.15f, 0.84f), new Vector2(0.92f, 0.91f), "第 1 天", 24, TextAnchor.MiddleCenter, FontStyle.Bold);
             mono.txtClockTime = CreateTextPanel("ClockTimePanel", rightBand, new Vector2(0.15f, 0.77f), new Vector2(0.92f, 0.84f), "08:00", 30, TextAnchor.MiddleCenter, FontStyle.Bold);
+            mono.txtPerformance = CreateText(
+                "PerformanceText",
+                rightBand,
+                new Vector2(0.15f, 0.805f),
+                new Vector2(0.92f, 0.855f),
+                "绩效值：0/100",
+                22,
+                TextAnchor.MiddleCenter,
+                FontStyle.Bold,
+                new Color(0.18f, 0.18f, 0.18f, 1f));
+            mono.txtPerformance.raycastTarget = false;
             mono.txtAnimalInfo = CreateTextPanel("AnimalInfoPanel", rightBand, new Vector2(0.15f, 0.62f), new Vector2(0.92f, 0.76f), "动物扫脸信息", 22, TextAnchor.UpperCenter, FontStyle.Bold);
 
             RectTransform animalChoiceSection = CreateContainer("AnimalChoiceSection", rightBand, new Vector2(0.18f, 0.22f), new Vector2(0.92f, 0.58f));

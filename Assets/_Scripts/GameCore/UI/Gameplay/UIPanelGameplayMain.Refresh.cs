@@ -217,9 +217,10 @@ namespace GameCore.UI
 
         private void RefreshPerformanceUi()
         {
-            EnsurePerformanceText();
-            if (mono.txtPerformance != null)
-                mono.txtPerformance.text = $"绩效值：{GamePlayerDataMgr.instance.performanceValue}/{_maxPerformance}";
+            if (mono.txtPerformance == null)
+                return;
+
+            mono.txtPerformance.text = $"绩效值：{GamePlayerDataMgr.instance.performanceValue}/{_maxPerformance}";
         }
 
 

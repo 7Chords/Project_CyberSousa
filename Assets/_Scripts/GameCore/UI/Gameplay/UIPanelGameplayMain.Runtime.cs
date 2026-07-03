@@ -72,6 +72,9 @@ namespace GameCore.UI
             if (mono.txtPerformance == null)
                 mono.txtPerformance = FindChildText("PerformanceText");
 
+            if (mono.txtPerformance == null)
+                Debug.LogError("Gameplay 绩效值文本未配置：请在 UIMonoGameplayMain 上绑定 txtPerformance。");
+
             if (mono.txtBottomHint == null)
                 mono.txtBottomHint = FindChildText("BottomHintText");
             //暂时注释测试tip
@@ -84,42 +87,7 @@ namespace GameCore.UI
                     mono.btnSetting = btnSettingTransform.GetComponent<Button>();
             }
 
-            EnsurePerformanceText();
             EnsureDialogueAdvanceClickArea();
-        }
-
-        private void EnsurePerformanceText()
-        {
-            if (mono.txtPerformance != null)
-                return;
-
-            Font defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            if (defaultFont == null)
-            {
-                Debug.LogError("Gameplay 绩效值文本初始化失败：未找到 LegacyRuntime.ttf。");
-                return;
-            }
-
-            GameObject performanceObject = new GameObject("PerformanceText", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-            RectTransform rect = performanceObject.GetComponent<RectTransform>();
-            rect.SetParent(mono.transform, false);
-            rect.SetAsLastSibling();
-            rect.anchorMin = new Vector2(0.812f, 0.805f);
-            rect.anchorMax = new Vector2(0.982f, 0.855f);
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            rect.pivot = new Vector2(0.5f, 0.5f);
-
-            Text performanceText = performanceObject.GetComponent<Text>();
-            performanceText.font = defaultFont;
-            performanceText.fontSize = 22;
-            performanceText.fontStyle = FontStyle.Bold;
-            performanceText.alignment = TextAnchor.MiddleCenter;
-            performanceText.horizontalOverflow = HorizontalWrapMode.Wrap;
-            performanceText.verticalOverflow = VerticalWrapMode.Overflow;
-            performanceText.raycastTarget = false;
-            performanceText.color = new Color(0.18f, 0.18f, 0.18f, 1f);
-            mono.txtPerformance = performanceText;
         }
 
         private void EnsureBottomHintVisible()
