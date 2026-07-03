@@ -20,6 +20,8 @@ namespace GameCore.UI
         public UIElevatorView elevatorView;
         [Header("住户层 CanvasGroup")]
         public CanvasGroup customerCanvasGroup;
+        [Header("住户头像")]
+        public Image imgCustomerPortrait;
         [Header("当前楼层 CanvasGroup")]
         public CanvasGroup currentFloorCanvasGroup;
         [Header("住户淡入淡出动效")]

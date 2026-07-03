@@ -46,6 +46,7 @@ namespace GameCore.UI
                 return;
 
             _isCustomerInfoVisible = false;
+            RefreshCustomerPortraitUi();
             BringCustomerLayerToFront();
             ResetCustomerPortraitTransform();
             mono.customerMoveScaleEffect?.SetOriginInstant();
@@ -85,6 +86,7 @@ namespace GameCore.UI
 
         private void SetCustomerHiddenInstant()
         {
+            ClearCustomerPortraitUi();
             ResetCustomerPortraitTransform();
             RestoreCustomerLayerHomeParent();
             mono.customerMoveScaleEffect?.SetOriginInstant();

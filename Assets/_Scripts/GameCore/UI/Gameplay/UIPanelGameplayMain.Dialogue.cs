@@ -376,6 +376,24 @@ namespace GameCore.UI
         }
 
 
+        private void RefreshCustomerPortraitUi()
+        {
+            if (_currentCustomerRefData == null)
+            {
+                ClearCustomerPortraitUi();
+                return;
+            }
+
+            ApplyCustomerPortrait(mono.imgCustomerPortrait, _currentCustomerRefData.portraitFrontResName);
+        }
+
+
+        private void ClearCustomerPortraitUi()
+        {
+            ApplyCustomerPortrait(mono.imgCustomerPortrait, null);
+        }
+
+
         private void SwitchCustomerPortraitToBack()
         {
             if (_currentCustomerRefData == null)

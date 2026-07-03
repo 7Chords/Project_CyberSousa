@@ -46,6 +46,7 @@ namespace GameCore.Editor
 
             Image customerShadow = CreatePanel("CustomerShadow", customerLayer, new Vector2(0.10f, 0.02f), new Vector2(0.90f, 0.12f), new Color(0f, 0f, 0f, 0.16f));
             customerShadow.raycastTarget = false;
+            _currentMono.imgCustomerPortrait = CreatePortraitImage("CustomerPortrait", customerLayer, new Vector2(0.05f, 0.15f), new Vector2(0.95f, 0.95f));
             _currentMono.txtCustomerName = CreateText("AnimalLabel", customerLayer, new Vector2(0.00f, 0.12f), new Vector2(1.00f, 0.96f), "动物", 40, TextAnchor.MiddleCenter, FontStyle.Bold, new Color(0.25f, 0.25f, 0.25f, 1f));
         }
 
