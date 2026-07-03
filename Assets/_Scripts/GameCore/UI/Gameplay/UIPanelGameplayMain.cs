@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Text;
 using DG.Tweening;
+using GameCore.Flow;
 using GameCore.RefData;
 using SCFrame;
 using SCFrame.UI;
@@ -13,6 +14,7 @@ namespace GameCore.UI
     public partial class UIPanelGameplayMain : _ASCUIPanelBase<UIMonoGameplayMain>
     {
         private static UIPanelGameplayMain _activePanel;
+        private static bool _skipSaveOnDiscardOnce;
 
         private const string PlayerSpeakerName = "玩家";
         private const long DefaultLevelId = 1001;
@@ -88,7 +90,10 @@ namespace GameCore.UI
 
         public override void BeforeDiscard()
         {
-            if (_hasInitializedRuntime && !_isSettlementShowing && !_hasRunEnded)
+            bool skipSaveOnDiscard = _skipSaveOnDiscardOnce;
+            _skipSaveOnDiscardOnce = false;
+
+            if (!skipSaveOnDiscard && _hasInitializedRuntime && !_isSettlementShowing && !_hasRunEnded)
                 GamePlayerDataMgr.instance.SaveDailyProgress(_currentDayIndex);
 
             if (_activePanel == this)
@@ -111,6 +116,39 @@ namespace GameCore.UI
                 return;
 
             GamePlayerDataMgr.instance.SaveDailyProgress(_activePanel._currentDayIndex);
+        }
+
+        public static void RefreshActivePanelForDebug()
+        {
+            if (_activePanel == null || !_activePanel._hasInitializedRuntime)
+                return;
+
+            _activePanel.RefreshAllUi();
+        }
+
+        public static bool TryGetActiveDayIndexForDebug(out int dayIndex)
+        {
+            if (_activePanel == null || !_activePanel._hasInitializedRuntime)
+            {
+                dayIndex = -1;
+                return false;
+            }
+
+            dayIndex = _activePanel._currentDayIndex;
+            return true;
+        }
+
+        public static bool RestartGameplayFromDayForDebug(int dayIndex)
+        {
+            if (!GamePlayerDataMgr.instance.TrySetStartDayIndex(dayIndex))
+                return false;
+
+            _skipSaveOnDiscardOnce = _activePanel != null
+                                     && _activePanel._hasInitializedRuntime
+                                     && !_activePanel._isSettlementShowing
+                                     && !_activePanel._hasRunEnded;
+            GameFlowController.instance.EnterGameplay();
+            return true;
         }
 
         public override void OnHidePanel()

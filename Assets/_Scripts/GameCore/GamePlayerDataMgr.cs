@@ -236,6 +236,26 @@ namespace GameCore
                 $"[GamePlayerDataMgr] 每日存档完成：nextDayIndex={saveData.nextDayIndex}，绩效值={_performanceValue}，NPC好感度数量={saveData.npcFavorList.Count}，已选对话选项数量={saveData.selectedDialogueOptionIdList.Count}，送达记录数量={saveData.deliveredFloorList.Count}");
         }
 
+        public bool TrySetStartDayIndex(int dayIndex)
+        {
+            if (dayIndex < 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 设定起始天失败：dayIndex={dayIndex} 不能小于 0。");
+                return false;
+            }
+
+            int levelCount = SCRefDataMgr.instance.levelRefList?.refDataList?.Count ?? 0;
+            if (levelCount > 0 && dayIndex >= levelCount)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 设定起始天失败：dayIndex={dayIndex} 超出关卡数量 {levelCount}。");
+                return false;
+            }
+
+            _startDayIndex = dayIndex;
+            Debug.Log($"[GamePlayerDataMgr] 已设定起始天：dayIndex={_startDayIndex}");
+            return true;
+        }
+
         public void AddNpcFavor(long npcId, int value)
         {
             if (npcId <= 0 || value == 0)
@@ -244,6 +264,18 @@ namespace GameCore
             _npcFavorDict.TryGetValue(npcId, out int oldValue);
             _npcFavorDict[npcId] = oldValue + value;
             Debug.Log($"[GamePlayerDataMgr] NPC好感度变化：npcId={npcId}，变化={value}，当前={_npcFavorDict[npcId]}");
+        }
+
+        public void SetNpcFavor(long npcId, int value)
+        {
+            if (npcId <= 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 设定 NPC 好感度失败：npcId={npcId}");
+                return;
+            }
+
+            _npcFavorDict[npcId] = value;
+            Debug.Log($"[GamePlayerDataMgr] 已设定 NPC 好感度：npcId={npcId}，当前={value}");
         }
 
         public int GetNpcFavor(long npcId)
@@ -275,6 +307,25 @@ namespace GameCore
             }
 
             return _selectedDialogueOptionIdSet.Contains(dialogueId);
+        }
+
+        public void SetDialogueOptionSelection(long dialogueId, bool selected)
+        {
+            if (dialogueId <= 0)
+            {
+                Debug.LogError($"[GamePlayerDataMgr] 设定对话选项失败：无效的 dialogueId={dialogueId}");
+                return;
+            }
+
+            if (selected)
+            {
+                _selectedDialogueOptionIdSet.Add(dialogueId);
+                Debug.Log($"[GamePlayerDataMgr] 已设定对话选项为已选择：dialogueId={dialogueId}");
+                return;
+            }
+
+            _selectedDialogueOptionIdSet.Remove(dialogueId);
+            Debug.Log($"[GamePlayerDataMgr] 已设定对话选项为未选择：dialogueId={dialogueId}");
         }
 
         public void RecordCustomerDeliveredFloor(long customerId, int floor)
@@ -324,6 +375,12 @@ namespace GameCore
             int oldValue = _performanceValue;
             _performanceValue -= value;
             Debug.Log($"[GamePlayerDataMgr] 绩效值扣除 {oldValue - _performanceValue}，当前绩效值={_performanceValue}");
+        }
+
+        public void SetPerformanceValue(int value)
+        {
+            _performanceValue = value;
+            Debug.Log($"[GamePlayerDataMgr] 已设定绩效值：当前绩效值={_performanceValue}");
         }
 
         public void MarkFinalSpecialCustomerConfirmed()
