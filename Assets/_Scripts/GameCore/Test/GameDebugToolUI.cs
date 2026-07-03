@@ -16,7 +16,7 @@ namespace GameCore.Test
 
         private Rect _windowRect = new Rect(16f, 16f, 420f, 500f);
         private Vector2 _scrollPosition;
-        private bool _isVisible = true;
+        private bool _isVisible = false;
         private string _jumpDayInput = "1";
         private string _dialogueIdInput = string.Empty;
         private bool _dialogueSelected = true;
