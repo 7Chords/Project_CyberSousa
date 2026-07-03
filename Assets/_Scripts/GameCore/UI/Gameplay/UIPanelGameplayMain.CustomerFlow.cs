@@ -97,6 +97,7 @@ namespace GameCore.UI
             _isDialogueRunning = false;
             _canCloseDoor = false;
             _hasConfirmedCurrentCustomer = false;
+            _hasRejectedCurrentCustomer = false;
             _hasCurrentOperationProblem = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;
@@ -171,6 +172,7 @@ namespace GameCore.UI
             _isDialogueRunning = false;
             _canCloseDoor = false;
             _hasConfirmedCurrentCustomer = false;
+            _hasRejectedCurrentCustomer = false;
             _hasCurrentOperationProblem = false;
             _lastJudgmentEffectData = null;
             _lastRuleEffectData = null;

@@ -63,6 +63,7 @@ namespace GameCore.UI
         private int _missingConfirmPenalty = DefaultMissingConfirmPenalty;
         private int _perfectOperationBonus = DefaultPerfectOperationBonus;
         private bool _hasConfirmedCurrentCustomer;
+        private bool _hasRejectedCurrentCustomer;
         private bool _hasCurrentOperationProblem;
         private bool _hasPlayedFirstCustomerGuide;
         private string _serviceFeedbackText;
@@ -228,6 +229,12 @@ namespace GameCore.UI
 
             if (!_hasConfirmedCurrentCustomer)
             {
+                if (_hasRejectedCurrentCustomer)
+                {
+                    SCDebugHelper.Log($"当前住户已拒绝，无需确认，不触发未确认扣绩效。source={settleSource}");
+                    return;
+                }
+
                 if (_missingConfirmPenalty > 0)
                 {
                     GamePlayerDataMgr.instance.DeductPerformance(_missingConfirmPenalty);

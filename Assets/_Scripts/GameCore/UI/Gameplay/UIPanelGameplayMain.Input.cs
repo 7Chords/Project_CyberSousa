@@ -138,6 +138,12 @@ namespace GameCore.UI
                 return;
             }
 
+            if (_hasRejectedCurrentCustomer)
+            {
+                SCDebugHelper.Log("当前住户已拒绝，无需再次确认。");
+                return;
+            }
+
             if (_hasConfirmedCurrentCustomer)
             {
                 SCDebugHelper.Log("当前住户已经确认过了。");
@@ -286,6 +292,7 @@ namespace GameCore.UI
             }
 
             _ruleFeedbackText = null;
+            _hasRejectedCurrentCustomer = true;
             MarkCurrentCustomerOperationProblem("已拒绝当前住户，本轮不计入绩效奖励。");
             ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
