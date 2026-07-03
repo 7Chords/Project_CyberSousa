@@ -103,6 +103,7 @@ namespace GameCore.UI
             }
 
             _selectedFloor = GetFloorFromButton(clickedButton);
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             _resolvedTargetFloor = 0;
             _recentFloorInputData.RecordFloor(_selectedFloor);
             _ruleFeedbackText = null;
@@ -151,6 +152,7 @@ namespace GameCore.UI
             }
 
             _hasConfirmedCurrentCustomer = true;
+            AudioMgr.instance.PlaySfx(AudioKeys.Confirm);
             SCDebugHelper.Log("已确认当前住户。");
 
             if (IsFinalDayLastSpecialCustomer() && !GamePlayerDataMgr.instance.hasConfirmedFinalSpecialCustomer)
@@ -169,6 +171,7 @@ namespace GameCore.UI
                 return;
             }
 
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, true));
         }
 
@@ -293,6 +296,7 @@ namespace GameCore.UI
 
             _ruleFeedbackText = null;
             _hasRejectedCurrentCustomer = true;
+            AudioMgr.instance.PlaySfx(AudioKeys.Wrong);
             MarkCurrentCustomerOperationProblem("已拒绝当前住户，本轮不计入绩效奖励。");
             ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");

@@ -104,6 +104,7 @@ namespace GameCore.UI
 
         private void onBtnReturnMainClickDown(PointerEventData _data, object[] _objs)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             UIPanelGameplayMain.SaveCurrentDayProgressIfActive();
             UINodeMgr.instance.CloseTopNode();
             GameFlowController.instance.EnterMainMenu();
@@ -111,6 +112,7 @@ namespace GameCore.UI
 
         private void onBtnCloseClickDown(PointerEventData _data, object[] _objs)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             UINodeMgr.instance.CloseTopNode();
         }
     }

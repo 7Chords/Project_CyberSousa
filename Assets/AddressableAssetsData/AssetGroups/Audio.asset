@@ -1,0 +1,85 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Audio
+  m_EditorClassIdentifier: 
+  m_GroupName: Audio
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 94d77a66e7b548e3a4f3d5669ff44c61
+  m_SerializeEntries:
+  - m_GUID: a3c161e49665a4484900ea2443bab32f
+    m_Address: ui2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9b134836d36af4c9f9952d69f91390ab
+    m_Address: 一天结束
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6aab5dc6e6394452b85f5fac66532c08
+    m_Address: 不对
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5cbe153c23f8542ecbb979b9c51b3ab0
+    m_Address: 关开电梯
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5d4f74de407e04b48ad4f93321de81d4
+    m_Address: 动物脚步
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 474aee5dde84049ee9e20a05034ffd71
+    m_Address: 对
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f0deeb9c02bd64cb2b3b9c3872a5d8e3
+    m_Address: 按按钮
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 618e0544499cb4f239bee12fb9fdfe3d
+    m_Address: 电梯运行
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63c8d926661dd4b1dbbc7f6bed13f3a8
+    m_Address: 电梯铃声
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a6d4b418f12494d45ac55cc2fa915c05
+    m_Address: 确定
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f44d7dbbc5f1844ad86dc84db035e911
+    m_Address: 纸质地图展开
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ddce13610c2e545dda8f510fe3b6925f
+    m_Address: 要按吗
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: e68d81b01d72f154d8230a28877cfbe5, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 7b6731f84a6c4eddbb44a8712d986bc2, type: 2}
+    - {fileID: 11400000, guid: 4aef923b6c314077aeb3572198e34db3, type: 2}

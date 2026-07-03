@@ -48,6 +48,7 @@ namespace GameCore.UI
 
         private void OnBtnNextDayClicked(PointerEventData eventData, object[] args)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.Confirm);
             onNextDayClicked?.Invoke();
             UINodeMgr.instance.CloseTopAdditionNode();
         }

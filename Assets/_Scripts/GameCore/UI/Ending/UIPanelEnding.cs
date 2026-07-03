@@ -82,6 +82,7 @@ namespace GameCore.UI
 
         private void OnBtnReturnMainClicked(PointerEventData eventData, object[] args)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             GamePlayerDataMgr.instance.ResetRuntimeData();
             GameFlowController.instance.EnterMainMenu();
         }

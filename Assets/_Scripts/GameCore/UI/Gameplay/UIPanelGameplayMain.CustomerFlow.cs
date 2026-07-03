@@ -384,6 +384,7 @@ namespace GameCore.UI
                 return;
 
             _isSettlementShowing = true;
+            AudioMgr.instance.PlaySfx(AudioKeys.DayEnd);
             GamePlayerDataMgr.instance.SaveDailyProgress(_currentDayIndex + 1);
             UIPanelSettlement.pendingTitle = $"第 {_currentDayIndex + 1} 天结算";
             UIPanelSettlement.pendingSummary = $"第 {_currentDayIndex + 1} 天的客人已经全部接待完成。";
@@ -420,6 +421,7 @@ namespace GameCore.UI
 
         private void ShowEndingPanel(EGameEndingType endingType)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.DayEnd);
             _hasRunEnded = true;
             GamePlayerDataMgr.instance.ClearSaveData();
             UIPanelEnding.pendingEndingType = endingType;

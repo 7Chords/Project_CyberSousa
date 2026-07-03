@@ -78,6 +78,7 @@ namespace GameCore.UI
 
         private void onBtnStartClicked(PointerEventData _data, object[] _objs)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.Confirm);
             GamePlayerDataMgr.instance.BeginNewGame();
             GameFlowController.instance.EnterGameplay();
         }
@@ -86,21 +87,25 @@ namespace GameCore.UI
         {
             if (!GamePlayerDataMgr.instance.TryLoadSaveData())
             {
+                AudioMgr.instance.PlaySfx(AudioKeys.Wrong);
                 SCDebugHelper.Log("没有可继续的存档。");
                 RefreshContinueButton();
                 return;
             }
 
+            AudioMgr.instance.PlaySfx(AudioKeys.Confirm);
             GameFlowController.instance.EnterGameplay();
         }
 
         private void onBtnExitClicked(PointerEventData arg1, object[] arg2)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             SCDebugHelper.Log("退出游戏");
         }
 
         private void onBtnSettingClicked(PointerEventData arg1, object[] arg2)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, false));
         }
 
@@ -227,6 +232,7 @@ namespace GameCore.UI
             }
 
             _isRevealTransitionPlaying = true;
+            AudioMgr.instance.PlaySfx(AudioKeys.PromptPress);
             removeFirstInputListener();
             stopInputWaiting();
             stopRevealTransition();

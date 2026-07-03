@@ -8,6 +8,7 @@ namespace GameCore.UI
 
         public void OpenElevatorDoor(TweenCallback onComplete = null)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ElevatorDoor);
             Tween tween = mono.elevatorView?.PlayOpen(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
@@ -28,6 +29,7 @@ namespace GameCore.UI
 
         public void CloseElevatorDoor(TweenCallback onComplete = null)
         {
+            AudioMgr.instance.PlaySfx(AudioKeys.ElevatorDoor);
             Tween tween = mono.elevatorView?.PlayClose(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
@@ -45,6 +47,7 @@ namespace GameCore.UI
             if (_currentCustomerRefData == null)
                 return;
 
+            AudioMgr.instance.PlaySfx(AudioKeys.CustomerStep);
             _isCustomerInfoVisible = false;
             RefreshCustomerPortraitUi();
             BringCustomerLayerToFront();
@@ -228,6 +231,7 @@ namespace GameCore.UI
             int fromFloor = _currentFloor;
             if (fromFloor != targetFloor)
             {
+                AudioMgr.instance.PlaySfx(AudioKeys.ElevatorTravel);
                 _isFloorDisplayAnimating = true;
                 GameTimeMgr.instance.PlayElevatorTravelAdvance(ElevatorTravelAnimDuration);
                 Tween floorTween = AnimateFloorTextSequence(fromFloor, targetFloor, ElevatorTravelAnimDuration);
@@ -246,6 +250,8 @@ namespace GameCore.UI
             {
                 _isFloorDisplayAnimating = false;
                 SetCurrentFloorDisplayInstant(targetFloor);
+                if (fromFloor != targetFloor)
+                    AudioMgr.instance.PlaySfx(AudioKeys.ElevatorBell);
                 onComplete?.Invoke();
             });
         }
