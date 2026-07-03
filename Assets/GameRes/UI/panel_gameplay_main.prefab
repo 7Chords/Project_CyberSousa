@@ -885,7 +885,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -544.58307, y: -406}
-  m_SizeDelta: {x: 416.3627, y: 256.5182}
+  m_SizeDelta: {x: 462.6413, y: 285.0301}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5333059045567759752
 CanvasRenderer:
@@ -4234,8 +4234,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.05, y: 0.12}
   m_AnchorMax: {x: 0.95, y: 0.88}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 10.4608, y: 15.6912}
+  m_SizeDelta: {x: -92.9851, y: -5.8115}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2192173459413542694
 CanvasRenderer:
@@ -4278,7 +4278,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5BF9\u8BDD2"
+  m_Text: "\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2\u5BF9\u8BDD2"
 --- !u!1 &6179648966220272636
 GameObject:
   m_ObjectHideFlags: 0
@@ -4585,7 +4585,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -285, y: 65}
-  m_SizeDelta: {x: 478.1737, y: 300.6718}
+  m_SizeDelta: {x: 500, y: 266}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2335477481767301689
 CanvasRenderer:
@@ -4659,8 +4659,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.000030517578, y: -8.3586}
-  m_SizeDelta: {x: -193.5381, y: -133.9521}
+  m_AnchoredPosition: {x: 30.053192, y: 2.5294037}
+  m_SizeDelta: {x: -133.4317, y: -80.5411}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3809821899082344473
 CanvasRenderer:
@@ -4703,7 +4703,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5BF9\u8BDD1"
+  m_Text: "\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1\u5BF9\u8BDD1"
 --- !u!1 &6520332185287184417
 GameObject:
   m_ObjectHideFlags: 0
