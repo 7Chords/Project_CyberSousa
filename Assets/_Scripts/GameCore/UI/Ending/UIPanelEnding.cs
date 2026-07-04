@@ -42,15 +42,15 @@ namespace GameCore.UI
             {
                 case EGameEndingType.BAD:
                     SetEndingSprite(mono.sprBadEnding);
-                    SetText("坏结局：业绩值跌破底线，这次值班在系统警报中提前结束。");
+                    SetText("End：不合格按键员\n你按错了太多次。\n管理员委婉地表示，\n你和住户之间可能存在沟通障碍。\n第二天，\n你被安排去看守安置区外侧的小门。\n工作内容简单很多：\n门开了就关。\n门关了就看着。\n直到有一天，\n你看到曾经那栋公寓。\n拔地而起。");
                     break;
                 case EGameEndingType.ENDING_1:
                     SetEndingSprite(mono.sprEnding1);
-                    SetText("结局一：你按下了确认键，阿莉还是把故事说完了，而这栋楼的秘密也被留在了记录里。");
+                    SetText("End：一切正常\n你按下了确认键。\n第二天，\n你照常上班。\n没有处分，没有奖励，\n也没有人提起昨晚。\n考考仍然带着面包。\n来福仍然制造噪音。\n电梯仍然上行下行。");
                     break;
                 case EGameEndingType.ENDING_2:
                     SetEndingSprite(mono.sprEnding2);
-                    SetText("结局二：你没有按下确认键，阿莉带着那些尚未被登记的答案，走向了更远的未来。");
+                    SetText("End：集体迁徙\n你没有按下确认键。\n系统没有进行最后一次的检查。\n管理员没有发现夹层。\n而那栋楼，终于不再扮演一栋楼。\n你听到一阵轰鸣。\n公寓拔地而起。\n灯光、房间、住户、沉默，\n地球的眼睛、胃、羽毛、根须，\n罪恶、无法辩白的使命，\n全都被火焰托举到夜空里。\n只有上行。");
                     break;
                 default:
                     SetEndingSprite(null);
