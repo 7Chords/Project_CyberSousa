@@ -1,4 +1,5 @@
 using System.Collections;
+using GameCore;
 using SCFrame;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,15 +17,17 @@ namespace GameCore.UI
         private string _activeDialogueTypewriterFullText;
         private long _dialogueTypewriterLineId;
         private bool _isDialogueTypewriterPlaying;
+        private bool _playDialogueCharTickSfx;
         private bool _awaitDialogueAdvanceAfterPlayerLine;
         private bool _pendingEndDialogueAfterPlayerLine;
         private long _pendingDialogueIdAfterPlayerLine;
 
-        private void StartDialogueTypewriter(Text targetText, string fullText, long lineId)
+        private void StartDialogueTypewriter(Text targetText, string fullText, long lineId, bool playCharTickSfx = false)
         {
             StopDialogueTypewriterRoutine();
 
             _dialogueTypewriterLineId = lineId;
+            _playDialogueCharTickSfx = playCharTickSfx;
             if (targetText == null || string.IsNullOrEmpty(fullText))
             {
                 if (targetText != null)
@@ -65,6 +68,8 @@ namespace GameCore.UI
 
                 targetText.text = DialogueTextFormatter.PreventLineStartPunctuation(rawText.Substring(0, charCount));
                 PlayDialogueTextTickAnimation(targetText, rawText[charCount - 1]);
+                if (_playDialogueCharTickSfx)
+                    AudioMgr.instance.PlaySfx(AudioKeys.DialogueCharTick);
                 UpdateDialogueStripVisibility();
                 yield return new WaitForSecondsRealtime(DialogueTypewriterCharInterval);
             }
@@ -139,6 +144,7 @@ namespace GameCore.UI
             _activeDialogueTypewriterRawText = null;
             _activeDialogueTypewriterFullText = null;
             _dialogueTypewriterLineId = 0;
+            _playDialogueCharTickSfx = false;
             if (mono.txtDialogueLeft != null)
                 KillDialogueTextAnimation(mono.txtDialogueLeft);
             if (mono.txtDialogueRight != null)
@@ -197,7 +203,7 @@ namespace GameCore.UI
             else
                 PlayCustomerDialogueEnterAnimation();
 
-            StartDialogueTypewriter(targetText, currentContent, lineId);
+            StartDialogueTypewriter(targetText, currentContent, lineId, !isPlayerDialogue);
         }
 
         private bool IsDialogueTypewriterComplete(Text targetText, string fullText)

@@ -1,5 +1,6 @@
 using System.Collections;
 using DG.Tweening;
+using GameCore;
 using SCFrame;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,6 +45,7 @@ namespace GameCore.UI
 
             _hasCustomerDialogueStripShown = true;
             CacheCustomerDialogueOrigin();
+            AudioMgr.instance.PlaySfx(AudioKeys.CustomerDialogueBubble);
 
             RectTransform rectTransform = mono.dialogueLeftArea.rectTransform;
             rectTransform.DOKill();
@@ -62,6 +64,7 @@ namespace GameCore.UI
                 return;
 
             _hasPlayerDialogueStripShown = true;
+            AudioMgr.instance.PlaySfx(AudioKeys.PlayerDialoguePopup);
 
             RectTransform rectTransform = mono.dialogueRightArea.rectTransform;
             rectTransform.DOKill();

@@ -296,7 +296,7 @@ namespace GameCore.UI
 
             _ruleFeedbackText = null;
             _hasRejectedCurrentCustomer = true;
-            AudioMgr.instance.PlaySfx(AudioKeys.Wrong);
+            AudioMgr.instance.PlaySfx(AudioKeys.Reject);
             MarkCurrentCustomerOperationProblem("已拒绝当前住户，本轮不计入绩效奖励。");
             ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");

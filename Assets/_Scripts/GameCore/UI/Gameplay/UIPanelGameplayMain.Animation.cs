@@ -8,7 +8,6 @@ namespace GameCore.UI
 
         public void OpenElevatorDoor(TweenCallback onComplete = null)
         {
-            AudioMgr.instance.PlaySfx(AudioKeys.ElevatorDoor);
             Tween tween = mono.elevatorView?.PlayOpen(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
@@ -29,7 +28,14 @@ namespace GameCore.UI
 
         public void CloseElevatorDoor(TweenCallback onComplete = null)
         {
-            AudioMgr.instance.PlaySfx(AudioKeys.ElevatorDoor);
+            if (mono.elevatorView != null && !mono.elevatorView.IsDoorOpen())
+            {
+                onComplete?.Invoke();
+                return;
+            }
+
+            AudioMgr.instance.PlaySfx(AudioKeys.ElevatorDoorClose);
+            AudioMgr.instance.PlaySfx(AudioKeys.Ui);
             Tween tween = mono.elevatorView?.PlayClose(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
@@ -225,7 +231,7 @@ namespace GameCore.UI
         }
 
 
-        private void PlayElevatorTravelToFloor(int targetFloor, TweenCallback onComplete)
+        private void PlayElevatorTravelToFloor(int targetFloor, TweenCallback onComplete, bool playArrivalBell = true)
         {
             Sequence sequence = DOTween.Sequence();
             int fromFloor = _currentFloor;
@@ -250,7 +256,7 @@ namespace GameCore.UI
             {
                 _isFloorDisplayAnimating = false;
                 SetCurrentFloorDisplayInstant(targetFloor);
-                if (fromFloor != targetFloor)
+                if (fromFloor != targetFloor && playArrivalBell)
                     AudioMgr.instance.PlaySfx(AudioKeys.ElevatorBell);
                 onComplete?.Invoke();
             });

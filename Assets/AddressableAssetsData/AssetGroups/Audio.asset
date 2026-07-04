@@ -17,63 +17,83 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 94d77a66e7b548e3a4f3d5669ff44c61
   m_SerializeEntries:
+  - m_GUID: 00efcf7a076e855429cdf94677bef242
+    m_Address: "\u7535\u68AF\u5173\u95E8"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1975ab47c3187ea429b36854da019868
+    m_Address: "\u4F4F\u6237\u6C14\u6CE1"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 474aee5dde84049ee9e20a05034ffd71
+    m_Address: "\u5BF9"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5cbe153c23f8542ecbb979b9c51b3ab0
+    m_Address: "\u5173\u5F00\u7535\u68AF"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5d4f74de407e04b48ad4f93321de81d4
+    m_Address: "\u52A8\u7269\u811A\u6B65"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 618e0544499cb4f239bee12fb9fdfe3d
+    m_Address: "\u7535\u68AF\u8FD0\u884C"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63c8d926661dd4b1dbbc7f6bed13f3a8
+    m_Address: "\u7535\u68AF\u94C3\u58F0"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6aab5dc6e6394452b85f5fac66532c08
+    m_Address: "\u4E0D\u5BF9"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 83e75e86c730a914f9c60fb82902bddd
+    m_Address: "\u73A9\u5BB6\u5BF9\u8BDD\u5F39\u51FA"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9b134836d36af4c9f9952d69f91390ab
+    m_Address: "\u4E00\u5929\u7ED3\u675F"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a3c161e49665a4484900ea2443bab32f
     m_Address: ui2
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 9b134836d36af4c9f9952d69f91390ab
-    m_Address: 一天结束
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 6aab5dc6e6394452b85f5fac66532c08
-    m_Address: 不对
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5cbe153c23f8542ecbb979b9c51b3ab0
-    m_Address: 关开电梯
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5d4f74de407e04b48ad4f93321de81d4
-    m_Address: 动物脚步
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 474aee5dde84049ee9e20a05034ffd71
-    m_Address: 对
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f0deeb9c02bd64cb2b3b9c3872a5d8e3
-    m_Address: 按按钮
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 618e0544499cb4f239bee12fb9fdfe3d
-    m_Address: 电梯运行
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 63c8d926661dd4b1dbbc7f6bed13f3a8
-    m_Address: 电梯铃声
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a6d4b418f12494d45ac55cc2fa915c05
-    m_Address: 确定
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f44d7dbbc5f1844ad86dc84db035e911
-    m_Address: 纸质地图展开
+    m_Address: "\u786E\u5B9A"
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ddce13610c2e545dda8f510fe3b6925f
-    m_Address: 要按吗
+    m_Address: "\u8981\u6309\u5417"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f0deeb9c02bd64cb2b3b9c3872a5d8e3
+    m_Address: "\u6309\u6309\u94AE"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f44d7dbbc5f1844ad86dc84db035e911
+    m_Address: "\u7EB8\u8D28\u5730\u56FE\u5C55\u5F00"
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fbded67fe2a259c43a6935280d7f8be3
+    m_Address: "\u5BF9\u8BDD\u8DF3\u5B57"
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

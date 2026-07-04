@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using GameCore;
 using GameCore.RefData;
 using SCFrame;
 using UnityEngine;
@@ -190,6 +191,7 @@ namespace GameCore.UI
 
             GamePlayerDataMgr.instance.RecordDialogueOptionSelection(optionDialogueRefData.id);
             ApplyDialogueFavorEffects(optionDialogueRefData);
+            AudioMgr.instance.PlaySfx(AudioKeys.CustomerDialogueBubble);
             ClearDialogueOptions();
             _awaitDialogueAdvanceAfterPlayerLine = true;
             if (optionDialogueRefData.nextList == null || optionDialogueRefData.nextList.Count == 0 || optionDialogueRefData.nextList[0] == 0)

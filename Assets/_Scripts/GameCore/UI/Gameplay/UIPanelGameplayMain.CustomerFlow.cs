@@ -496,7 +496,7 @@ namespace GameCore.UI
                         else
                             HideCurrentCustomer(afterArriveLeave);
                     });
-                });
+                }, false);
             };
 
             if (needBoardAnimation)
