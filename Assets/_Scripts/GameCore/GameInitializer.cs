@@ -48,6 +48,7 @@ namespace GameCore
             CustomerNeedMgr.instance.Initialize();
             UINodeMgr.instance.Initialize();
             GameFlowController.instance.InitializeFlow();
+            AudioMgr.instance.PlayBgm(AudioKeys.MainBgm);
 
             startGame();
         }

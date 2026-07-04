@@ -2,6 +2,7 @@ namespace GameCore
 {
     public static class AudioKeys
     {
+        public const string MainBgm = "BGM";
         public const string ButtonClick = "按按钮";
         public const string Confirm = "确定";
         public const string Correct = "对";

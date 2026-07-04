@@ -77,6 +77,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cdf7749303baf4a7782f6f75cdb25b57
+    m_Address: BGM
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d7a477ca96811bc46976d72a6efd14b5
     m_Address: "\u62D2\u7EDD"
     m_ReadOnly: 0
