@@ -32,10 +32,8 @@ namespace GameCore.UI
         public UITextChangeMoveEffect floorTextEffect;
         [Header("楼层场景背景")]
         public Image imgFloorSceneBackground;
-        [Header("楼层场景背景叠层（用于渐变切换）")]
+        [Header("楼层场景背景叠层")]
         public Image imgFloorSceneBackgroundOverlay;
-        [Header("楼层场景背景渐变时长")]
-        public float floorSceneBackgroundFadeDuration = 0.35f;
         [Header("楼层场景背景资源名（1-12楼）")]
         public List<string> floorSceneBackgroundResNames = new List<string>
         {

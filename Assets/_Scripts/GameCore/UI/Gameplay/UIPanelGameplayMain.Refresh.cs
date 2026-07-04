@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Text;
-using DG.Tweening;
 using GameCore.RefData;
 using SCFrame;
 using UnityEngine;
@@ -38,22 +37,20 @@ namespace GameCore.UI
                 mono.txtTime.text = $"第 {_currentDayIndex + 1} 天";
 
             RefreshClockUi();
-            RefreshFloorSceneBackgroundUi(_currentFloor);
         }
 
 
-        private void RefreshFloorSceneBackgroundUi(int floor, float fadeDuration = -1f)
+        private void RefreshFloorSceneBackgroundUi(int floor)
         {
             if (mono.imgFloorSceneBackground == null)
                 return;
 
-            if (floor == _displayedFloorSceneBackgroundFloor && _floorSceneBackgroundTween == null)
+            if (floor == _displayedFloorSceneBackgroundFloor)
                 return;
 
             string resName = mono.GetFloorSceneBackgroundResName(floor);
             if (string.IsNullOrEmpty(resName))
             {
-                KillFloorSceneBackgroundTween();
                 mono.imgFloorSceneBackground.enabled = false;
                 mono.imgFloorSceneBackground.sprite = null;
                 _displayedFloorSceneBackgroundFloor = 0;
@@ -63,81 +60,11 @@ namespace GameCore.UI
             Sprite sprite = GetOrLoadFloorSceneSprite(resName);
             if (sprite == null)
             {
-                KillFloorSceneBackgroundTween();
                 mono.imgFloorSceneBackground.enabled = false;
                 mono.imgFloorSceneBackground.sprite = null;
                 _displayedFloorSceneBackgroundFloor = 0;
                 return;
             }
-
-            if (fadeDuration < 0f)
-                fadeDuration = mono.floorSceneBackgroundFadeDuration;
-
-            Image baseImage = mono.imgFloorSceneBackground;
-            bool hasCurrentBackground = baseImage.enabled && baseImage.sprite != null;
-            if (!hasCurrentBackground || fadeDuration <= 0.001f)
-            {
-                ApplyFloorSceneBackgroundInstant(sprite, floor);
-                return;
-            }
-
-            Image overlay = mono.imgFloorSceneBackgroundOverlay;
-            if (overlay == null)
-            {
-                PlayFloorSceneBackgroundSingleImageFade(sprite, floor, fadeDuration);
-                return;
-            }
-
-            KillFloorSceneBackgroundTween();
-            overlay.rectTransform.SetAsFirstSibling();
-            overlay.sprite = sprite;
-            overlay.enabled = true;
-            Color overlayColor = overlay.color;
-            overlayColor.a = 0f;
-            overlay.color = overlayColor;
-
-            _displayedFloorSceneBackgroundFloor = floor;
-            _floorSceneBackgroundTween = overlay.DOFade(1f, fadeDuration)
-                .SetEase(Ease.InOutSine)
-                .OnComplete(() =>
-                {
-                    baseImage.sprite = sprite;
-                    baseImage.enabled = true;
-                    Color baseColor = baseImage.color;
-                    baseColor.a = 1f;
-                    baseImage.color = baseColor;
-
-                    overlay.enabled = false;
-                    Color resetOverlayColor = overlay.color;
-                    resetOverlayColor.a = 0f;
-                    overlay.color = resetOverlayColor;
-                    _floorSceneBackgroundTween = null;
-                });
-        }
-
-
-        private void PlayFloorSceneBackgroundSingleImageFade(Sprite sprite, int floor, float fadeDuration)
-        {
-            Image baseImage = mono.imgFloorSceneBackground;
-            float halfDuration = Mathf.Max(0.02f, fadeDuration * 0.5f);
-            _displayedFloorSceneBackgroundFloor = floor;
-
-            _floorSceneBackgroundTween = baseImage.DOFade(0f, halfDuration)
-                .SetEase(Ease.InOutSine)
-                .OnComplete(() =>
-                {
-                    baseImage.sprite = sprite;
-                    baseImage.enabled = true;
-                    _floorSceneBackgroundTween = baseImage.DOFade(1f, halfDuration)
-                        .SetEase(Ease.InOutSine)
-                        .OnComplete(() => _floorSceneBackgroundTween = null);
-                });
-        }
-
-
-        private void ApplyFloorSceneBackgroundInstant(Sprite sprite, int floor)
-        {
-            KillFloorSceneBackgroundTween();
 
             Image baseImage = mono.imgFloorSceneBackground;
             baseImage.sprite = sprite;
@@ -155,40 +82,6 @@ namespace GameCore.UI
             }
 
             _displayedFloorSceneBackgroundFloor = floor;
-        }
-
-
-        private void KillFloorSceneBackgroundTween()
-        {
-            if (_floorSceneBackgroundTween == null)
-                return;
-
-            _floorSceneBackgroundTween.Kill();
-            _floorSceneBackgroundTween = null;
-            CommitFloorSceneBackgroundCrossfade();
-        }
-
-
-        private void CommitFloorSceneBackgroundCrossfade()
-        {
-            Image overlay = mono.imgFloorSceneBackgroundOverlay;
-            if (overlay == null || !overlay.enabled || overlay.sprite == null)
-                return;
-
-            if (overlay.color.a <= 0.01f)
-                return;
-
-            Image baseImage = mono.imgFloorSceneBackground;
-            baseImage.sprite = overlay.sprite;
-            baseImage.enabled = true;
-            Color baseColor = baseImage.color;
-            baseColor.a = 1f;
-            baseImage.color = baseColor;
-
-            overlay.enabled = false;
-            Color overlayColor = overlay.color;
-            overlayColor.a = 0f;
-            overlay.color = overlayColor;
         }
 
 

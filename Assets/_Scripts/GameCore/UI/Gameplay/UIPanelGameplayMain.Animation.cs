@@ -8,6 +8,7 @@ namespace GameCore.UI
 
         public void OpenElevatorDoor(TweenCallback onComplete = null)
         {
+            RefreshFloorSceneBackgroundUi(_currentFloor);
             Tween tween = mono.elevatorView?.PlayOpen(onComplete);
             if (tween == null)
                 onComplete?.Invoke();
@@ -18,6 +19,7 @@ namespace GameCore.UI
         {
             if (mono.elevatorView != null && mono.elevatorView.IsDoorOpen())
             {
+                RefreshFloorSceneBackgroundUi(_currentFloor);
                 onComplete?.Invoke();
                 return;
             }
@@ -265,35 +267,23 @@ namespace GameCore.UI
 
         private Tween AnimateFloorTextSequence(int fromFloor, int toFloor, float totalDuration)
         {
-            int stepCount = Mathf.Abs(toFloor - fromFloor);
-            float stepDuration = stepCount > 0 ? totalDuration / stepCount : totalDuration;
-
             if (mono.floorTextEffect != null)
-            {
-                return mono.floorTextEffect.PlayFloorCountSequence(
-                    fromFloor,
-                    toFloor,
-                    totalDuration,
-                    floor => RefreshFloorSceneBackgroundUi(floor, stepDuration));
-            }
+                return mono.floorTextEffect.PlayFloorCountSequence(fromFloor, toFloor, totalDuration);
 
             if (fromFloor == toFloor || mono.txtCurrentFloor == null)
                 return null;
 
             mono.txtCurrentFloor.text = $"{fromFloor}";
-            RefreshFloorSceneBackgroundUi(fromFloor, 0f);
 
             int direction = fromFloor < toFloor ? 1 : -1;
+            int stepCount = Mathf.Abs(toFloor - fromFloor);
+            float stepDuration = totalDuration / stepCount;
 
             Sequence sequence = DOTween.Sequence();
             for (int stepIndex = 0; stepIndex < stepCount; stepIndex++)
             {
                 int nextFloor = fromFloor + direction * (stepIndex + 1);
-                sequence.AppendCallback(() =>
-                {
-                    mono.txtCurrentFloor.text = $"{nextFloor}";
-                    RefreshFloorSceneBackgroundUi(nextFloor, stepDuration);
-                });
+                sequence.AppendCallback(() => mono.txtCurrentFloor.text = $"{nextFloor}");
                 sequence.AppendInterval(stepDuration);
             }
 
