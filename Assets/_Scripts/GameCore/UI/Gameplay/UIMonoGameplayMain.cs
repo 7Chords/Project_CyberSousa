@@ -78,6 +78,8 @@ namespace GameCore.UI
         public Text txtCustomerName;
         [Header("动物档案信息文本")]
         public Text txtAnimalInfo;
+        [Header("需求楼层文本")]
+        public Text txtDemandFloor;
         [Header("底部提示文本")]
         public Text txtBottomHint;
         [Header("对话选项容器")]

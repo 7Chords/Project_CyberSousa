@@ -153,6 +153,18 @@ namespace GameCore.Editor
                 FontStyle.Bold,
                 new Color(0.18f, 0.18f, 0.18f, 1f));
             mono.txtPerformance.raycastTarget = false;
+            mono.txtDemandFloor = CreateText(
+                "DemandFloorText",
+                rightBand,
+                new Vector2(0.15f, 0.56f),
+                new Vector2(0.92f, 0.61f),
+                "需求楼层：1",
+                22,
+                TextAnchor.MiddleCenter,
+                FontStyle.Bold,
+                new Color(0.18f, 0.18f, 0.18f, 1f));
+            mono.txtDemandFloor.raycastTarget = false;
+            mono.txtDemandFloor.gameObject.SetActive(false);
             mono.txtAnimalInfo = CreateTextPanel("AnimalInfoPanel", rightBand, new Vector2(0.15f, 0.62f), new Vector2(0.92f, 0.76f), "动物扫脸信息", 22, TextAnchor.UpperCenter, FontStyle.Bold);
 
             RectTransform animalChoiceSection = CreateContainer("AnimalChoiceSection", rightBand, new Vector2(0.18f, 0.22f), new Vector2(0.92f, 0.58f));

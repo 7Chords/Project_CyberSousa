@@ -75,6 +75,9 @@ namespace GameCore.UI
             if (mono.txtPerformance == null)
                 Debug.LogError("Gameplay 绩效值文本未配置：请在 UIMonoGameplayMain 上绑定 txtPerformance。");
 
+            if (mono.txtDemandFloor == null)
+                mono.txtDemandFloor = FindChildText("DemandFloorText");
+
             if (mono.txtBottomHint == null)
                 mono.txtBottomHint = FindChildText("BottomHintText");
             //暂时注释测试tip

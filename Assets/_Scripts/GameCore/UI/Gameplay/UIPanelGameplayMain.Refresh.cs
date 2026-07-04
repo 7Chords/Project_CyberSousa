@@ -202,6 +202,17 @@ namespace GameCore.UI
 
         private void RefreshCustomerUi()
         {
+            if (mono.txtDemandFloor != null)
+            {
+                bool showDemandFloor = _currentCustomerRefData != null
+                    && _isCustomerInfoVisible
+                    && _currentNeedRefData != null
+                    && _currentNeedRefData.demandFloor > 0;
+                mono.txtDemandFloor.gameObject.SetActive(showDemandFloor);
+                if (showDemandFloor)
+                    mono.txtDemandFloor.text = $"需求楼层：{_currentNeedRefData.demandFloor}";
+            }
+
             if (_currentCustomerRefData == null || !_isCustomerInfoVisible)
                 return;
 
