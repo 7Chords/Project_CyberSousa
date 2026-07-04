@@ -495,7 +495,9 @@ namespace GameCore.UI
                             });
                         };
 
-                        if (needBoardAnimation)
+                        if (ShouldPlayFinalSpecialCustomerDepartureDialogue(needBoardAnimation))
+                            PlayFinalSpecialCustomerDepartureDialogue(afterArriveLeave);
+                        else if (needBoardAnimation)
                             PlayCustomerLeaveElevator(afterArriveLeave);
                         else
                             HideCurrentCustomer(afterArriveLeave);

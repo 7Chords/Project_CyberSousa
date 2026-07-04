@@ -17,23 +17,13 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 7991bfe4cf31f874987920baa505936a
   m_SerializeEntries:
-  - m_GUID: ee3a674ad4f8ff04783e924fbbe1ba4e
-    m_Address: panel_start
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 059562b49065488d951567bc90abbb4d
     m_Address: panel_loop_list_demo
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8a92d1c1a4bb4be7ad7949542e8e4e0d
-    m_Address: panel_gameplay_main
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c6e08d127d0b392499db12a368c18754
-    m_Address: panel_setting
+  - m_GUID: 152a737f7d6193048beea7835b88c429
+    m_Address: item_dialogue_option
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -47,8 +37,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 152a737f7d6193048beea7835b88c429
-    m_Address: item_dialogue_option
+  - m_GUID: 8a92d1c1a4bb4be7ad7949542e8e4e0d
+    m_Address: panel_gameplay_main
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a2a643efb23a4bbcb47731d0343b2e9f
+    m_Address: panel_developers
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c6e08d127d0b392499db12a368c18754
+    m_Address: panel_setting
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -57,8 +57,8 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: a2a643efb23a4bbcb47731d0343b2e9f
-    m_Address: panel_developers
+  - m_GUID: ee3a674ad4f8ff04783e924fbbe1ba4e
+    m_Address: panel_start
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

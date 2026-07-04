@@ -42,15 +42,15 @@ namespace GameCore.UI
             {
                 case EGameEndingType.BAD:
                     SetEndingSprite(mono.sprBadEnding);
-                    SetText("坏结局：业绩值已经跌破底线，电梯系统终止了你的值班权限。");
+                    SetText("坏结局：业绩值跌破底线，这次值班在系统警报中提前结束。");
                     break;
                 case EGameEndingType.ENDING_1:
                     SetEndingSprite(mono.sprEnding1);
-                    SetText("结局一：你在最后的关键节点按下确认键，特殊住户的记录被保留下来。");
+                    SetText("结局一：你按下了确认键，阿莉还是把故事说完了，而这栋楼的秘密也被留在了记录里。");
                     break;
                 case EGameEndingType.ENDING_2:
                     SetEndingSprite(mono.sprEnding2);
-                    SetText( "结局二：你没有在最后的关键节点按下确认键，特殊住户的记录被归入沉默档案。");
+                    SetText("结局二：你没有按下确认键，阿莉带着那些尚未被登记的答案，走向了更远的未来。");
                     break;
                 default:
                     SetEndingSprite(null);

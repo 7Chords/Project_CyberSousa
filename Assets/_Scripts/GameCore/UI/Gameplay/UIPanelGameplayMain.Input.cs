@@ -360,7 +360,6 @@ namespace GameCore.UI
 
             if (_selectedFloor <= 0)
             {
-                Debug.LogError("Gameplay 关门失败：当前尚未选择目标楼层。");
                 return;
             }
 

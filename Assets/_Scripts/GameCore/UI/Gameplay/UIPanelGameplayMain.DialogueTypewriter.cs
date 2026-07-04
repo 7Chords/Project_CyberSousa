@@ -1,4 +1,5 @@
 using System.Collections;
+using System;
 using GameCore;
 using SCFrame;
 using UnityEngine;
@@ -21,6 +22,8 @@ namespace GameCore.UI
         private bool _awaitDialogueAdvanceAfterPlayerLine;
         private bool _pendingEndDialogueAfterPlayerLine;
         private long _pendingDialogueIdAfterPlayerLine;
+        private Action _dialogueEndedCallback;
+        private bool _shouldAddNeedTimeOnDialogueEnd = true;
 
         private void StartDialogueTypewriter(Text targetText, string fullText, long lineId, bool playCharTickSfx = false)
         {

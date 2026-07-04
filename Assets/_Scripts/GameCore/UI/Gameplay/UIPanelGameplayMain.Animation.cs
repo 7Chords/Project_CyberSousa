@@ -120,7 +120,7 @@ namespace GameCore.UI
                 mono.customerCanvasGroup.alpha = 1f;
 
             Tween moveTween = mono.customerMoveScaleEffect?.PlayEnter();
-            Tween flipTween = CreateCustomerPortraitFlipToBackTween();
+            Tween flipTween = CreateCustomerPortraitFlipTween(true);
             if (moveTween == null && flipTween == null)
             {
                 SwitchCustomerPortraitToBack();
@@ -140,14 +140,33 @@ namespace GameCore.UI
 
         private Tween CreateCustomerPortraitFlipToBackTween()
         {
+            return CreateCustomerPortraitFlipTween(true);
+        }
+
+
+        private Tween CreateCustomerPortraitFlipToFrontTween()
+        {
+            return CreateCustomerPortraitFlipTween(false);
+        }
+
+
+        private Tween CreateCustomerPortraitFlipTween(bool flipToBack)
+        {
             if (mono.imgDialoguePortrait == null || !mono.imgDialoguePortrait.enabled)
             {
-                SwitchCustomerPortraitToBack();
+                if (flipToBack)
+                    SwitchCustomerPortraitToBack();
+                else
+                    SwitchCustomerPortraitToFront();
                 return null;
             }
 
-            if (_currentCustomerRefData == null
-                || !IsValidPortraitResName(_currentCustomerRefData.portraitBackResName))
+            if (_currentCustomerRefData == null)
+            {
+                return null;
+            }
+
+            if (flipToBack && !IsValidPortraitResName(_currentCustomerRefData.portraitBackResName))
             {
                 SwitchCustomerPortraitToBack();
                 return null;
@@ -163,7 +182,13 @@ namespace GameCore.UI
                     .DOLocalRotate(new Vector3(0f, 90f, 0f), CustomerPortraitFlipHalfDuration)
                     .SetEase(Ease.InQuad)
                     .SetUpdate(true));
-            sequence.AppendCallback(SwitchCustomerPortraitToBack);
+            sequence.AppendCallback(() =>
+            {
+                if (flipToBack)
+                    SwitchCustomerPortraitToBack();
+                else
+                    SwitchCustomerPortraitToFront();
+            });
             sequence.Append(
                 portraitRect
                     .DOLocalRotate(Vector3.zero, CustomerPortraitFlipHalfDuration)

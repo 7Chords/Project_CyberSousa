@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using DG.Tweening;
 using GameCore;
 using GameCore.RefData;
@@ -12,9 +13,11 @@ namespace GameCore.UI
     public partial class UIPanelGameplayMain
     {
 
-        private void StartDialogue(long dialogueStartId)
+        private void StartDialogue(long dialogueStartId, Action onDialogueEnded = null, bool addNeedTimeOnEnd = true)
         {
             ClearDialogueOptions();
+            _dialogueEndedCallback = onDialogueEnded;
+            _shouldAddNeedTimeOnDialogueEnd = addNeedTimeOnEnd;
             _isDialogueRunning = true;
             SetCurrentDialogue(dialogueStartId);
         }
@@ -130,12 +133,18 @@ namespace GameCore.UI
             _currentDialogueRefData = null;
             ClearDialogueOptions();
 
-            GameTimeMgr.instance.AddTimeInstant(_currentNeedRefData?.timeEffect);
+            if (_shouldAddNeedTimeOnDialogueEnd)
+                GameTimeMgr.instance.AddTimeInstant(_currentNeedRefData?.timeEffect);
+
+            Action dialogueEndedCallback = _dialogueEndedCallback;
+            _dialogueEndedCallback = null;
+            _shouldAddNeedTimeOnDialogueEnd = true;
 
             // TODO: 这里可以接 CustomerNeedMgr.EvaluateDialogue，根据当前好感度触发额外需求对话。
 
             RefreshAllUi();
             TryStartFirstCustomerGuide();
+            dialogueEndedCallback?.Invoke();
         }
 
 
@@ -303,13 +312,13 @@ namespace GameCore.UI
                 if (_dialogueOptionItemPrefab == null || mono.dialogueOptionRoot == null)
                     return null;
 
-                GameObject instanceObject = Object.Instantiate(_dialogueOptionItemPrefab, mono.dialogueOptionRoot);
+                GameObject instanceObject = UnityEngine.Object.Instantiate(_dialogueOptionItemPrefab, mono.dialogueOptionRoot);
                 instanceObject.name = $"DialogueOption_{index}";
                 UIMonoDialogueOption optionItem = instanceObject.GetComponent<UIMonoDialogueOption>();
                 if (optionItem == null)
                 {
                     Debug.LogError("Gameplay 实例化对话选项失败：缺少 UIMonoDialogueOption 组件。");
-                    Object.Destroy(instanceObject);
+                    UnityEngine.Object.Destroy(instanceObject);
                     return null;
                 }
 
@@ -402,6 +411,16 @@ namespace GameCore.UI
                 return;
 
             _useCustomerBackPortrait = true;
+            RefreshCustomerPortrait();
+        }
+
+
+        private void SwitchCustomerPortraitToFront()
+        {
+            if (_currentCustomerRefData == null)
+                return;
+
+            _useCustomerBackPortrait = false;
             RefreshCustomerPortrait();
         }
 
