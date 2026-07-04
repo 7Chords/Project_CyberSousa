@@ -241,6 +241,7 @@ namespace GameCore.UI
 
         private void StartCurrentDay()
         {
+            _isStartingDay = true;
             _currentRuleIdList = _currentLevelRefData != null && _currentLevelRefData.ruleIdList != null
                 ? new List<long>(_currentLevelRefData.ruleIdList)
                 : new List<long>();
@@ -291,14 +292,22 @@ namespace GameCore.UI
             GameTimeMgr.instance.ResetToDayStart();
             SetElevatorDoorClosedInstant();
             SetCustomerHiddenInstant();
-
             if (!TryGetPeekPendingNeedRefData(out CustomerNeedRefData firstNeedRefData, out TimeEffectData firstNeedTime))
             {
+                _isStartingDay = false;
                 ShowDayCompleteState();
                 return;
             }
 
-            StartPickupTravelToNextCustomer(firstNeedRefData, firstNeedTime, true);
+            if (firstNeedTime != null)
+                GameTimeMgr.instance.SetClockTime(firstNeedTime);
+
+            _isStartingDay = false;
+
+            if (CustomerNeedMgr.instance.CanSpawnCustomerNeed(firstNeedRefData, firstNeedTime, _currentFloor))
+                TrySpawnNextPendingCustomer();
+            else
+                RefreshAllUi();
         }
 
 

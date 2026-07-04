@@ -231,9 +231,9 @@ namespace GameCore.UI
         {
             _isTransitionPlaying = true;
             RefreshAllUi();
-            CloseElevatorDoor(() =>
+            HideCurrentCustomer(() =>
             {
-                HideCurrentCustomer(() =>
+                CloseElevatorDoor(() =>
                 {
                     SettleCurrentCustomerPerformance("StartRejectAndPickupNextFlow");
                     ClearCurrentCustomerState();

@@ -55,6 +55,7 @@ namespace GameCore.UI
         private bool _canCloseDoor;
         private bool _isSettlementShowing;
         private bool _isTransitionPlaying;
+        private bool _isStartingDay;
         private bool _isFloorDisplayAnimating;
         private bool _isCustomerInfoVisible;
         private bool _hasInitializedRuntime;
@@ -170,6 +171,9 @@ namespace GameCore.UI
         private void OnGameTimeChanged()
         {
             RefreshClockUi();
+            if (_isStartingDay)
+                return;
+
             if (_currentCustomerRefData == null && !_isTransitionPlaying)
                 TrySpawnNextPendingCustomer();
         }

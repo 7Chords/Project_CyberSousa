@@ -131,7 +131,7 @@ namespace GameCore.UI
             if (mono.btnContinue == null)
                 return;
 
-            SCCommon.SetGameObjectEnable(mono.btnContinue.gameObject, GamePlayerDataMgr.instance.hasSaveData);
+            mono.btnContinue.interactable = GamePlayerDataMgr.instance.hasSaveData;
         }
 
         private void SetButtonBoxVisible(bool _visible)
