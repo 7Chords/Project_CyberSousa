@@ -122,7 +122,11 @@ namespace GameCore.UI
         private void ShowDayCompleteState()
         {
             mono.txtCustomerName.text = "本关已完成";
-            mono.txtAnimalInfo.text = "当前没有新的住户。";
+            if (mono.txtAnimalInfo != null)
+            {
+                mono.txtAnimalInfo.gameObject.SetActive(true);
+                mono.txtAnimalInfo.text = "当前没有新的住户。";
+            }
             mono.txtBottomHint.text = "本关住户处理完成。";
             mono.dialogueSection?.SetActive(false);
             SetCustomerHiddenInstant();

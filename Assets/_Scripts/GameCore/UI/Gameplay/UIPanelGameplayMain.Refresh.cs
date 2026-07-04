@@ -202,10 +202,11 @@ namespace GameCore.UI
 
         private void RefreshCustomerUi()
         {
+            bool showCustomerDetails = _currentCustomerRefData != null && _isCustomerInfoVisible;
+
             if (mono.txtDemandFloor != null)
             {
-                bool showDemandFloor = _currentCustomerRefData != null
-                    && _isCustomerInfoVisible
+                bool showDemandFloor = showCustomerDetails
                     && _currentNeedRefData != null
                     && _currentNeedRefData.demandFloor > 0;
                 mono.txtDemandFloor.gameObject.SetActive(showDemandFloor);
@@ -213,14 +214,18 @@ namespace GameCore.UI
                     mono.txtDemandFloor.text = $"需求楼层：{_currentNeedRefData.demandFloor}";
             }
 
-            if (_currentCustomerRefData == null || !_isCustomerInfoVisible)
+            if (mono.txtAnimalInfo != null)
+            {
+                mono.txtAnimalInfo.gameObject.SetActive(showCustomerDetails);
+                if (showCustomerDetails)
+                    mono.txtAnimalInfo.text = BuildCustomerInfoText(_currentCustomerRefData);
+            }
+
+            if (!showCustomerDetails)
                 return;
 
             if (mono.txtCustomerName != null)
                 mono.txtCustomerName.text = _currentCustomerRefData.customerName;
-
-            if (mono.txtAnimalInfo != null)
-                mono.txtAnimalInfo.text = BuildCustomerInfoText(_currentCustomerRefData);
         }
 
 

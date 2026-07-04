@@ -85,6 +85,9 @@ namespace GameCore.UI
 
         private void HideCurrentCustomer(TweenCallback onComplete = null)
         {
+            _isCustomerInfoVisible = false;
+            RefreshCustomerUi();
+
             Tween tween = mono.customerFadeEffect?.PlayFadeOut(onComplete);
             if (tween == null)
             {
@@ -104,6 +107,7 @@ namespace GameCore.UI
             mono.customerFadeEffect?.SetVisibleInstant(false);
             if (mono.customerCanvasGroup != null)
                 mono.customerCanvasGroup.alpha = 0f;
+            RefreshCustomerUi();
         }
 
 
@@ -212,6 +216,9 @@ namespace GameCore.UI
 
         private void PlayCustomerLeaveElevator(TweenCallback onComplete = null)
         {
+            _isCustomerInfoVisible = false;
+            RefreshCustomerUi();
+
             mono.customerMoveScaleEffect?.SetEnterStateInstant();
             mono.customerFadeEffect?.SetVisibleInstant(true);
             Tween moveTween = mono.customerMoveScaleEffect?.PlayExit();
