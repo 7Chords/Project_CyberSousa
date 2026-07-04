@@ -3,7 +3,6 @@ using SCFrame;
 using SCFrame.UI;
 using UnityEngine.EventSystems;
 
-
 namespace GameCore.UI
 {
     public class UIPanelDevelopers : _ASCUIPanelBase<UIMonoDevelopers>
@@ -20,8 +19,7 @@ namespace GameCore.UI
 
         public override void OnHidePanel()
         {
-            if (mono.btnClose != null)
-                mono.btnClose.RemoveMouseLeftClickDown(onBtnCloseClicked);
+            UnbindEvents();
         }
 
         private void onBtnCloseClicked(PointerEventData _data, object[] _objs)
@@ -32,12 +30,17 @@ namespace GameCore.UI
 
         public override void BeforeDiscard()
         {
-            throw new System.NotImplementedException();
+            UnbindEvents();
         }
 
         public override void AfterInitialize()
         {
-            throw new System.NotImplementedException();
+        }
+
+        private void UnbindEvents()
+        {
+            if (mono.btnClose != null)
+                mono.btnClose.RemoveMouseLeftClickDown(onBtnCloseClicked);
         }
     }
 }

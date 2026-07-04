@@ -306,6 +306,7 @@ MonoBehaviour:
   btnStart: {fileID: 222128897244264061}
   btnContinue: {fileID: 3393876639602509352}
   btnSetting: {fileID: 8564589615050147989}
+  btnDevelopers: {fileID: 7000000000000000004}
   btnExit: {fileID: 8865690465970430930}
 --- !u!1 &4006694683462837374
 GameObject:
