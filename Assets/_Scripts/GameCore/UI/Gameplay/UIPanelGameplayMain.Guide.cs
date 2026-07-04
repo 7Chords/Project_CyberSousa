@@ -57,7 +57,7 @@ namespace GameCore.UI
             switch (guideStep)
             {
                 case GameplayGuideStep.CustomerInfo:
-                    SetGuideTarget(mono.txtAnimalInfo?.rectTransform, "先看客人的资料。\n考考说登记楼层是七楼，可以在这里确认。", true);
+                    SetGuideTarget(GetAnimalInfoPanelRect(), "先看客人的资料。\n考考说登记楼层是七楼，可以在这里确认。", true);
                     break;
                 case GameplayGuideStep.FloorButton:
                     SetGuideTarget(GetFloorButtonRect(FirstGuideFloor), "资料确认后，按下 7 楼。", false);
@@ -110,7 +110,7 @@ namespace GameCore.UI
             switch (_guideStep)
             {
                 case GameplayGuideStep.CustomerInfo:
-                    return mono.txtAnimalInfo?.rectTransform;
+                    return GetAnimalInfoPanelRect();
                 case GameplayGuideStep.FloorButton:
                     return GetFloorButtonRect(FirstGuideFloor);
                 case GameplayGuideStep.Confirm:
@@ -164,6 +164,16 @@ namespace GameCore.UI
             }
 
             _guideMask.SetTarget(target, tipText, enableContinueClick);
+        }
+
+        private RectTransform GetAnimalInfoPanelRect()
+        {
+            RectTransform textRect = mono.txtAnimalInfo?.rectTransform;
+            if (textRect == null)
+                return null;
+
+            RectTransform panelRect = textRect.parent as RectTransform;
+            return panelRect != null ? panelRect : textRect;
         }
 
         private RectTransform GetFloorButtonRect(int floor)
