@@ -26,7 +26,7 @@ namespace GameCore.Editor
             travelShakeEffect.Setup(0.55f, new Vector2(18f, 8f), new Vector3(0f, 0f, 3f));
 
             UIElevatorView elevatorView = elevatorRoot.gameObject.AddComponent<UIElevatorView>();
-            elevatorView.Setup(elevatorRoot, doorLeft, doorRight, slidingDoorEffect, travelShakeEffect);
+            elevatorView.Setup(elevatorRoot, doorLeft, doorRight, slidingDoorEffect, travelShakeEffect, parent);
             _currentMono.elevatorView = elevatorView;
         }
 

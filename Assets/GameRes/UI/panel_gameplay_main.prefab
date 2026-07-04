@@ -2644,8 +2644,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 24.7604, y: 231}
-  m_SizeDelta: {x: 339.5209, y: 381.3698}
+  m_AnchoredPosition: {x: 46.725, y: 255}
+  m_SizeDelta: {x: 411.05, y: 456.2852}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3811920144734166401
 CanvasRenderer:
@@ -3913,7 +3913,6 @@ GameObject:
   - component: {fileID: 5905532970995615651}
   - component: {fileID: 6828395274070947220}
   - component: {fileID: 4333576930633338234}
-  - component: {fileID: 5843388949479056425}
   - component: {fileID: 114777000000777}
   m_Layer: 0
   m_Name: ElevatorRoot
@@ -3977,31 +3976,6 @@ MonoBehaviour:
   closeFramePunch: {x: 7, y: 0}
   openFramePunch: {x: 0, y: 4}
   framePunchDuration: 0.14
---- !u!114 &5843388949479056425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5029187468083407508}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92faef781b9e86143b4db4d412b6c517, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  duration: 0.55
-  ease: 6
-  useUnscaledTime: 1
-  shakeRoot: {fileID: 0}
-  punchStrength: {x: 18, y: 8}
-  vibrato: 12
-  elasticity: 0.7
-  rotationPunch: {x: 0, y: 0, z: 3}
-  rotationVibrato: 10
-  cabinShakeMultiplier: 0.45
-  travelScaleMultiplier: 1.015
-  arrivePunchScale: 0.025
 --- !u!114 &114777000000777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4018,7 +3992,7 @@ MonoBehaviour:
   elevatorDoorLeft: {fileID: 2892354050271438489}
   elevatorDoorRight: {fileID: 6994137974480087714}
   doorEffect: {fileID: 4333576930633338234}
-  travelShakeEffect: {fileID: 5843388949479056425}
+  travelShakeEffect: {fileID: 3631851541692113571}
 --- !u!1 &5123649609676846726
 GameObject:
   m_ObjectHideFlags: 0
@@ -5885,6 +5859,7 @@ GameObject:
   - component: {fileID: 2683031274285737784}
   - component: {fileID: 698281833998209076}
   - component: {fileID: 1819164829145609662}
+  - component: {fileID: 4580985596595511602}
   m_Layer: 0
   m_Name: Image
   m_TagString: Untagged
@@ -5949,6 +5924,31 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &4580985596595511602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6884848689087317343}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92faef781b9e86143b4db4d412b6c517, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2683031274285737784}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  shakeRoot: {fileID: 224000000000101}
+  punchStrength: {x: 20, y: 10}
+  vibrato: 12
+  elasticity: 0.7
+  rotationPunch: {x: 0, y: 0, z: 3.5}
+  rotationVibrato: 10
+  cabinShakeMultiplier: 0.45
+  travelScaleMultiplier: 1.015
+  arrivePunchScale: 0.025
 --- !u!1 &7071557957912766985
 GameObject:
   m_ObjectHideFlags: 0
@@ -6677,8 +6677,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 92, y: -107.31506}
-  m_SizeDelta: {x: 320.5085, y: 350.7366}
+  m_AnchoredPosition: {x: 64, y: -174.81}
+  m_SizeDelta: {x: 411.05, y: 442.3712}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5520369148319853078
 CanvasRenderer:
@@ -7330,6 +7330,7 @@ GameObject:
   - component: {fileID: 6343057184531017927}
   - component: {fileID: 4950513081235233455}
   - component: {fileID: 9120899470048777571}
+  - component: {fileID: 3631851541692113571}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -7395,6 +7396,31 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &3631851541692113571
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8400957821852864987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92faef781b9e86143b4db4d412b6c517, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 6343057184531017927}
+  duration: 0.15
+  ease: 6
+  useUnscaledTime: 1
+  shakeRoot: {fileID: 0}
+  punchStrength: {x: 20, y: 10}
+  vibrato: 12
+  elasticity: 0.7
+  rotationPunch: {x: 0, y: 0, z: 3.5}
+  rotationVibrato: 10
+  cabinShakeMultiplier: 0.45
+  travelScaleMultiplier: 1.015
+  arrivePunchScale: 0.025
 --- !u!1 &8668616376284275253
 GameObject:
   m_ObjectHideFlags: 0
@@ -7453,7 +7479,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.54901963, g: 0.31764707, b: 0.05490196, a: 1}
+  m_Color: {r: 0.19215687, g: 0.19215687, b: 0.39607844, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
