@@ -1,9 +1,11 @@
 using System.Collections;
+using DG.Tweening;
 using GameCore.Flow;
 using SCFrame;
 using SCFrame.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace GameCore.UI
 {
@@ -12,6 +14,7 @@ namespace GameCore.UI
         private const string EndingTypewriterCoroutineName = "ending_typewriter";
         private const float EndingTypewriterCharInterval = 0.05f;
         private const float EndingLineStayDuration = 1f;
+        private const string TvMaskObjectName = "img_tv_front";
 
         private static readonly string[] BadEndingLines =
         {
@@ -61,6 +64,7 @@ namespace GameCore.UI
         public static EGameEndingType pendingEndingType = EGameEndingType.BAD;
 
         private readonly CoroutineContainer _endingCoroutineContainer = new CoroutineContainer();
+        private TweenContainer _tvMaskFadeContainer;
 
         public UIPanelEnding(UIMonoEnding _mono, SCUIShowType _showType) : base(_mono, _showType)
         {
@@ -68,22 +72,30 @@ namespace GameCore.UI
 
         public override void AfterInitialize()
         {
+            _tvMaskFadeContainer = new TweenContainer();
+            EnsureTvMaskReference();
         }
 
         public override void BeforeDiscard()
         {
             StopEndingTextPlayback();
+            StopTvMaskFade();
+            _tvMaskFadeContainer?.KillAllDoTween();
+            _tvMaskFadeContainer = null;
             UnbindEvents();
         }
 
         public override void OnHidePanel()
         {
             StopEndingTextPlayback();
+            StopTvMaskFade();
             UnbindEvents();
         }
 
         public override void OnShowPanel()
         {
+            EnsureTvMaskReference();
+            PlayTvMaskFadeOut();
             ApplyEndingContent();
 
             if (mono.btnReturnMain != null)
@@ -180,6 +192,78 @@ namespace GameCore.UI
             AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             GamePlayerDataMgr.instance.ResetRuntimeData();
             GameFlowController.instance.EnterMainMenu();
+        }
+
+        private void EnsureTvMaskReference()
+        {
+            if (mono.imgTvMask != null)
+                return;
+
+            mono.imgTvMask = FindChildImage(TvMaskObjectName);
+            if (mono.imgTvMask == null)
+                mono.imgTvMask = FindChildImage("TvMask");
+        }
+
+        private void PlayTvMaskFadeOut()
+        {
+            if (mono.imgTvMask == null)
+                return;
+
+            StopTvMaskFade();
+            mono.imgTvMask.gameObject.SetActive(true);
+            mono.imgTvMask.raycastTarget = false;
+
+            Color maskColor = mono.imgTvMask.color;
+            maskColor.a = 1f;
+            mono.imgTvMask.color = maskColor;
+
+            float duration = mono.tvMaskFadeDuration > 0f ? mono.tvMaskFadeDuration : 1.2f;
+            _tvMaskFadeContainer.RegDoTween(
+                mono.imgTvMask
+                    .DOFade(0f, duration)
+                    .SetUpdate(true)
+                    .OnComplete(() =>
+                    {
+                        if (mono.imgTvMask != null)
+                            mono.imgTvMask.gameObject.SetActive(false);
+                    }));
+        }
+
+        private void StopTvMaskFade()
+        {
+            if (mono.imgTvMask == null)
+                return;
+
+            mono.imgTvMask.DOKill();
+            Color maskColor = mono.imgTvMask.color;
+            maskColor.a = 1f;
+            mono.imgTvMask.color = maskColor;
+            _tvMaskFadeContainer?.KillAllDoTween();
+        }
+
+        private Image FindChildImage(string objectName)
+        {
+            Transform target = FindChildTransformRecursive(mono.transform, objectName);
+            return target != null ? target.GetComponent<Image>() : null;
+        }
+
+        private Transform FindChildTransformRecursive(Transform parent, string objectName)
+        {
+            if (parent == null)
+                return null;
+
+            if (parent.name == objectName)
+                return parent;
+
+            for (int index = 0; index < parent.childCount; index++)
+            {
+                Transform child = parent.GetChild(index);
+                Transform result = FindChildTransformRecursive(child, objectName);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
         }
     }
 }
