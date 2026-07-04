@@ -15,6 +15,7 @@ namespace GameCore.Editor
         private const string BadEndingSpritePath = "Assets/GameRes/EndImage/RetirementEnd.png";
         private const string Ending1SpritePath = "Assets/GameRes/EndImage/ContinueWorkEnd.png";
         private const string Ending2SpritePath = "Assets/GameRes/EndImage/MeiAnQueRenJianEnd.png";
+        private const string TvMaskSpritePath = "Assets/Art/结局电视UI/结局电视UI/玻璃罩（透明度慢慢降低）.png";
 
         private static Font _defaultFont;
         private static Sprite _whiteSprite;
@@ -95,6 +96,14 @@ namespace GameCore.Editor
                 new Vector2(0.40f, 0.03f),
                 new Vector2(0.60f, 0.09f),
                 "返回主界面");
+
+            Image tvMask = CreatePanel("img_tv_front", rootRect, new Vector2(0f, 0f), new Vector2(1f, 1f), Color.white);
+            tvMask.sprite = LoadRequiredSprite(TvMaskSpritePath);
+            tvMask.preserveAspect = false;
+            tvMask.raycastTarget = false;
+            tvMask.rectTransform.SetAsLastSibling();
+            mono.imgTvMask = tvMask;
+            mono.tvMaskFadeDuration = 1.2f;
         }
 
         private static Sprite LoadRequiredSprite(string assetPath)
