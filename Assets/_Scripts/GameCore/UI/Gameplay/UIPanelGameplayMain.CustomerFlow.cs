@@ -90,6 +90,7 @@ namespace GameCore.UI
 
         private void SpawnCustomer(CustomerRefData customerRefData, CustomerNeedRefData needRefData, TimeEffectData needTime)
         {
+            GameTimeMgr.instance.StopAdvanceTween();
             ClearDialoguePortraits();
             _selectedFloor = 0;
             _resolvedTargetFloor = 0;
@@ -156,7 +157,7 @@ namespace GameCore.UI
                 return;
             }
 
-            StartPickupTravelToNextCustomer(nextNeedRefData, nextNeedTime, false);
+            StartPickupTravelToNextCustomer(nextNeedRefData, nextNeedTime, true);
         }
 
 
