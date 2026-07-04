@@ -48,6 +48,8 @@ namespace GameCore.UI
                 mono.btnContinue.RemoveMouseLeftClickDown(onBtnContinueClicked);
             if (mono.btnSetting != null)
                 mono.btnSetting.RemoveMouseLeftClickDown(onBtnSettingClicked);
+            if (mono.btnDevelopers != null)
+                mono.btnDevelopers.RemoveMouseLeftClickDown(onBtnDevelopersClicked);
             if (mono.btnExit != null)
                 mono.btnExit.RemoveMouseLeftClickDown(onBtnExitClicked);
         }
@@ -65,6 +67,8 @@ namespace GameCore.UI
                 mono.btnContinue.AddMouseLeftClickDown(onBtnContinueClicked);
             if (mono.btnSetting != null)
                 mono.btnSetting.AddMouseLeftClickDown(onBtnSettingClicked);
+            if (mono.btnDevelopers != null)
+                mono.btnDevelopers.AddMouseLeftClickDown(onBtnDevelopersClicked);
             if (mono.btnExit != null)
                 mono.btnExit.AddMouseLeftClickDown(onBtnExitClicked);
 
@@ -109,6 +113,19 @@ namespace GameCore.UI
             UINodeMgr.instance.AddNode(new UINodeSetting(SCUIShowType.ADDITION, false));
         }
 
+        private void onBtnDevelopersClicked(PointerEventData _data, object[] _objs)
+        {
+            AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
+            UINodeMgr.instance.AddNode(new UINodeCommon<UIMonoDevelopers, UIPanelDevelopers>(
+                SCUIShowType.ADDITION,
+                "panel_developers",
+                "UINodeDevelopers",
+                false,
+                false,
+                true,
+                true));
+        }
+
         private void RefreshContinueButton()
         {
             if (mono.btnContinue == null)
@@ -133,6 +150,7 @@ namespace GameCore.UI
             ensureButtonInteractEffect(mono.btnStart, nameof(mono.btnStart));
             ensureButtonInteractEffect(mono.btnContinue, nameof(mono.btnContinue));
             ensureButtonInteractEffect(mono.btnSetting, nameof(mono.btnSetting));
+            ensureButtonInteractEffect(mono.btnDevelopers, nameof(mono.btnDevelopers));
             ensureButtonInteractEffect(mono.btnExit, nameof(mono.btnExit));
         }
 

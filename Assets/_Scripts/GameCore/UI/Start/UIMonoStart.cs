@@ -15,6 +15,8 @@ namespace GameCore.UI
         public Button btnContinue;
         [Header("设置按钮")]
         public Button btnSetting;
+        [Header("开发者名单按钮")]
+        public Button btnDevelopers;
         [Header("退出游戏按钮")]
         public Button btnExit;
     }
