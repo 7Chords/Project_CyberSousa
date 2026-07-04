@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameCore.RefData;
 using SCFrame;
 using SCFrame.UI;
@@ -298,7 +299,10 @@ namespace GameCore.UI
             _hasRejectedCurrentCustomer = true;
             AudioMgr.instance.PlaySfx(AudioKeys.Reject);
             MarkCurrentCustomerOperationProblem("已拒绝当前住户，本轮不计入绩效奖励。");
-            ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData);
+            bool waiveRefusePerformancePenalty = ShouldWaiveRefusePerformancePenalty(_lastJudgmentEffectData);
+            ApplyServiceFeedbackByJudgment(_lastJudgmentEffectData, !waiveRefusePerformancePenalty);
+            if (waiveRefusePerformancePenalty)
+                SCDebugHelper.Log("当前住户已无任何合规送达方案，本次拒绝不扣绩效。");
             SCDebugHelper.Log($"已拒绝当前住户，影响值={_lastJudgmentEffectData.affectValue}");
             StartRejectAndPickupNextFlow();
         }
@@ -398,7 +402,7 @@ namespace GameCore.UI
                     _recentFloorInputData.recentFloorList,
                     GameTimeMgr.instance.TotalSeconds,
                     hasCustomer ? _currentCustomerRefData?.customerTagList : null,
-                    hasCustomer ? _currentNeedRefData?.needFloor ?? 0 : 0,
+                    hasCustomer ? GetCurrentCustomerRuleSourceFloor() : 0,
                     out GotoRuleResolutionResult resolutionResult))
             {
                 finalFloor = resolutionResult != null ? resolutionResult.finalFloor : selectedFloor;
@@ -472,6 +476,98 @@ namespace GameCore.UI
                 _ruleFeedbackText = $"测试提示：规则生效，{_selectedFloor} 楼需要通过组合键到达。";
                 SCDebugHelper.Log($"当前规则要求通过组合键前往 {_selectedFloor} 楼。");
             }
+        }
+
+        private int GetCurrentCustomerRuleSourceFloor()
+        {
+            if (_currentNeedRefData == null)
+                return 0;
+
+            return _currentNeedRefData.demandFloor > 0
+                ? _currentNeedRefData.demandFloor
+                : _currentNeedRefData.needFloor;
+        }
+
+        private bool ShouldWaiveRefusePerformancePenalty(JudgmentEffectData judgmentEffectData)
+        {
+            if (judgmentEffectData == null || judgmentEffectData.affectValue >= 0)
+                return false;
+
+            if (_currentCustomerRefData == null || _currentNeedRefData == null)
+            {
+                Debug.LogError("Gameplay 拒绝结算失败：当前住户或需求配置为空，无法判断是否应免扣绩效。");
+                return false;
+            }
+
+            return !HasAnyNonNegativeGotoSolutionForCurrentCustomer();
+        }
+
+        private bool HasAnyNonNegativeGotoSolutionForCurrentCustomer()
+        {
+            List<int> singleFloorHistory = new List<int>(1);
+            for (int floor = MinGameplayFloor; floor <= MaxGameplayFloor; floor++)
+            {
+                singleFloorHistory.Clear();
+                singleFloorHistory.Add(floor);
+                if (CanReachNonNegativeGotoJudgment(floor, singleFloorHistory))
+                    return true;
+            }
+
+            int currentTotalSeconds = GameTimeMgr.instance.TotalSeconds;
+            if (_currentRuleIdList == null || _currentRuleIdList.Count == 0)
+                return false;
+
+            for (int ruleIndex = 0; ruleIndex < _currentRuleIdList.Count; ruleIndex++)
+            {
+                RuleRefData ruleRefData = RuleMgr.instance.GetRuleRefData(_currentRuleIdList[ruleIndex]);
+                if (!RuleMgr.IsRuleActive(ruleRefData, currentTotalSeconds) || ruleRefData?.effectList == null)
+                    continue;
+
+                for (int effectIndex = 0; effectIndex < ruleRefData.effectList.Count; effectIndex++)
+                {
+                    RuleEffectData effectData = ruleRefData.effectList[effectIndex];
+                    if (effectData == null || effectData.elevatorOperator != EElevatorOperator.GOTO
+                                           || effectData.effectType != ERuleEffectType.COMBO_TARGET_FLOOR
+                                           || effectData.comboFloorList == null
+                                           || effectData.comboFloorList.Count == 0)
+                        continue;
+
+                    int selectedFloor = effectData.comboFloorList[effectData.comboFloorList.Count - 1];
+                    if (CanReachNonNegativeGotoJudgment(selectedFloor, effectData.comboFloorList))
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool CanReachNonNegativeGotoJudgment(int selectedFloor, List<int> recentFloorHistory)
+        {
+            if (recentFloorHistory == null || recentFloorHistory.Count == 0)
+                return false;
+
+            if (!RuleMgr.instance.TryResolveGotoRuleSequence(
+                    _currentRuleIdList,
+                    selectedFloor,
+                    recentFloorHistory,
+                    GameTimeMgr.instance.TotalSeconds,
+                    _currentCustomerRefData?.customerTagList,
+                    GetCurrentCustomerRuleSourceFloor(),
+                    out GotoRuleResolutionResult resolutionResult))
+            {
+                return false;
+            }
+
+            JudgmentEffectData gotoJudgmentEffectData =
+                CustomerNeedMgr.instance.EvaluateGoto(_currentNeedRefData.id, resolutionResult.finalFloor);
+            if (gotoJudgmentEffectData == null)
+            {
+                Debug.LogError(
+                    $"Gameplay 拒绝结算失败：无法判断规则下的前往结果。needId={_currentNeedRefData.id}，finalFloor={resolutionResult.finalFloor}");
+                return false;
+            }
+
+            return gotoJudgmentEffectData.affectValue >= 0;
         }
 
         // 规则管理器只给出业务判断结果，具体表现仍由面板自己决定。

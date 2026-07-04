@@ -300,7 +300,7 @@ namespace GameCore.UI
         }
 
 
-        private void ApplyServiceFeedbackByJudgment(JudgmentEffectData judgmentEffectData)
+        private void ApplyServiceFeedbackByJudgment(JudgmentEffectData judgmentEffectData, bool deductNegativePerformance = true)
         {
             if (judgmentEffectData == null)
                 return;
@@ -310,9 +310,17 @@ namespace GameCore.UI
             if (judgmentEffectData.affectValue < 0)
             {
                 MarkCurrentCustomerOperationProblem("服务结果错误，本轮不计入绩效奖励。");
-                GamePlayerDataMgr.instance.DeductPerformance(-judgmentEffectData.affectValue);
-                _serviceFeedbackText =
-                    $"处理错误：绩效值 -{-judgmentEffectData.affectValue}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
+                if (deductNegativePerformance)
+                {
+                    GamePlayerDataMgr.instance.DeductPerformance(-judgmentEffectData.affectValue);
+                    _serviceFeedbackText =
+                        $"处理错误：绩效值 -{-judgmentEffectData.affectValue}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
+                }
+                else
+                {
+                    _serviceFeedbackText =
+                        $"处理受规则限制：影响值 {judgmentEffectData.affectValue}，当前绩效值 {GamePlayerDataMgr.instance.performanceValue}。";
+                }
                 return;
             }
 

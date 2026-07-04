@@ -141,6 +141,7 @@ namespace GameCore
                 originalFloor = selectedFloor,
                 finalFloor = selectedFloor,
             };
+            bool hasResolvedInputMapping = false;
             if (selectedFloor <= 0)
             {
                 Debug.LogError($"RuleMgr 顺序判断楼层规则失败：selectedFloor 无效，selectedFloor={selectedFloor}");
@@ -185,14 +186,21 @@ namespace GameCore
                                 }
                                 break;
                             case ERuleEffectType.REDIRECT_TARGET_FLOOR:
-                                if (effectData.param1 == resolutionResult.finalFloor)
+                                if (hasResolvedInputMapping)
+                                    break;
+
+                                if (effectData.param1 == resolutionResult.originalFloor)
                                 {
                                     resolutionResult.finalFloor = effectData.param2;
                                     resolutionResult.isBlocked = false;
                                     resolutionResult.lastEffectData = effectData;
+                                    hasResolvedInputMapping = true;
                                 }
                                 break;
                             case ERuleEffectType.COMBO_TARGET_FLOOR:
+                                if (hasResolvedInputMapping)
+                                    break;
+
                                 if (!IsComboFloorMatched(effectData.comboFloorList, recentFloorList))
                                     break;
 
@@ -206,6 +214,7 @@ namespace GameCore
                                 resolutionResult.comboMatched = true;
                                 resolutionResult.isBlocked = false;
                                 resolutionResult.lastEffectData = effectData;
+                                hasResolvedInputMapping = true;
                                 break;
                             case ERuleEffectType.FORBID_CUSTOMER_TAG_TARGET_FLOOR:
                             case ERuleEffectType.REQUIRE_TRANSFER_TARGET_FLOOR:
@@ -379,7 +388,7 @@ namespace GameCore
             return null;
         }
 
-        private static bool IsRuleActive(RuleRefData ruleRefData, int currentTotalSeconds)
+        public static bool IsRuleActive(RuleRefData ruleRefData, int currentTotalSeconds)
         {
             if (ruleRefData == null)
                 return false;

@@ -25,6 +25,8 @@ namespace GameCore.UI
         private const int DefaultMaxPerformance = 100;
         private const int DefaultMissingConfirmPenalty = 10;
         private const int DefaultPerfectOperationBonus = 12;
+        private const int MinGameplayFloor = 1;
+        private const int MaxGameplayFloor = 12;
 
         private readonly Dictionary<long, DialogueRefData> _dialogueMap = new Dictionary<long, DialogueRefData>();
         private readonly Dictionary<long, CustomerRefData> _customerMap = new Dictionary<long, CustomerRefData>();
