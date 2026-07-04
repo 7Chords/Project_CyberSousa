@@ -145,7 +145,7 @@ TextureImporter:
         height: 133
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
+      border: {x: 122, y: 65, z: 122, w: 63}
       outline: []
       physicsShape: []
       tessellationDetail: 0
@@ -207,7 +207,7 @@ TextureImporter:
         width: 268
         height: 153
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -215,6 +215,27 @@ TextureImporter:
       bones: []
       spriteID: 8964c6907e8ede445a8107c89968129b
       internalID: 1298285543
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "\u6700\u65B0\u6C14\u6CE1-\u6295\u5F71\u4FEE\u6539-_4"
+      rect:
+        serializedVersion: 2
+        x: 1150
+        y: 551
+        width: 269
+        height: 158
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 132, y: 77, z: 132, w: 76}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9b523b3ed611434488ea6ec3849a69b0
+      internalID: 1992493992
       vertices: []
       indices: 
       edges: []
@@ -234,6 +255,7 @@ TextureImporter:
       "\u6700\u65B0\u6C14\u6CE1-\u6295\u5F71\u4FEE\u6539-_1": -657637811
       "\u6700\u65B0\u6C14\u6CE1-\u6295\u5F71\u4FEE\u6539-_2": -748234747
       "\u6700\u65B0\u6C14\u6CE1-\u6295\u5F71\u4FEE\u6539-_3": 1298285543
+      "\u6700\u65B0\u6C14\u6CE1-\u6295\u5F71\u4FEE\u6539-_4": 1992493992
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

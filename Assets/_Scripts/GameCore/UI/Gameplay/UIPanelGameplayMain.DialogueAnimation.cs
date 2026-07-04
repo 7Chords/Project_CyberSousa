@@ -37,6 +37,8 @@ namespace GameCore.UI
         private Vector2 _rightDialogueTextOriginPos;
         private Vector3 _leftDialogueTextOriginScale = Vector3.one;
         private Vector3 _rightDialogueTextOriginScale = Vector3.one;
+        private ContentSizeFitter _customerDialogueStripContentSizeFitter;
+        private ContentSizeFitter _customerDialogueTextRootContentSizeFitter;
 
         private void PlayCustomerDialogueEnterAnimation()
         {
@@ -106,8 +108,26 @@ namespace GameCore.UI
             if (mono.dialogueRightArea == null)
                 return;
 
-            RectTransform rectTransform = mono.dialogueRightArea.rectTransform;
-            Canvas.ForceUpdateCanvases();
+            RebuildDialogueStripLayoutImmediate(mono.txtDialogueRight, mono.dialogueRightArea);
+            _playerDialogueOriginPos = mono.dialogueRightArea.rectTransform.anchoredPosition;
+            _playerDialogueOriginReady = true;
+        }
+
+        private void RebuildDialogueStripLayoutImmediate(Text targetText, Graphic stripArea)
+        {
+            if (targetText != null)
+            {
+                targetText.SetAllDirty();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(targetText.rectTransform);
+
+                RectTransform textLayoutRoot = targetText.transform.parent as RectTransform;
+                if (textLayoutRoot != null)
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(textLayoutRoot);
+            }
+
+            if (stripArea != null)
+                LayoutRebuilder.ForceRebuildLayoutImmediate(stripArea.rectTransform);
+
             if (mono.dialogueSection != null)
             {
                 RectTransform dialogueSectionRect = mono.dialogueSection.transform as RectTransform;
@@ -115,9 +135,87 @@ namespace GameCore.UI
                     LayoutRebuilder.ForceRebuildLayoutImmediate(dialogueSectionRect);
             }
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
-            _playerDialogueOriginPos = rectTransform.anchoredPosition;
-            _playerDialogueOriginReady = true;
+            Canvas.ForceUpdateCanvases();
+        }
+
+        private void PrepareCustomerDialogueStripLayout(string fullText)
+        {
+            if (mono.txtDialogueLeft == null || mono.dialogueLeftArea == null || string.IsNullOrEmpty(fullText))
+                return;
+
+            RestoreCustomerDialogueAutoLayout();
+
+            mono.txtDialogueLeft.text = DialogueTextFormatter.PreventLineStartPunctuation(fullText);
+            RebuildDialogueStripLayoutImmediate(mono.txtDialogueLeft, mono.dialogueLeftArea);
+
+            RectTransform stripRect = mono.dialogueLeftArea.rectTransform;
+            RectTransform textLayoutRoot = mono.txtDialogueLeft.transform.parent as RectTransform;
+            float stripHeight = GetLayoutHeight(stripRect);
+            float textRootHeight = textLayoutRoot != null ? GetLayoutHeight(textLayoutRoot) : 0f;
+
+            LockCustomerDialogueAutoLayout(stripRect, textLayoutRoot, stripHeight, textRootHeight);
+            mono.txtDialogueLeft.text = string.Empty;
+        }
+
+        private static float GetLayoutHeight(RectTransform rectTransform)
+        {
+            if (rectTransform == null)
+                return 0f;
+
+            float preferredHeight = LayoutUtility.GetPreferredHeight(rectTransform);
+            if (preferredHeight > 0f)
+                return preferredHeight;
+
+            return rectTransform.rect.height;
+        }
+
+        private void LockCustomerDialogueAutoLayout(
+            RectTransform stripRect,
+            RectTransform textLayoutRoot,
+            float stripHeight,
+            float textRootHeight)
+        {
+            if (stripRect == null || stripHeight <= 0f)
+                return;
+
+            _customerDialogueStripContentSizeFitter = stripRect.GetComponent<ContentSizeFitter>();
+            if (_customerDialogueStripContentSizeFitter != null)
+                _customerDialogueStripContentSizeFitter.enabled = false;
+
+            stripRect.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, stripHeight);
+
+            if (textLayoutRoot != null && textRootHeight > 0f)
+            {
+                _customerDialogueTextRootContentSizeFitter = textLayoutRoot.GetComponent<ContentSizeFitter>();
+                if (_customerDialogueTextRootContentSizeFitter != null)
+                    _customerDialogueTextRootContentSizeFitter.enabled = false;
+
+                textLayoutRoot.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, textRootHeight);
+            }
+        }
+
+        private void RestoreCustomerDialogueAutoLayout()
+        {
+            if (_customerDialogueStripContentSizeFitter != null)
+                _customerDialogueStripContentSizeFitter.enabled = true;
+
+            if (_customerDialogueTextRootContentSizeFitter != null)
+                _customerDialogueTextRootContentSizeFitter.enabled = true;
+
+            _customerDialogueStripContentSizeFitter = null;
+            _customerDialogueTextRootContentSizeFitter = null;
+        }
+
+        private void ClearCustomerDialogueStripLayoutLock()
+        {
+            RestoreCustomerDialogueAutoLayout();
+        }
+
+        private void PlayCustomerDialogueTypewriterWithLayout(string currentContent, long lineId)
+        {
+            PrepareCustomerDialogueStripLayout(currentContent);
+            PlayCustomerDialogueEnterAnimation();
+            StartDialogueTypewriter(mono.txtDialogueLeft, currentContent, lineId, true);
         }
 
         private void ScheduleDialogueOptionPresentation(long sourceLineId)
@@ -177,7 +275,7 @@ namespace GameCore.UI
 
         private void PlayDialogueTextTickAnimation(Text targetText, char typedChar)
         {
-            if (targetText == null || char.IsWhiteSpace(typedChar))
+            if (targetText == null || targetText == mono.txtDialogueLeft || char.IsWhiteSpace(typedChar))
                 return;
 
             RectTransform rectTransform = targetText.rectTransform;
@@ -209,7 +307,7 @@ namespace GameCore.UI
 
         private void PlayDialogueTextCompleteAnimation(Text targetText)
         {
-            if (targetText == null || string.IsNullOrEmpty(targetText.text))
+            if (targetText == null || targetText == mono.txtDialogueLeft || string.IsNullOrEmpty(targetText.text))
                 return;
 
             RectTransform rectTransform = targetText.rectTransform;
@@ -381,6 +479,7 @@ namespace GameCore.UI
         {
             _dialogueAnimTweenContainer.KillAllDoTween();
             _dialogueCoroutineContainer.Kill(DialogueOptionPresentationCoroutineName);
+            ClearCustomerDialogueStripLayoutLock();
             _hasCustomerDialogueStripShown = false;
             _hasPlayerDialogueStripShown = false;
             _playerDialogueOriginReady = false;

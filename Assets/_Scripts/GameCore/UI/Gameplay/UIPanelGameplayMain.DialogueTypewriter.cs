@@ -47,7 +47,8 @@ namespace GameCore.UI
             _activeDialogueTypewriterRawText = fullText;
             _activeDialogueTypewriterFullText = DialogueTextFormatter.PreventLineStartPunctuation(fullText);
             _isDialogueTypewriterPlaying = true;
-            targetText.text = string.Empty;
+            if (!playCharTickSfx)
+                targetText.text = string.Empty;
             UpdateDialogueStripVisibility();
             RefreshDialogueAdvanceClickArea();
             RefreshDialogueOptionUi();
@@ -64,7 +65,11 @@ namespace GameCore.UI
                 yield break;
             }
 
-            yield return UITextTypewriterUtility.Play(targetText, rawText, DialogueTypewriterCharInterval, OnDialogueTypewriterCharShown);
+            yield return UITextTypewriterUtility.Play(
+                targetText,
+                rawText,
+                DialogueTypewriterCharInterval,
+                OnDialogueTypewriterCharShown);
 
             FinishDialogueTypewriter();
         }
@@ -74,10 +79,15 @@ namespace GameCore.UI
             if (targetText == null)
                 return;
 
+            if (targetText != mono.txtDialogueLeft)
+            {
+                RebuildDialogueStripLayoutImmediate(targetText, mono.dialogueRightArea);
+                UpdateDialogueStripVisibility();
+            }
+
             PlayDialogueTextTickAnimation(targetText, currentChar);
             if (_playDialogueCharTickSfx)
                 AudioMgr.instance.PlaySfx(AudioKeys.DialogueCharTick);
-            UpdateDialogueStripVisibility();
         }
 
         private bool TrySkipDialogueTypewriter()
@@ -96,6 +106,12 @@ namespace GameCore.UI
             {
                 KillDialogueTextAnimation(_activeDialogueTypewriterText);
                 _activeDialogueTypewriterText.text = _activeDialogueTypewriterFullText ?? string.Empty;
+                if (_activeDialogueTypewriterText != mono.txtDialogueLeft)
+                {
+                    RebuildDialogueStripLayoutImmediate(
+                        _activeDialogueTypewriterText,
+                        mono.dialogueRightArea);
+                }
             }
 
             FinishDialogueTypewriter();
@@ -202,11 +218,13 @@ namespace GameCore.UI
                 return;
 
             if (isPlayerDialogue)
+            {
                 PlayPlayerDialogueEnterAnimation(lineId);
-            else
-                PlayCustomerDialogueEnterAnimation();
+                StartDialogueTypewriter(targetText, currentContent, lineId, false);
+                return;
+            }
 
-            StartDialogueTypewriter(targetText, currentContent, lineId, !isPlayerDialogue);
+            PlayCustomerDialogueTypewriterWithLayout(currentContent, lineId);
         }
 
         private bool IsDialogueTypewriterComplete(Text targetText, string fullText)
