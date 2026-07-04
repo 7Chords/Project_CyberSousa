@@ -5941,14 +5941,14 @@ MonoBehaviour:
   ease: 6
   useUnscaledTime: 1
   shakeRoot: {fileID: 224000000000101}
-  punchStrength: {x: 20, y: 10}
+  punchStrength: {x: 0, y: 6}
   vibrato: 12
   elasticity: 0.7
-  rotationPunch: {x: 0, y: 0, z: 3.5}
+  rotationPunch: {x: 0, y: 0, z: 0}
   rotationVibrato: 10
   cabinShakeMultiplier: 0.45
-  travelScaleMultiplier: 1.015
-  arrivePunchScale: 0.025
+  travelScaleMultiplier: 1
+  arrivePunchScale: 0
 --- !u!1 &7071557957912766985
 GameObject:
   m_ObjectHideFlags: 0
@@ -7413,14 +7413,14 @@ MonoBehaviour:
   ease: 6
   useUnscaledTime: 1
   shakeRoot: {fileID: 0}
-  punchStrength: {x: 20, y: 10}
+  punchStrength: {x: 0, y: 6}
   vibrato: 12
   elasticity: 0.7
-  rotationPunch: {x: 0, y: 0, z: 3.5}
+  rotationPunch: {x: 0, y: 0, z: 0}
   rotationVibrato: 10
   cabinShakeMultiplier: 0.45
-  travelScaleMultiplier: 1.015
-  arrivePunchScale: 0.025
+  travelScaleMultiplier: 1
+  arrivePunchScale: 0
 --- !u!1 &8668616376284275253
 GameObject:
   m_ObjectHideFlags: 0

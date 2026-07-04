@@ -10,14 +10,14 @@ namespace GameCore.UI
     public class UITravelShakeEffect : UIEffectBase
     {
         [SerializeField] private RectTransform shakeRoot;
-        [SerializeField] private Vector2 punchStrength = new Vector2(20f, 10f);
+        [SerializeField] private Vector2 punchStrength = new Vector2(0f, 6f);
         [SerializeField] private int vibrato = 12;
         [SerializeField] private float elasticity = 0.7f;
-        [SerializeField] private Vector3 rotationPunch = new Vector3(0f, 0f, 3.5f);
+        [SerializeField] private Vector3 rotationPunch = Vector3.zero;
         [SerializeField] private int rotationVibrato = 10;
         [SerializeField] [Range(0.1f, 1f)] private float cabinShakeMultiplier = 0.45f;
-        [SerializeField] private float travelScaleMultiplier = 1.015f;
-        [SerializeField] private float arrivePunchScale = 0.025f;
+        [SerializeField] private float travelScaleMultiplier = 1f;
+        [SerializeField] private float arrivePunchScale = 0f;
 
         private Vector2 _originAnchoredPos;
         private Quaternion _originRotation;
@@ -72,13 +72,20 @@ namespace GameCore.UI
 
             KillAllTweens();
             float actualDuration = Mathf.Max(0.1f, travelDuration);
-            Vector2 microPunchStrength = punchStrength * cabinShakeMultiplier;
-            Vector3 microRotationPunch = rotationPunch * cabinShakeMultiplier;
+            float verticalAmplitude = Mathf.Abs(punchStrength.y) * cabinShakeMultiplier;
+            int shakeCycleCount = Mathf.Max(2, vibrato);
             Sequence sequence = DOTween.Sequence();
-            sequence.Append(ShakeTarget.DOShakeAnchorPos(actualDuration, microPunchStrength, vibrato, 80f, false, true).SetEase(Ease.Linear));
-            sequence.Join(ShakeTarget.DOShakeRotation(actualDuration, microRotationPunch, rotationVibrato, 80f, true).SetEase(Ease.Linear));
-            sequence.Join(ShakeTarget.DOScale(_originScale * travelScaleMultiplier, actualDuration * 0.5f).SetLoops(2, LoopType.Yoyo).SetEase(Ease.InOutSine));
-            sequence.Append(ShakeTarget.DOPunchScale(Vector3.one * arrivePunchScale, 0.16f, 5, 0.35f).SetEase(Ease.OutQuad));
+            sequence.Append(DOTween.To(
+                    () => 0f,
+                    progress =>
+                    {
+                        float shakeOffset = Mathf.Sin(progress * shakeCycleCount * Mathf.PI * 2f) * verticalAmplitude;
+                        ShakeTarget.anchoredPosition = _originAnchoredPos + new Vector2(0f, shakeOffset);
+                    },
+                    1f,
+                    actualDuration)
+                .SetEase(Ease.Linear));
+            sequence.Append(ShakeTarget.DOAnchorPos(_originAnchoredPos, 0.08f).SetEase(Ease.OutSine));
             sequence.OnComplete(() =>
             {
                 ResetState();

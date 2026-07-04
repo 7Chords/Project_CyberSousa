@@ -23,7 +23,7 @@ namespace GameCore.Editor
             slidingDoorEffect.Setup(doorLeft, doorRight, 450f, 0.32f);
 
             UITravelShakeEffect travelShakeEffect = elevatorRoot.gameObject.AddComponent<UITravelShakeEffect>();
-            travelShakeEffect.Setup(0.55f, new Vector2(18f, 8f), new Vector3(0f, 0f, 3f));
+            travelShakeEffect.Setup(0.55f, new Vector2(0f, 6f), Vector3.zero);
 
             UIElevatorView elevatorView = elevatorRoot.gameObject.AddComponent<UIElevatorView>();
             elevatorView.Setup(elevatorRoot, doorLeft, doorRight, slidingDoorEffect, travelShakeEffect, parent);
