@@ -12,8 +12,8 @@ namespace GameCore.Editor
     {
         private const string PrefabAssetPath = "Assets/GameRes/UI/panel_ending.prefab";
         private const string WhiteSpriteAssetPath = "Assets/GameRes/UI/Generated/gameplay_main_white.png";
-        private const string BadEndingSpritePath = "Assets/GameRes/EndImage/ContinueWorkEnd.png";
-        private const string Ending1SpritePath = "Assets/GameRes/EndImage/RetirementEnd.png";
+        private const string BadEndingSpritePath = "Assets/GameRes/EndImage/RetirementEnd.png";
+        private const string Ending1SpritePath = "Assets/GameRes/EndImage/ContinueWorkEnd.png";
         private const string Ending2SpritePath = "Assets/GameRes/EndImage/MeiAnQueRenJianEnd.png";
 
         private static Font _defaultFont;

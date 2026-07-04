@@ -64,20 +64,20 @@ namespace GameCore.UI
                 yield break;
             }
 
-            for (int charCount = 1; charCount <= rawText.Length; charCount++)
-            {
-                if (targetText == null)
-                    yield break;
-
-                targetText.text = DialogueTextFormatter.PreventLineStartPunctuation(rawText.Substring(0, charCount));
-                PlayDialogueTextTickAnimation(targetText, rawText[charCount - 1]);
-                if (_playDialogueCharTickSfx)
-                    AudioMgr.instance.PlaySfx(AudioKeys.DialogueCharTick);
-                UpdateDialogueStripVisibility();
-                yield return new WaitForSecondsRealtime(DialogueTypewriterCharInterval);
-            }
+            yield return UITextTypewriterUtility.Play(targetText, rawText, DialogueTypewriterCharInterval, OnDialogueTypewriterCharShown);
 
             FinishDialogueTypewriter();
+        }
+
+        private void OnDialogueTypewriterCharShown(Text targetText, char currentChar)
+        {
+            if (targetText == null)
+                return;
+
+            PlayDialogueTextTickAnimation(targetText, currentChar);
+            if (_playDialogueCharTickSfx)
+                AudioMgr.instance.PlaySfx(AudioKeys.DialogueCharTick);
+            UpdateDialogueStripVisibility();
         }
 
         private bool TrySkipDialogueTypewriter()

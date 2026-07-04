@@ -790,8 +790,8 @@ MonoBehaviour:
   fadeInDuration: 0.2
   fadeOutDuration: 0.2
   imgEnding: {fileID: 7740325673163223448}
-  sprBadEnding: {fileID: 21300000, guid: 02ce3f6906ab74b27a786a0a3091741b, type: 3}
-  sprEnding1: {fileID: 21300000, guid: 20f7238cdd8274371b4d293bf1e048e3, type: 3}
+  sprBadEnding: {fileID: 21300000, guid: 20f7238cdd8274371b4d293bf1e048e3, type: 3}
+  sprEnding1: {fileID: 21300000, guid: 02ce3f6906ab74b27a786a0a3091741b, type: 3}
   sprEnding2: {fileID: 21300000, guid: 9fa25881fef47407691ad0adebb971ff, type: 3}
   txtSummary: {fileID: 5694756587898600486}
   btnReturnMain: {fileID: 7438229878193164516}
