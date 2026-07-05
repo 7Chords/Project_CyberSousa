@@ -161,7 +161,7 @@ namespace GameCore.UI
             }
 
             StringBuilder builder = new StringBuilder();
-            builder.Append(ruleRefData.ruleName);
+            builder.Append("<b>").Append(ruleRefData.ruleName).Append("</b>");
             if (!string.IsNullOrEmpty(ruleRefData.ruleDesc))
             {
                 builder.AppendLine();
