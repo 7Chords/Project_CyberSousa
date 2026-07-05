@@ -177,10 +177,10 @@ RectTransform:
   - {fileID: 1000000000000004001}
   m_Father: {fileID: 1000000000000000001}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.28, y: 0.18}
-  m_AnchorMax: {x: 0.72, y: 0.82}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 890.7256, y: 658.6351}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1000000000000002002
 CanvasRenderer:
@@ -366,10 +366,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 55a7465184c7e4c5fa09ddfe1c9a5163, type: 3}
-    m_FontSize: 23
+    m_FontSize: 40
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 3
     m_MaxSize: 40
     m_Alignment: 4
     m_AlignByGeometry: 0
@@ -377,8 +377,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: "\u5236\u4F5C\u56E2\u961F\n\n\u7B56\u5212 / \u7A0B\u5E8F / \u7F8E\u672F
-    / \u97F3\u9891\nCyberSousa Team\n\n\u611F\u8C22\u6E38\u73A9"
+  m_Text: "\u6842\u82B1 \u67D3\u8272\u4F53 \u4E03\u548C\u5F26 \u5927\u72D7 \u53EF\u9163
+    Shiro&Flans ophi dew\n\n\u611F\u8C22\u6E38\u73A9"
 --- !u!1 &1000000000000004000
 GameObject:
   m_ObjectHideFlags: 0
@@ -414,8 +414,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.34, y: 0.1}
   m_AnchorMax: {x: 0.66, y: 0.22}
-  m_AnchoredPosition: {x: 371.71002, y: 529.8553}
-  m_SizeDelta: {x: -168.96, y: 18.5695}
+  m_AnchoredPosition: {x: 396.25482, y: 505.31055}
+  m_SizeDelta: {x: -205.1, y: -1.7848}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1000000000000004002
 CanvasRenderer:
