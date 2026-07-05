@@ -105,6 +105,11 @@ namespace GameCore.UI
         {
             AudioMgr.instance.PlaySfx(AudioKeys.ButtonClick);
             SCDebugHelper.Log("退出游戏");
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         private void onBtnSettingClicked(PointerEventData arg1, object[] arg2)
