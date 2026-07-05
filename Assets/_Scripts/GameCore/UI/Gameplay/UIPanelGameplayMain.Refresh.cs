@@ -475,6 +475,7 @@ namespace GameCore.UI
         private void RefreshNumberButtonUi()
         {
             bool canSelectFloor = !_isDialogueRunning && !_canCloseDoor && !_isTransitionPlaying;
+            Color defaultButtonColor = new Color(0.89f, 0.89f, 0.89f, 1f);
             for (int index = 0; index < mono.numberButtons.Count; index++)
             {
                 Button button = mono.numberButtons[index];
@@ -483,14 +484,22 @@ namespace GameCore.UI
 
                 button.interactable = canSelectFloor;
                 Image buttonImage = button.GetComponent<Image>();
-                if (buttonImage == null)
-                    continue;
+                if (buttonImage != null)
+                    buttonImage.color = defaultButtonColor;
 
                 int floor = GetFloorFromButton(button);
-                buttonImage.color = floor == _selectedFloor
-                    ? new Color(0.74f, 0.88f, 0.76f, 1f)
-                    : new Color(0.89f, 0.89f, 0.89f, 1f);
+                SetFloorButtonHighlight(button, floor == _selectedFloor);
             }
+        }
+
+        private static void SetFloorButtonHighlight(Button button, bool highlighted)
+        {
+            if (button == null)
+                return;
+
+            Transform highlightTransform = button.transform.Find("go_highlight");
+            if (highlightTransform != null)
+                highlightTransform.gameObject.SetActive(highlighted);
         }
     }
 }
